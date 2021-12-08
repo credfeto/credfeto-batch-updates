@@ -61,21 +61,12 @@ echo "Path: ${PATH}"
 [ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
 
-cd ${WORK}
-
 [ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
 
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
-echo "Running: dotnet pwsh -file ${POWERSHELL} \
-     -repos ${REPOS_LIST} \
-     -work ${WORK} \
-     -templateRepo ${TEMPLATE}"
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}"
 
-dotnet pwsh -file ${POWERSHELL} \
-     -repos ${REPOS_LIST} \
-     -work ${WORK} \
-     -templateRepo ${TEMPLATE} \
-              > ${LOG_FILE} 2>&1
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
 echo "Done"

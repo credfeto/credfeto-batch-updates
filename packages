@@ -37,8 +37,8 @@ done
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
-LOG_FILE=${LOGS}/template.log
-LAST_LOG_FILE=${LOGS}/template.old
+LOG_FILE=${LOGS}/packages.log
+LAST_LOG_FILE=${LOGS}/packages.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 PACKAGES=${SCRIPT_DIR}/config/packages.json
@@ -60,15 +60,8 @@ echo "Path: ${PATH}"
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
-echo "Running: dotnet pwsh -file ${POWERSHELL} \
-     -repos ${REPOS_LIST} \
-     -work ${WORK} \
-     -packagesToUpdate ${PACKAGES}"
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES}"
 
-dotnet pwsh -file ${POWERSHELL} \
-     -repos ${REPOS_LIST} \
-     -work ${WORK} \
-     -packagesToUpdate ${PACKAGES} \
-              > ${LOG_FILE} 2>&1
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES} > ${LOG_FILE} 2>&1
 
 echo "Done"
