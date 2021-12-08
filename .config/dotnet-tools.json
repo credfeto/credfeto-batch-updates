@@ -7,6 +7,18 @@
       "commands": [
         "pwsh"
       ]
+    },
+    "credfeto.changelog.cmd": {
+      "version": "1.8.0.26",
+      "commands": [
+        "changelog"
+      ]
+    },
+    "funfair.buildversion": {
+      "version": "3.4.0.360",
+      "commands": [
+        "buildversion"
+      ]
     }
   }
 }
