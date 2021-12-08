@@ -17,7 +17,6 @@ shopt -s expand_aliases
 alias die='error_exit "Error $PROG (@`echo $(( $LINENO - 1 ))`):"'
 
 REPOS=
-TEMPLATE=
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -28,11 +27,6 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    -t|--template)
-      TEMPLATE="$2"
-      shift # past argument
-      shift # past value
-      ;;
     *)    # unknown option
       die "unknown argument $1"
       ;;
@@ -40,21 +34,20 @@ while [[ $# -gt 0 ]]; do
 done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
-[ -z "$TEMPLATE" ] && die "--template not specified"
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
-POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
-
+POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
+PACKAGES=${SCRIPT_DIR}/config/packages.json
 
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
 echo "Powershell: ${POWERSHELL}"
-echo "Template: ${TEMPLATE}"
+echo "Packages.json: ${PACKAGES}"
 
 echo "Path: ${PATH}"
 
@@ -64,6 +57,7 @@ echo "Path: ${PATH}"
 cd ${WORK}
 
 [ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
+[ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
 
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
@@ -71,5 +65,5 @@ cd ${WORK}
 dotnet pwsh -file ${POWERSHELL} \
      -repos ${REPOS_LIST} \
      -work ${WORK} \
-     -templateRepo ${TEMPLATE} \
+     -packagesToUpdate ${PACKAGES} \
               > ${LOG_FILE} 2>&1
