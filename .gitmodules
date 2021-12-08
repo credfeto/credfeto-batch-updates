@@ -1,0 +1,6 @@
+[submodule "config"]
+	path = config
+	url = git@github.com:credfeto/auto-update-config.git
+[submodule "scripts"]
+	path = scripts
+	url = git@github.com:credfeto/scripts.git
