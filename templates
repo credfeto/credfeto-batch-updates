@@ -68,7 +68,7 @@ cd ${WORK}
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
-pwsh -file ${POWERSHELL} \
+dotnet pwsh -file ${POWERSHELL} \
      -repos ${REPOS_LIST} \
      -work ${WORK} \
      -templateRepo ${TEMPLATE} \
