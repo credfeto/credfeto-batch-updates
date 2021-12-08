@@ -1,3 +1,21 @@
 version: 2
 updates:
 
+
+- package-ecosystem: gitsubmodule
+  directory: "/"
+  schedule:
+    interval: weekly
+  open-pull-requests-limit: 99
+  reviewers:
+  - credfeto
+  assignees:
+  - credfeto
+  commit-message:
+    prefix: "[FF-1429]"
+  rebase-strategy: "auto"
+  labels:
+  - "submodule"
+  - "dependencies"
+  - "Changelog Not Required"
+
