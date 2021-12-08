@@ -66,7 +66,8 @@ echo "Path: ${PATH}"
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
+echo "Changing to ${SCRIPT_DIR}"
+cd ${SCRIPT_DIR}
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}"
-
 dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
 echo "Done"
