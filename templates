@@ -17,6 +17,7 @@ shopt -s expand_aliases
 alias die='error_exit "Error $PROG (@`echo $(( $LINENO - 1 ))`):"'
 
 REPOS=
+TEMPLATE=
 
 while [[ $# -gt 0 ]]; do
   key="$1"
@@ -27,6 +28,11 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    -t|--template)
+      TEMPLATE="$2"
+      shift # past argument
+      shift # past value
+      ;;
     *)    # unknown option
       die "unknown argument $1"
       ;;
@@ -34,34 +40,37 @@ while [[ $# -gt 0 ]]; do
 done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
+[ -z "$TEMPLATE" ] && die "--template not specified"
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
-REPOS_LIST=${SCRIPT_DIR}/${REPOS}/repos.lst
+LOG_FILE=${LOGS}/template.log
+LAST_LOG_FILE=${LOGS}/template.old
+REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
+POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
+
 
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
-echo "Repos.lst : ${REPOS_LIST}"
+echo "Repos.lst: ${REPOS_LIST}"
+echo "Powershell: ${POWERSHELL}"
+echo "Template: ${TEMPLATE}"
+
+echo "Path: ${PATH}"
+
+[ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
+[ ! -d "${WORK}" ] && mkdir -p ${WORK}
+
+cd ${WORK}
+
+[ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
+
+[ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
+[ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
 die "Not ready"
 
-echo $PATH
-
-mkdir 
-
-cd /home/templateupdate/auto-update/template-update
-pwd
-
-mkdir funfair
-cd funfair
-
-rm /home/templateupdate/auto-update/logs/template.funfair.last.log
-mv /home/templateupdate/auto-update/logs/template.funfair.log /home/templateupdate/auto-update/logs/template.funfair.last.log
-
-
-pwsh -file /home/templateupdate/auto-update/scripts/powershell/UpdateFromTemplate.ps1 \
-     -repos /home/templateupdate/auto-update/auto-update-config/funfair/repos.lst \
-     -templateRepo git@github.com:funfair-tech/funfair-server-template.git \
-              > /home/templateupdate/auto-update/logs/template.funfair.log 2>&1
-
-
+pwsh -file ${POWERSHELL} \
+     -repos ${REPOS_LIST} \
+     -templateRepo ${TEMPLATE} \
+              > ${LOG_FILE} 2>&1
