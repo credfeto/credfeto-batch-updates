@@ -1,2 +1,3 @@
-# cs-template
-C# Template
+# credfeto-batch-updates
+
+Batch Update scripts
