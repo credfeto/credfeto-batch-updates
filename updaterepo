@@ -1,0 +1,34 @@
+#! /bin/bash
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+echo "Scripts: ${SCRIPT_DIR}"
+cd ${SCRIPT_DIR}
+
+echo "Getting latest config repo"
+# junk any existing checked out files
+git reset HEAD --hard
+git clean -f -x -d
+git checkout master
+git reset HEAD --hard
+git clean -f -x -d
+git fetch --recurse-submodules
+
+# NOTE Loses all local commits on master
+git reset --hard origin/master
+git remote update origin --prune
+git prune
+git gc --aggressive --prune
+
+echo "Updating Submodules"
+git submodule update --remote
+git add -A
+git commit -m"Updated Submodules"
+git push
+
+echo "Updating tools"
+dotnet tool restore
+dotnet tool list --local | awk '{ print $1 }' | tail +3 | xargs -I % sh -c 'dotnet tool update --local %;'
+dotnet tool restore
+git add -A
+git commit -m"Updated Dotnet Tools"
+git push
