@@ -3,4 +3,9 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 echo "Scripts: ${SCRIPT_DIR}"
 cd ${SCRIPT_DIR}
+
+echo "Getting latest config repo"
 git pull --recurse-submodules
+
+echo "Updating tools"
+dotnet tool restore
