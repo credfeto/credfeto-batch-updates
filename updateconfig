@@ -6,15 +6,15 @@ cd ${SCRIPT_DIR}
 
 echo "Fetching latest config repo"
 # junk any existing checked out files
-git reset HEAD --hard
+git reset HEAD --hard --recurse-submodules
 git clean -f -x -d
 git checkout master
-git reset HEAD --hard
+git reset HEAD --hard --recurse-submodules
 git clean -f -x -d
 git fetch --recurse-submodules
 
 # NOTE Loses all local commits on master
-git reset --hard origin/master
+git reset --hard origin/master --recurse-submodules
 git remote update origin --prune
 git prune
 git gc --aggressive --prune
