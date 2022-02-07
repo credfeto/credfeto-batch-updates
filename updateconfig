@@ -12,6 +12,8 @@ git checkout master
 
 echo "Getting latest config repo"
 git pull --recurse-submodules
+git submodule foreach "git fetch && git reset --hard origin/master"
+
 
 echo "Updating tools"
 dotnet tool restore
