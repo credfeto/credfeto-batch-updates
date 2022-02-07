@@ -1,4 +1,4 @@
-g#! /bin/bash
+#! /bin/bash
 
 PROG=$0
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
