@@ -9,7 +9,7 @@ echo "Fetching latest config repo"
 git clean -f -x -d
 
 echo "Getting latest config repo"
-git pull --recurse-submodules
+git pull
 git submodule foreach "git fetch && git reset --hard origin/master"
 
 
