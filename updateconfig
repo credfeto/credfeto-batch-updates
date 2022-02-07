@@ -6,9 +6,7 @@ cd ${SCRIPT_DIR}
 
 echo "Fetching latest config repo"
 # junk any existing checked out files
-git reset HEAD --hard --recurse-submodules
 git clean -f -x -d
-git checkout master
 
 echo "Getting latest config repo"
 git pull --recurse-submodules
