@@ -8,12 +8,12 @@ echo "Getting latest config repo"
 # junk any existing checked out files
 git reset HEAD --hard --recurse-submodules
 git clean -f -x -d
-git checkout master
+git checkout main
 git reset HEAD --hard --recurse-submodules
 git clean -f -x -d
 git fetch --recurse-submodules
 
-# NOTE Loses all local commits on master
+# NOTE Loses all local commits on main
 git reset --hard origin/master --recurse-submodules
 git remote update origin --prune
 git prune
