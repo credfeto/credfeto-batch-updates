@@ -52,8 +52,11 @@ POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 
 # OVERRIDE NUGET LOCATIONS
 [ -d "/zram" ] && NUGET_PACKAGES=/zram/.nuget/packages/${REPOS}/packages
+[ -d "/zram" ] && echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
 [ -d "/zram" ] && NUGET_HTTP_CACHE_PATH=/zram/.nuget/packages/${REPOS}/cache
+[ -d "/zram" ] && echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
 [ -d "/zram" ] && NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/packages/${REPOS}/plugins-cache
+[ -d "/zram" ] && echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
 [ -d "/zram" ] && dotnet tool restore
 
 echo "Work: ${WORK}"
