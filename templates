@@ -43,6 +43,7 @@ done
 [ -z "$TEMPLATE" ] && die "--template not specified"
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
+[ -d "/zram" ] && WORK=/zram/templateupdate/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old

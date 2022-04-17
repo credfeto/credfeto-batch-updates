@@ -36,6 +36,7 @@ done
 [ -z "$REPOS" ] && die "--repositories not specified"
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
+[ -d "/zram" ] && WORK=/zram/codecleanup/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/cleanup.log
 LAST_LOG_FILE=${LOGS}/cleanup.old
