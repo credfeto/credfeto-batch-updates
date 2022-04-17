@@ -36,7 +36,9 @@ done
 [ -z "$REPOS" ] && die "--repositories not specified"
 
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
+WORKTEMP=/tmp/codecleanup
 [ -d "/zram" ] && WORK=/zram/codecleanup/${REPOS}/
+[ -d "/zram" ] && WORKTEMP=/zram/.tmp/codecleanup${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/cleanup.log
 LAST_LOG_FILE=${LOGS}/cleanup.old
@@ -44,6 +46,7 @@ REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/CodeCleanup.ps1
 
 echo "Work: ${WORK}"
+echo "Temp: ${WORKTEMP}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
 echo "Powershell: ${POWERSHELL}"
@@ -52,6 +55,7 @@ echo "Path: ${PATH}"
 
 [ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
+[ ! -d "${WORKTEMP}" ] && mkdir -p ${WORKTEMP}
 
 [ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
 
@@ -60,6 +64,6 @@ echo "Path: ${PATH}"
 
 echo "Changing to ${SCRIPT_DIR}"
 cd ${SCRIPT_DIR}
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK}"
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} > ${LOG_FILE} 2>&1
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -tempFolder ${WORKTEMP}"
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -tempFolder ${WORKTEMP} > ${LOG_FILE} 2>&1
 echo "Done"
