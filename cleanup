@@ -35,9 +35,10 @@ done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
 
+TASKNAME=codecleanup
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 WORKTEMP=/tmp/codecleanup
-[ -d "/zram" ] && WORK=/zram/codecleanup/${REPOS}/
+[ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/
 [ -d "/zram" ] && WORKTEMP=/zram/.tmp/codecleanup/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/cleanup.log
@@ -47,11 +48,11 @@ POWERSHELL=${SCRIPT_DIR}/scripts/powershell/CodeCleanup.ps1
 
 # OVERRIDE NUGET LOCATIONS
 if [ -d "/zram" ] ; then
-  export NUGET_PACKAGES=/zram/.nuget/packages/${REPOS}/packages
+  export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
   echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
-  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/packages/${REPOS}/cache
+  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/cache
   echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
-  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/packages/${REPOS}/plugins-cache
+  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore
 fi

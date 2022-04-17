@@ -42,8 +42,9 @@ done
 [ -z "$REPOS" ] && die "--repositories not specified"
 [ -z "$TEMPLATE" ] && die "--template not specified"
 
+TASKNAME=templateupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
-[ -d "/zram" ] && WORK=/zram/templateupdate/${REPOS}/
+[ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/
 LOGS=${SCRIPT_DIR}/../logs/${REPOS}/
 LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old
@@ -52,11 +53,11 @@ POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 
 # OVERRIDE NUGET LOCATIONS
 if [ -d "/zram" ] ; then
-  export NUGET_PACKAGES=/zram/.nuget/packages/${REPOS}/packages
+  export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
   echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
-  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/packages/${REPOS}/cache
+  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/cache
   echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
-  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/packages/${REPOS}/plugins-cache
+  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore
 fi
