@@ -45,6 +45,11 @@ LAST_LOG_FILE=${LOGS}/cleanup.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/CodeCleanup.ps1
 
+# OVERRIDE NUGET LOCATIONS
+[ -d "/zram" ] && NUGET_PACKAGES=/zram/.nuget/packages/${REPOS}/packages
+[ -d "/zram" ] && NUGET_HTTP_CACHE_PATH=/zram/.nuget/packages/${REPOS}/cache
+[ -d "/zram" ] && NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/packages/${REPOS}/plugins-cache
+
 echo "Work: ${WORK}"
 echo "Temp: ${WORKTEMP}"
 echo "Logs: ${LOGS}"
