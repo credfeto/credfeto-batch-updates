@@ -54,7 +54,7 @@ POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 [ -d "/zram" ] && NUGET_PACKAGES=/zram/.nuget/packages/${REPOS}/packages
 [ -d "/zram" ] && NUGET_HTTP_CACHE_PATH=/zram/.nuget/packages/${REPOS}/cache
 [ -d "/zram" ] && NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/packages/${REPOS}/plugins-cache
-
+[ -d "/zram" ] && dotnet tool restore
 
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
