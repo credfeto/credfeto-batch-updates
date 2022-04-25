@@ -59,7 +59,7 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
   export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
-  dotnet tool restore --verbosity default > > ${LOG_FILE}.install
+  dotnet tool restore --verbosity default > "${LOG_FILE}.install"
 fi
 
 echo "Work: ${WORK}"
