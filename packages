@@ -53,7 +53,7 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
   export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
-  dotnet tool restore --verbosity default > "${LOG_FILE}.install"
+  dotnet tool restore --verbosity default > "${LOG_FILE}.install" 2>&1
 fi
 
 echo "Work: ${WORK}"
@@ -75,6 +75,11 @@ echo "Path: ${PATH}"
 
 echo "Changing to ${SCRIPT_DIR}"
 cd ${SCRIPT_DIR}
+dotnet tool restore --verbosity default >> "${LOG_FILE}.install" 2>&1
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES}"
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES} > ${LOG_FILE} 2>&1
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES}" > ${LOG_FILE}
+echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
+echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
+echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -packagesToUpdate ${PACKAGES} >> ${LOG_FILE} 2>&1
 echo "Done"
