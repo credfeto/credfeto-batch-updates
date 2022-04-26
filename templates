@@ -51,17 +51,6 @@ LAST_LOG_FILE=${LOGS}/template.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 
-# OVERRIDE NUGET LOCATIONS
-if [ -d "/zram" ] ; then
-  export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
-  echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
-  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/cache
-  echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
-  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
-  echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
-  dotnet tool restore --verbosity detailed > "${LOG_FILE}.install" 2>&1
-fi
-
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
@@ -80,7 +69,18 @@ echo "Path: ${PATH}"
 
 echo "Changing to ${SCRIPT_DIR}"
 cd ${SCRIPT_DIR}
-dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
+
+# OVERRIDE NUGET LOCATIONS
+dotnet tool restore --verbosity detailed > "${LOG_FILE}.install" 2>&1
+if [ -d "/zram" ] ; then
+  export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
+  echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
+  export NUGET_HTTP_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/cache
+  echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
+  export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
+  echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
+  dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
+fi
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
