@@ -1,0 +1,20 @@
+#! /bin/bash
+
+USERNAME=$(whoami)
+
+echo "Running as $USERNAME"
+
+WORK=~/
+[ -d "/zram" ] && WORK=/zram/$USERNAME/settings
+
+echo "Settings folder: $WORK"
+
+[ ! -d "${WORK}" ] && mkdir -p ${WORK}
+
+REPOFOLDER=$WORK/credfeto-batch-updates
+echo "Repo: $REPOFOLDER"
+
+[ ! -d "${REPOFOLDER}" ] && git clone git@github.com:credfeto/credfeto-batch-updates.git "$REPOFOLDER" --recurse-submodules
+
+bash "$REPOFOLDER/updateconfig"
+
