@@ -66,6 +66,13 @@ echo "Path: ${PATH}"
 echo "Changing to ${SCRIPT_DIR}"
 cd ${SCRIPT_DIR}
 
+# UPDATE DOTNET SETTINGS
+export DOTNET_NOLOGO=true
+export DOTNET_PRINT_TELEMETRY_MESSAGE=false
+export DOTNET_ReadyToRun=0
+export DOTNET_TC_QuickJitForLoops=1
+export DOTNET_TieredPGO=1
+
 # OVERRIDE NUGET LOCATIONS
 dotnet tool restore --verbosity detailed > "${LOG_FILE}.install" 2>&1
 if [ -d "/zram" ] ; then
