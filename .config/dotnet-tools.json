@@ -19,6 +19,12 @@
       "commands": [
         "buildversion"
       ]
+    },
+    "credfeto.package.update": {
+      "version": "1.9.0.32",
+      "commands": [
+        "updatepackages"
+      ]
     }
   }
 }
