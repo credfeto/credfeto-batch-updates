@@ -15,7 +15,7 @@
       ]
     },
     "funfair.buildversion": {
-      "version": "3.4.0.401",
+      "version": "6.1.0.817",
       "commands": [
         "buildversion"
       ]
