@@ -9,7 +9,7 @@
       ]
     },
     "credfeto.changelog.cmd": {
-      "version": "1.8.3.31",
+      "version": "1.10.0.36",
       "commands": [
         "changelog"
       ]
