@@ -62,6 +62,7 @@ echo "Path: ${PATH}"
 [ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
 
+[ ! -f "${POWERSHELL}" ] && die "${POWERSHELL} does not exist"
 [ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
 
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
