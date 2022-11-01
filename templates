@@ -88,10 +88,10 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
 echo "Done"
