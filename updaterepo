@@ -26,7 +26,9 @@ git commit -m"Updated Submodules"
 git push
 
 echo "Updating tools"
+dotnet nuget locals http-cache --clear
 dotnet tool restore
+dotnet nuget locals http-cache --clear
 dotnet tool list --local | awk '{ print $1 }' | tail +3 | xargs -I % sh -c 'dotnet tool update --local %;'
 dotnet tool restore
 git add -A
