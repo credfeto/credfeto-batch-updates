@@ -21,7 +21,7 @@
       ]
     },
     "credfeto.package.update": {
-      "version": "1.10.0.34",
+      "version": "1.10.0.35",
       "commands": [
         "updatepackages"
       ]
