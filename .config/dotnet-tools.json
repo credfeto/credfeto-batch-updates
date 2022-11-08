@@ -20,6 +20,12 @@
         "buildversion"
       ]
     },
+    "funfair.buildcheck": {
+      "version": "6.3.0.1162",
+      "commands": [
+        "buildcheck"
+      ]
+    },
     "credfeto.package.update": {
       "version": "1.10.0.35",
       "commands": [
