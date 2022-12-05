@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "powershell": {
-      "version": "7.2.7",
+      "version": "7.3.0",
       "commands": [
         "pwsh"
       ]
@@ -15,19 +15,19 @@
       ]
     },
     "funfair.buildversion": {
-      "version": "6.1.0.817",
+      "version": "6.2.0.963",
       "commands": [
         "buildversion"
       ]
     },
     "funfair.buildcheck": {
-      "version": "6.3.0.1162",
+      "version": "473.0.0",
       "commands": [
         "buildcheck"
       ]
     },
     "credfeto.package.update": {
-      "version": "1.10.0.35",
+      "version": "1.10.2.37",
       "commands": [
         "updatepackages"
       ]
