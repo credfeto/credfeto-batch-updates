@@ -90,7 +90,10 @@ if [ -d "/zram" ] ; then
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
 
-[ -f "${LAST_PACKAGE_CACHE}" ] && dotnet pwsh ./UpdatePackagesBuildCache.ps1 -work "${WORK} -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update"
+if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
+  echo "Attempting to pre-populate cache with all used packages"
+  dotnet pwsh ./UpdatePackagesBuildCache.ps1 -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update"
+fi
 
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > ${LOG_FILE}
