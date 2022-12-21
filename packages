@@ -38,17 +38,21 @@ done
 TASKNAME=packageupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 [ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/
+
 LOGS=~/logs/${REPOS}/
 LOG_BASE=${LOGS}packages
 TRACE_LOG=${LOG_BASE}.trace
 LOG_FILE=${LOG_BASE}.log
 LAST_LOG_FILE=${LOG_BASE}.old
+
+PACKAGE_CACHE_BASE=~/logs/${REPOS}/cache
+PACKAGE_CACHE=${PACKAGE_CACHE_BASE}.json
+LAST_PACKAGE_CACHE=${PACKAGE_CACHE_BASE}.old
+
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
 PACKAGES=${SCRIPT_DIR}/config/packages.json
-PACKAGE_CACHE=~/logs/${REPOS}/cache.json
-LAST_PACKAGE_CACHE=~/logs/${REPOS}/cache.old
 
 date > "${TRACE_LOG}"
 echo "Work: ${WORK}" >> "${TRACE_LOG}"
