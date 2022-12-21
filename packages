@@ -43,6 +43,7 @@ LOG_FILE=${LOGS}/packages.log
 LAST_LOG_FILE=${LOGS}/packages.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
+POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
 PACKAGES=${SCRIPT_DIR}/config/packages.json
 PACKAGE_CACHE=~/logs/${REPOS}/cache.json
 LAST_PACKAGE_CACHE=~/logs/${REPOS}/cache.old
@@ -92,14 +93,15 @@ fi
 
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
   echo "Attempting to pre-populate cache with all used packages"
-  dotnet pwsh ./UpdatePackagesBuildCache.ps1 -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update"
+  dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update" 2>&1
 fi
 
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > ${LOG_FILE}
-echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
-echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
-echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES} >> ${LOG_FILE} 2>&1
-dotnet build-server shutdown
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > "${LOG_FILE}"
+echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> "${LOG_FILE}"
+echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> "${LOG_FILE}"
+echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${LOG_FILE}"
+dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
+
+dotnet build-server shutdown > "${LOG_FILE}.build-server" 2>&1
 echo "Done"
