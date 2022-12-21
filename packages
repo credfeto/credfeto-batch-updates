@@ -99,6 +99,7 @@ fi
 
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
   echo "Attempting to pre-populate cache with all used packages" >> "${TRACE_LOG}"
+  echo "dotnet pwsh -file ${POWERSHELL_CACHE} -work ${WORK} -packageCacheToRead ${LAST_PACKAGE_CACHE} -packageCacheToWrite ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
   dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update" 2>&1
 fi
 
