@@ -8,10 +8,10 @@
         "pwsh"
       ]
     },
-    "credfeto.changelog.cmd": {
-      "version": "1.10.0.36",
+    "funfair.buildcheck": {
+      "version": "6.3.3.1209",
       "commands": [
-        "changelog"
+        "buildcheck"
       ]
     },
     "funfair.buildversion": {
@@ -20,10 +20,10 @@
         "buildversion"
       ]
     },
-    "funfair.buildcheck": {
-      "version": "473.0.0",
+    "credfeto.changelog.cmd": {
+      "version": "1.10.0.36",
       "commands": [
-        "buildcheck"
+        "changelog"
       ]
     },
     "credfeto.package.update": {
