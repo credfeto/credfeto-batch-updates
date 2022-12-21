@@ -89,6 +89,9 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
+
+[ -f "${LAST_PACKAGE_CACHE}" ] && dotnet pwsh ./UpdatePackagesBuildCache.ps1 -work "${WORK} -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOGFILE}.cache-update"
+
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
