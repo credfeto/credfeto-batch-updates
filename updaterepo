@@ -31,13 +31,11 @@ dotnet tool restore
 dotnet nuget locals http-cache --clear
 dotnet tool list --local | awk '{ print $1 }' | tail +3 | xargs -I % sh -c 'dotnet tool update --local %;'
 
-if [[ "$(dotnet tool list --local | grep buildcheck | awk '{ print $2 }')" == "473.0.0" ]] ;
-  dotnet tool uninstall --local funfair.buildversion
-  dotnet tool install --local funfair.builversion
-fi
-
-[[ "$(dotnet tool list --local | grep buildcheck | awk '{ print $2 }')" == "473.0.0" ]] && echo "Found crap version of funfair.buildversion"
-[[ "$(dotnet tool list --local | grep buildcheck | awk '{ print $2 }')" == "473.0.0" ]] && git reset HEAD --hard
+echo "Ensuring Required Tools are installed"
+dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildCheck"
+dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildVersion"
+dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Changelog.Cmd"
+dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Package.Update"
 
 dotnet tool restore
 git add -A

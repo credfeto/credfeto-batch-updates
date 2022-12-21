@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "powershell": {
-      "version": "7.3.0",
+      "version": "7.3.1",
       "commands": [
         "pwsh"
       ]
@@ -27,7 +27,7 @@
       ]
     },
     "credfeto.package.update": {
-      "version": "1.10.2.37",
+      "version": "1.10.6.41",
       "commands": [
         "updatepackages"
       ]
