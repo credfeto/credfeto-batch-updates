@@ -42,6 +42,8 @@ done
 [ -z "$REPOS" ] && die "--repositories not specified"
 [ -z "$TEMPLATE" ] && die "--template not specified"
 
+source $SCRIPT_DIR/setup-local-dotnet
+
 TASKNAME=templateupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 [ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/

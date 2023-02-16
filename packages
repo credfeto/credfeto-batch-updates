@@ -35,6 +35,8 @@ done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
 
+source $SCRIPT_DIR/setup-local-dotnet
+
 TASKNAME=packageupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 [ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/

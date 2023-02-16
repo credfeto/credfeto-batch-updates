@@ -1,0 +1,21 @@
+#! /bin/sh
+
+USERNAME=$(whoami)
+
+echo "Running as $USERNAME"
+
+DOTNETINSTALLFOLDER=/zram/$USERNAME/dotnet
+DOTNETINSTALLSCRIPT=/zram/$USERNAME/dotnet-install.sh
+
+if [ -d "$DOTNETINSTALLFOLDER" ] ; then
+
+ echo "Configure dotnet environment"
+ export PATH="$PATH:/zram/$USERNAME/dotnet"
+ export PATH="$PATH:/zram/$USERNAME/.dotnet/tools"
+ export DOTNET_ROOT=/zram/$USERNAME/dotnet
+ export DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
+ export DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
+
+
+fi
+

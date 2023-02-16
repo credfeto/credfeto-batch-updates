@@ -35,6 +35,8 @@ done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
 
+source $SCRIPT_DIR/setup-local-dotnet
+
 TASKNAME=codecleanup
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
 WORKTEMP=/tmp/codecleanup
