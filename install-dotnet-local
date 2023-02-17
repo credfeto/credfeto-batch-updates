@@ -38,4 +38,4 @@ dotnet tool install --local PowerShell
 dotnet tool update --local PowerShell
 popd
 
-touch zram/$USERNAME/dotnet.ready
+touch /zram/$USERNAME/dotnet.ready
