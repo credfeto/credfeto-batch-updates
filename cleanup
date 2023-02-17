@@ -35,6 +35,8 @@ done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
 
+[ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
+
 source $SCRIPT_DIR/setup-local-dotnet
 
 TASKNAME=codecleanup
