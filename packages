@@ -65,6 +65,7 @@ PACKAGES=${SCRIPT_DIR}/config/packages.json
 
 date > "${TRACE_LOG}"
 echo "Work: ${WORK}" >> "${TRACE_LOG}"
+echo "Temp: ${WORKTEMP}" >> "${TRACE_LOG}"
 echo "Logs: ${LOGS}" >> "${TRACE_LOG}"
 echo "Repos.lst: ${REPOS_LIST}" >> "${TRACE_LOG}"
 echo "Powershell: ${POWERSHELL}" >> "${TRACE_LOG}"
