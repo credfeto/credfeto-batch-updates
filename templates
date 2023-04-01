@@ -54,7 +54,7 @@ LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
-
+SET WORKTMP=/tmp/${TASKNAME}/${REPOS}
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
@@ -85,6 +85,8 @@ export DOTNET_TieredPGO=1
 # OVERRIDE NUGET LOCATIONS
 dotnet tool restore --verbosity detailed > "${LOG_FILE}.install" 2>&1
 if [ -d "/zram" ] ; then
+  [ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
+
   export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
   echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}"
   export NUGET_HTTP_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/cache
@@ -93,6 +95,10 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
+
+mkdir -p "$WORKTMP"
+export TMPDIR=$WORKTMP
+
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
