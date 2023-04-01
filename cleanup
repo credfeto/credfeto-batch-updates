@@ -58,6 +58,8 @@ echo "Powershell: ${POWERSHELL}"
 
 echo "Path: ${PATH}"
 
+export TMPDIR="${WORKTEMP}"
+
 [ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
 [ ! -d "${WORKTEMP}" ] && mkdir -p ${WORKTEMP}
