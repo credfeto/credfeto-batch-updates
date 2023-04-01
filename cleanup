@@ -41,9 +41,9 @@ source $SCRIPT_DIR/setup-local-dotnet
 
 TASKNAME=codecleanup
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
-WORKTEMP=/tmp/codecleanup
+WORKTEMP=/tmp/${TASKNAME}
 [ -d "/zram" ] && WORK=/zram/${TASKNAME}/${REPOS}/
-[ -d "/zram" ] && WORKTEMP=/zram/.tmp/codecleanup/${REPOS}/
+[ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
 LOGS=~/logs/${REPOS}/
 LOG_FILE=${LOGS}/cleanup.log
 LAST_LOG_FILE=${LOGS}/cleanup.old
