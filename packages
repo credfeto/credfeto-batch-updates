@@ -89,11 +89,13 @@ export DOTNET_PRINT_TELEMETRY_MESSAGE=false
 export DOTNET_ReadyToRun=0
 export DOTNET_TC_QuickJitForLoops=1
 export DOTNET_TieredPGO=1
-
+export WORKTMP=/tmp/packageupdate/${REPOS}
 echo "OVERRIDE NUGET LOCATIONS" >> "${TRACE_LOG}"
 echo "Using default locations and restoring" >> "${LOG_BASE}.install"
 dotnet tool restore --verbosity detailed > "${LOG_BASE}.install" 2>&1
 if [ -d "/zram" ] ; then
+  [ -d "/zram" ] && WORKTEMP=/zram/.tmp/packageupdate/${REPOS}/
+
   export NUGET_PACKAGES=/zram/.nuget/${TASKNAME}/${REPOS}/packages
   echo "Updating NUGET_PACKAGES to ${NUGET_PACKAGES}" >> "${TRACE_LOG}"
 
@@ -106,6 +108,9 @@ if [ -d "/zram" ] ; then
   echo "Using overridden locations and restoring" >> "${LOG_BASE}.install"
   dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
 fi
+
+mkdir -p "$WORKTMP"
+export TMPDIR=$WORKTMP
 
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
   echo "Attempting to pre-populate cache with all used packages" >> "${TRACE_LOG}"
