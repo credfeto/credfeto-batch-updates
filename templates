@@ -54,7 +54,11 @@ LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
-SET WORKTMP=/tmp/${TASKNAME}/${REPOS}
+WORKTEMP=/tmp/${TASKNAME}/${REPOS}
+[ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
+[ ! -d "$WORKTEMP" ] && mkdir -p "$WORKTEMP"
+export TMPDIR=$WORKTEMP
+
 echo "Work: ${WORK}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
