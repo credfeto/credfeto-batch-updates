@@ -60,6 +60,7 @@ WORKTEMP=/tmp/${TASKNAME}/${REPOS}
 export TMPDIR=$WORKTEMP
 
 echo "Work: ${WORK}"
+echo "Temp: ${WORKTEMP}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
 echo "Powershell: ${POWERSHELL}"
