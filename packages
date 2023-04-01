@@ -53,6 +53,11 @@ PACKAGE_CACHE_BASE=~/logs/${REPOS}/cache
 PACKAGE_CACHE=${PACKAGE_CACHE_BASE}.json
 LAST_PACKAGE_CACHE=${PACKAGE_CACHE_BASE}.old
 
+WORKTEMP=/tmp/packageupdate/${REPOS}
+[ -d "/zram" ] && WORKTEMP=/zram/.tmp/packageupdate/${REPOS}/
+[ ! -d "$WORKTEMP" ] && mkdir -p "$WORKTEMP"
+export TMPDIR=$WORKTEMP
+
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
