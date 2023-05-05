@@ -1,4 +1,5 @@
-#! /bin/bash
+#! /bin/sh
+
 DIR=$( dirname "${BASH_SOURCE[0]}" )
 SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
