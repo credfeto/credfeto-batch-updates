@@ -21,7 +21,7 @@ chmod +x "$DOTNETINSTALLSCRIPT"
 echo "Update to latest dotnet core"
 $DOTNETINSTALLSCRIPT --install-dir "$DOTNETINSTALLFOLDER" -channel 6.0
 $DOTNETINSTALLSCRIPT --install-dir "$DOTNETINSTALLFOLDER" -channel 7.0
-#$DOTNETINSTALLSCRIPT --install-dir "$DOTNETINSTALLFOLDER" -channel 8.0
+$DOTNETINSTALLSCRIPT --install-dir "$DOTNETINSTALLFOLDER" -channel 8.0
 
 
 echo "Configure dotnet environment"
