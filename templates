@@ -12,7 +12,7 @@ die() {
 REPOS=
 TEMPLATE=
 
-while [[ $# -gt 0 ]]; do
+while [ $# -gt 0 ]; do
   key="$1"
 
   case $key in
@@ -37,7 +37,7 @@ done
 
 [ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
 
-source $SCRIPT_DIR/setup-local-dotnet
+. "${SCRIPT_DIR}/setup-local-dotnet"
 
 TASKNAME=templateupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
