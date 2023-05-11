@@ -1,6 +1,5 @@
 #! /bin/sh
 
-DIR=$( dirname "${BASH_SOURCE[0]}" )
-SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+SCRIPT_DIR="$( cd -- "$( dirname -- "$0}" )" &> /dev/null && pwd )"
 
-echo ${SCRIPT_DIR}
+echo "${SCRIPT_DIR}"

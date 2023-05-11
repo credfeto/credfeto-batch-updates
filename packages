@@ -30,7 +30,7 @@ done
 
 [ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
 
-source $SCRIPT_DIR/setup-local-dotnet
+. "${SCRIPT_DIR}/setup-local-dotnet"
 
 TASKNAME=packageupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/

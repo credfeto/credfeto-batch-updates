@@ -32,10 +32,11 @@ export DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
 export DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
 
 echo "Install/update powershell"
-pushd /zram/packageupdate/
+CD=$PWD
+cd /zram/packageupdate/
 /zram/packageupdate/dotnet/dotnet new tool-manifest -o /zram/packageupdate/
 dotnet tool install --local PowerShell
 dotnet tool update --local PowerShell
-popd
+cd "$CD"
 
 touch /zram/$USERNAME/dotnet.ready
