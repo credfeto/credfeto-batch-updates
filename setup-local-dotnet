@@ -13,7 +13,7 @@ if [ -d "$DOTNETINSTALLFOLDER" ] ; then
  export PATH="$PATH:/zram/$USERNAME/dotnet"
  export PATH="$PATH:/zram/$USERNAME/.dotnet/tools"
  export DOTNET_ROOT=/zram/$USERNAME/dotnet
- export DOTNET_INSTALL_DIR=/zram/$USERNAMEdotnet
+ export DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
  export DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
 
 
