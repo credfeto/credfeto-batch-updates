@@ -10,11 +10,17 @@ DOTNETINSTALLSCRIPT=/zram/$USERNAME/dotnet-install.sh
 if [ -d "$DOTNETINSTALLFOLDER" ] ; then
 
  echo "Configure dotnet environment"
- export PATH="$PATH:/zram/$USERNAME/dotnet"
- export PATH="$PATH:/zram/$USERNAME/.dotnet/tools"
- export DOTNET_ROOT=/zram/$USERNAME/dotnet
- export DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
- export DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
+ PATH="$PATH:/zram/$USERNAME/dotnet"
+ PATH="$PATH:/zram/$USERNAME/.dotnet/tools"
+ DOTNET_ROOT=/zram/$USERNAME/dotnet
+ DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
+ DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
+
+ export PATH
+ export DOTNET_ROOT
+ export DOTNET_INSTALL_DIR
+
+ echo "PATH: $PATH"
 
 
 fi
