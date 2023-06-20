@@ -1,23 +1,17 @@
 #! /bin/sh
 
-SECTION=$1
 USERNAME=$(whoami)
-
-if [ ! -z "$SECTION" ] ; then
- echo "Section not defined!"
- exit -1 
-fi
 
 echo "Running as $USERNAME"
 
 DOTNETINSTALLFOLDER="/zram/$USERNAME/$otnet"
-DOTNETINSTALLSCRIPT=/zram/$USERNAME/$SECTION/dotnet-install.sh
+DOTNETINSTALLSCRIPT=/zram/$USERNAME/dotnet-install.sh
 
 if [ -d "$DOTNETINSTALLFOLDER" ] ; then
 
  echo "Configure dotnet environment"
  export PATH="$PATH:/zram/$USERNAME/dotnet"
- export PATH="$PATH:/zram/$USERNAME/$SECTION/.dotnet/tools"
+ export PATH="$PATH:/zram/$USERNAME/.dotnet/tools"
  export DOTNET_ROOT=/zram/$USERNAME/dotnet
  export DOTNET_INSTALL_DIR=/zram/$USERNAMEdotnet
  export DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
