@@ -99,7 +99,7 @@ fi
 mkdir -p "$WORKTMP"
 export TMPDIR=$WORKTMP
 
-dotnet too list >> "${LOG_FILE}.install" 2>&1
+dotnet tool list >> "${LOG_FILE}.install" 2>&1
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
