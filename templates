@@ -39,7 +39,7 @@ done
 
 [ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
 
-. "${SCRIPT_DIR}/setup-local-dotnet" "${REPOS}"
+. "${SCRIPT_DIR}/setup-local-dotnet"
 
 TASKNAME=templateupdate
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
