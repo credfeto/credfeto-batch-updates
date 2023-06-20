@@ -39,4 +39,11 @@ dotnet tool install --local PowerShell
 dotnet tool update --local PowerShell
 cd "$CD"
 
+echo "Ensuring Required Tools are installed"
+dotnet tool install --local FunFair.BuildCheck
+dotnet tool install --local FunFair.BuildVersion
+dotnet tool install --local Credfeto.Changelog.Cmd
+dotnet tool install --local Credfeto.Package.Update
+dotnet tool install --local JetBrains.ReSharper.GlobalTools
+
 touch /zram/$USERNAME/dotnet.ready
