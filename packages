@@ -81,7 +81,7 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 [ -f "${PACKAGE_CACHE}" ] && mv ${PACKAGE_CACHE} ${LAST_PACKAGE_CACHE}
 
 echo "Changing to ${SCRIPT_DIR}" >> "${TRACE_LOG}"
-cd ${SCRIPT_DIR}
+cd "${SCRIPT_DIR}"
 
 echo "UPDATE DOTNET SETTINGS" >> "${TRACE_LOG}"
 export DOTNET_NOLOGO=true
@@ -112,18 +112,21 @@ if [ -d "/zram" ] ; then
 fi
 
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
+  dotnet tool list >> "${LOG_FILE}.install" 2>&1
   echo "Attempting to pre-populate cache with all used packages" >> "${TRACE_LOG}"
   echo "dotnet pwsh -file ${POWERSHELL_CACHE} -work ${WORK} -packageCacheToRead ${LAST_PACKAGE_CACHE} -packageCacheToWrite ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
   dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOG_BASE}.cache-update" 2>&1
+else
+    dotnet tool list >> "${LOG_FILE}.install" 2>&1
 fi
 
-dotnet tool list >> "${LOG_FILE}.install" 2>&1
+dotnet tool list
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > "${LOG_FILE}"
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> "${LOG_FILE}"
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> "${LOG_FILE}"
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${LOG_FILE}"
-cd ${SCRIPT_DIR}
+cd "${SCRIPT_DIR}"
 dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
 
 echo "Kill Build Server" >> "${TRACE_LOG}"
