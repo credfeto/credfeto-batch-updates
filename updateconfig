@@ -12,3 +12,7 @@ git reset HEAD --hard
 echo "Getting latest config repo"
 git pull --recurse-submodules
 git submodule update --init --force --remote
+
+echo "Setting up dotnet"
+. "${SCRIPT_DIR}/setup-local-dotnet"
+
