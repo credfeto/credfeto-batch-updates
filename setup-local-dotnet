@@ -19,7 +19,7 @@ if [ -d "$DOTNETINSTALLFOLDER" ] ; then
 
 fi
 
-PWDOLD="$(PWD)"
+PWDOLD="$PWD"
 cd "/zram/$USERNAME"
 dotnet tool restore
-[ ! -z "$PWDOLD" ] $$ cd "$PWDOLD"
+[ ! -z "$PWDOLD" ] && cd "$PWDOLD"
