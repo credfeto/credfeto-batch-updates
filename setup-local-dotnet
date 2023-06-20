@@ -4,7 +4,7 @@ USERNAME=$(whoami)
 
 echo "Running as $USERNAME"
 
-DOTNETINSTALLFOLDER="/zram/$USERNAME/$otnet"
+DOTNETINSTALLFOLDER="/zram/$USERNAME/dotnet"
 DOTNETINSTALLSCRIPT=/zram/$USERNAME/dotnet-install.sh
 
 if [ -d "$DOTNETINSTALLFOLDER" ] ; then
@@ -19,3 +19,4 @@ if [ -d "$DOTNETINSTALLFOLDER" ] ; then
 
 fi
 
+dotnet tool restore
