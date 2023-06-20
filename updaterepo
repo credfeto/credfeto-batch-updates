@@ -36,6 +36,7 @@ dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildCheck"
 dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildVersion"
 dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Changelog.Cmd"
 dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Package.Update"
+dotnet pwsh scripts/powershell/ToolInstall.ps1 "JetBrains.ReSharper.GlobalTools"
 
 dotnet tool restore
 git add -A
