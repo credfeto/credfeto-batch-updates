@@ -142,3 +142,4 @@ echo "Kill Build Server" >> "${TRACE_LOG}"
 dotnet build-server shutdown > "${LOG_BASE}.build-server" 2>&1
 
 echo "Done" >> "${TRACE_LOG}"
+echo "Done"
