@@ -31,6 +31,11 @@ dotnet tool restore
 dotnet nuget locals http-cache --clear
 dotnet tool list --local | awk '{ print $1 }' | tail +3 | xargs -I % sh -c 'dotnet tool update --local %;'
 
+echo "Reinstall powershell"
+dotnet tool uninstall --local PowerShell
+dotnet tool install --local PowerShell
+
+
 echo "Ensuring Required Tools are installed"
 dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildCheck"
 dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildVersion"
