@@ -123,7 +123,7 @@ echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> "${LOG_FILE}"
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> "${LOG_FILE}"
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${LOG_FILE}"
-cd "$WORK"
+cd ${SCRIPT_DIR}
 dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
 
 echo "Kill Build Server" >> "${TRACE_LOG}"
