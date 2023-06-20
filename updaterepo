@@ -24,26 +24,3 @@ git submodule update --remote
 git add -A
 git commit -m"Updated Submodules"
 git push
-
-echo "Updating tools"
-dotnet nuget locals http-cache --clear
-dotnet tool restore
-dotnet nuget locals http-cache --clear
-dotnet tool list --local | awk '{ print $1 }' | tail +3 | xargs -I % sh -c 'dotnet tool update --local %;'
-
-echo "Reinstall powershell"
-dotnet tool uninstall --local PowerShell
-dotnet tool install --local PowerShell
-
-
-echo "Ensuring Required Tools are installed"
-dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildCheck"
-dotnet pwsh scripts/powershell/ToolInstall.ps1 "FunFair.BuildVersion"
-dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Changelog.Cmd"
-dotnet pwsh scripts/powershell/ToolInstall.ps1 "Credfeto.Package.Update"
-dotnet pwsh scripts/powershell/ToolInstall.ps1 "JetBrains.ReSharper.GlobalTools"
-
-dotnet tool restore
-git add -A
-git commit -m"Updated Dotnet Tools"
-git push
