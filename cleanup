@@ -86,7 +86,7 @@ if [ -d "/zram" ] ; then
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
 
-dotnet too list >> "${LOG_FILE}.install" 2>&1
+dotnet tool list >> "${LOG_FILE}.install" 2>&1
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -tempFolder ${WORKTEMP}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -tempFolder ${WORKTEMP}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
