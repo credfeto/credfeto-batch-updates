@@ -31,7 +31,7 @@ done
 
 [ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
 
-. "${SCRIPT_DIR}/setup-local-dotnet"
+. "${SCRIPT_DIR}/setup-local-dotnet" "${REPOS}"
 
 TASKNAME=codecleanup
 WORK=${SCRIPT_DIR}/../work/${REPOS}/
