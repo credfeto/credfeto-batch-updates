@@ -47,6 +47,8 @@ WORK=${SCRIPT_DIR}/../work/${REPOS}/
 LOGS=~/logs/${REPOS}/
 LOG_FILE=${LOGS}/template.log
 LAST_LOG_FILE=${LOGS}/template.old
+RELEASE_LOG_FILE=${LOG_BASE}.release.log
+
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 WORKTEMP=/tmp/${TASKNAME}/${REPOS}
@@ -100,11 +102,15 @@ mkdir -p "$WORKTMP"
 export TMPDIR=$WORKTMP
 
 dotnet tool list >> "${LOG_FILE}.install" 2>&1
+
+date >> "${RELEASE_LOG_FILE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
 dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
+grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
+
 dotnet build-server shutdown
 echo "Done"
