@@ -93,5 +93,9 @@ echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
 dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -tempFolder ${WORKTEMP} >> ${LOG_FILE} 2>&1
+
+[ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
+[ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
+
 dotnet build-server shutdown
 echo "Done"
