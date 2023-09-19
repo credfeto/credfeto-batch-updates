@@ -79,10 +79,10 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 [ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
-[ -f "${LAST_LOG_FILE4}" ] && rm ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE3}" ] && mv ${LAST_LOG_FILE3} ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE2}" ] && mv ${LAST_LOG_FILE2} ${LAST_LOG_FILE3}
-[ -f "${LAST_LOG_FILE1}" ] && mv ${LAST_LOG_FILE1} ${LAST_LOG_FILE2}
+[ -f "${LAST_LOG_FILE4}" && ! -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
+[ -f "${LAST_LOG_FILE3}" && ! -f "${LAST_LOG_FILE2}" ] && mv ${LAST_LOG_FILE3} ${LAST_LOG_FILE4}
+[ -f "${LAST_LOG_FILE2}" && ! -f "${LAST_LOG_FILE1}" ] && mv ${LAST_LOG_FILE2} ${LAST_LOG_FILE3}
+[ -f "${LAST_LOG_FILE1}" && ! -f "${LOG_FILE}" ] && mv ${LAST_LOG_FILE1} ${LAST_LOG_FILE2}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE1}
 
 [ -f "${LAST_PACKAGE_CACHE}" ] && rm ${LAST_PACKAGE_CACHE}
@@ -150,10 +150,10 @@ echo "PWD: $PWD"
 dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
-[ -f "${LAST_LOG_FILE4}" ] && rm ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE3}" ] && mv ${LAST_LOG_FILE3} ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE2}" ] && mv ${LAST_LOG_FILE2} ${LAST_LOG_FILE3}
-[ -f "${LAST_LOG_FILE1}" ] && mv ${LAST_LOG_FILE1} ${LAST_LOG_FILE2}
+[ -f "${LAST_LOG_FILE4}" && ! -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
+[ -f "${LAST_LOG_FILE3}" && ! -f "${LAST_LOG_FILE2}" ] && mv ${LAST_LOG_FILE3} ${LAST_LOG_FILE4}
+[ -f "${LAST_LOG_FILE2}" && ! -f "${LAST_LOG_FILE1}" ] && mv ${LAST_LOG_FILE2} ${LAST_LOG_FILE3}
+[ -f "${LAST_LOG_FILE1}" && ! -f "${LOG_FILE}" ] && mv ${LAST_LOG_FILE1} ${LAST_LOG_FILE2}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE1}
 
 echo "Kill Build Server" >> "${TRACE_LOG}"
