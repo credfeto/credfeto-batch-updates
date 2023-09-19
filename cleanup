@@ -97,5 +97,5 @@ dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFold
 [ -f "${LAST_LOG_FILE}" ] && rm ${LAST_LOG_FILE}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE}
 
-dotnet build-server shutdown
+dotnet build-server shutdown > "${LOG_BASE}.build-server" 2>&1
 echo "Done"
