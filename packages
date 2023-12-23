@@ -47,6 +47,7 @@ LOGS=~/logs/${REPOS}/
 LOG_BASE=${LOGS}packages
 TRACE_LOG=${LOG_BASE}.trace
 LOG_FILE=${LOG_BASE}.log
+TRACKING_FILE=${LOGS}tracking.json
 LAST_LOG_FILE1=${LOG_BASE}.old
 LAST_LOG_FILE2=${LOG_BASE}.old.1
 LAST_LOG_FILE3=${LOG_BASE}.old.2
@@ -163,7 +164,7 @@ echo "PWD: $PWD"
 dotnet updaterepo \
         --repositories "${REPOS_LIST}" \
         --work "${WORK}" \
-        --tracking "${LOGS}/tracking.json" \
+        --tracking "${TRACKING_FILE}" \
         --cache "${PACKAGE_CACHE}" \
         --packages "${PACKAGES}" \
         --template "${TEMPLATE}" \
