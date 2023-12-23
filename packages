@@ -34,6 +34,7 @@ while [ $# -gt 0 ]; do
 done
 
 [ -z "$REPOS" ] && die "--repositories not specified"
+[ -z "$TEMPLATE" ] && die "--template not specified"
 
 [ -f "/zram/$(whoami)/dotnet.ready" ] || die "dotnet not installed"
 
