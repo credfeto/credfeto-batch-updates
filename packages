@@ -137,7 +137,8 @@ if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
   echo "Attempting to pre-populate cache with all used packages" >> "${TRACE_LOG}"
   echo "dotnet pwsh -file ${POWERSHELL_CACHE} -work ${WORK} -packageCacheToRead ${LAST_PACKAGE_CACHE} -packageCacheToWrite ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
   echo "PWD: $PWD"
-  dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOG_BASE}.cache-update" 2>&1 || die "Cache Update Failed"
+  # Skipping cache update
+  #dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOG_BASE}.cache-update" 2>&1 || die "Cache Update Failed"
 
   cd "${SCRIPT_DIR}"
 
