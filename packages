@@ -11,6 +11,7 @@ die() {
 }
 
 REPOS=
+TEMPLATE=
 
 while [ $# -gt 0 ]; do
   key="$1"
@@ -18,6 +19,11 @@ while [ $# -gt 0 ]; do
   case $key in
     -r|--repositories)
       REPOS="$2"
+      shift # past argument
+      shift # past value
+      ;;
+    -t|--template)
+      TEMPLATE="$2"
       shift # past argument
       shift # past value
       ;;
@@ -147,7 +153,15 @@ echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> "${LOG_FILE}"
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${LOG_FILE}"
 cd "${SCRIPT_DIR}"
 echo "PWD: $PWD"
-dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
+#dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
+dotnet updaterepo \
+        --repositories "${REPOS_LIST}" \
+        --work "${WORK}" \
+        --tracking "${LOGS}/tracking.json" \
+        --cache "${PACKAGE_CACHE}" \
+        --packages "${PACKAGES}" \
+        --template "${TEMPLATE}" \
+            >> "${LOG_FILE}" 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
 [ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
