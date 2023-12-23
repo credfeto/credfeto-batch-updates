@@ -85,9 +85,9 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 [ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
-[ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE3}" && -f "${LAST_LOG_FILE2}" ] && mv ${LAST_LOG_FILE3} ${LAST_LOG_FILE4}
-[ -f "${LAST_LOG_FILE2}" && -f "${LAST_LOG_FILE1}" ] && mv ${LAST_LOG_FILE2} ${LAST_LOG_FILE3}
+[ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE3}" && -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE2}" && -f "${LAST_LOG_FILE1}" ] && mv "${LAST_LOG_FILE2}" ${LAST_LOG_FILE3}
 [ -f "${LAST_LOG_FILE1}" && -f "${LOG_FILE}" ] && mv ${LAST_LOG_FILE1} ${LAST_LOG_FILE2}
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE1}
 
@@ -122,10 +122,9 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${TRACE_LOG}"
 
   echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" >> "${LOG_BASE}.install"
-  {
-     dotnet tool install --local dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd || dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd --version 0.0.1.3-main
-     dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd
-  } >> "${LOG_BASE}.install"
+  dotnet tool install --local dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
+  dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd --version 0.0.1.3-main >> "${LOG_BASE}.install" 2>&1
+  dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
 
   echo "Using overridden locations and restoring" >> "${LOG_BASE}.install"
   dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
