@@ -124,7 +124,7 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${TRACE_LOG}"
 
   echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" >> "${LOG_BASE}.install"
-  dotnet tool install --local dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
+  dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
   dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
 
   echo "Using overridden locations and restoring" >> "${LOG_BASE}.install"
