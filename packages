@@ -70,6 +70,7 @@ POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
 #PACKAGES=${SCRIPT_DIR}/config/packages.json
 PACKAGES=https://raw.githubusercontent.com/credfeto/auto-update-config/main/packages.json
+RELEASE=https://raw.githubusercontent.com/credfeto/auto-update-config/main/release.config
 
 date > "${TRACE_LOG}"
 echo "Work: ${WORK}" >> "${TRACE_LOG}"
@@ -164,12 +165,14 @@ cd "${SCRIPT_DIR}"
 echo "PWD: $PWD"
 #dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
 dotnet updaterepo \
+        --update PACKAGES \
         --repositories "${REPOS_LIST}" \
         --work "${WORK}" \
         --tracking "${TRACKING_FILE}" \
         --cache "${PACKAGE_CACHE}" \
         --packages "${PACKAGES}" \
         --template "${TEMPLATE}" \
+        --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
