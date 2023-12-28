@@ -64,7 +64,8 @@ WORKTEMP=/tmp/${TASKNAME}/${REPOS}
 [ ! -d "$WORKTEMP" ] && mkdir -p "$WORKTEMP"
 export TMPDIR=$WORKTEMP
 
-REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
+#REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
+REPOS_LIST=https://raw.githubusercontent.com/credfeto/auto-update-config/main/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
 PACKAGES=${SCRIPT_DIR}/config/packages.json
@@ -83,7 +84,7 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
 
 [ ! -f "${POWERSHELL}" ] && die "${POWERSHELL} does not exist"
-[ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
+#[ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
 [ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
