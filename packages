@@ -86,7 +86,7 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 
 [ ! -f "${POWERSHELL}" ] && die "${POWERSHELL} does not exist"
 #[ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
-[ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
+#[ ! -f "${PACKAGES}" ] && die "${PACKAGES} does not exist"
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
 [ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
