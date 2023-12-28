@@ -68,7 +68,8 @@ export TMPDIR=$WORKTEMP
 REPOS_LIST=https://raw.githubusercontent.com/credfeto/auto-update-config/main/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdatePackages.ps1
 POWERSHELL_CACHE=${SCRIPT_DIR}/scripts/powershell/UpdatePackagesBuildCache.ps1
-PACKAGES=${SCRIPT_DIR}/config/packages.json
+#PACKAGES=${SCRIPT_DIR}/config/packages.json
+PACKAGES=https://raw.githubusercontent.com/credfeto/auto-update-config/main/packages.json
 
 date > "${TRACE_LOG}"
 echo "Work: ${WORK}" >> "${TRACE_LOG}"
