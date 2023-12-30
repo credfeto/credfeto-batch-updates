@@ -97,7 +97,7 @@ echo "Path: ${PATH}" >> "${TRACE_LOG}"
 [ -f "${LOG_FILE}" ] && mv ${LOG_FILE} ${LAST_LOG_FILE1}
 
 [ -f "${LAST_PACKAGE_CACHE}" ] && rm ${LAST_PACKAGE_CACHE}
-[ -f "${PACKAGE_CACHE}" ] && mv ${PACKAGE_CACHE} ${LAST_PACKAGE_CACHE}
+[ -f "${PACKAGE_CACHE}" ] && cp ${PACKAGE_CACHE} ${LAST_PACKAGE_CACHE}
 
 echo "Changing to ${SCRIPT_DIR}" >> "${TRACE_LOG}"
 cd "${SCRIPT_DIR}"
@@ -135,13 +135,6 @@ if [ -d "/zram" ] ; then
 fi
 
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
-  echo "Installed tools before updating cache" >> "${TRACE_LOG}" 2>&1
-  dotnet tool list >> "${TRACE_LOG}" 2>&1
-  echo "Attempting to pre-populate cache with all used packages" >> "${TRACE_LOG}"
-  echo "dotnet pwsh -file ${POWERSHELL_CACHE} -work ${WORK} -packageCacheToRead ${LAST_PACKAGE_CACHE} -packageCacheToWrite ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
-  echo "PWD: $PWD"
-  # Skipping cache update
-  #dotnet pwsh -file "${POWERSHELL_CACHE}" -work "${WORK}" -packageCacheToRead "${LAST_PACKAGE_CACHE}" -packageCacheToWrite "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" > "${LOG_BASE}.cache-update" 2>&1 || die "Cache Update Failed"
 
   cd "${SCRIPT_DIR}"
 
@@ -156,8 +149,6 @@ fi
 dotnet tool list
 
 date >> "${RELEASE_LOG_FILE}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" >> "${TRACE_LOG}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -packageCache ${PACKAGE_CACHE} -packagesToUpdate ${PACKAGES}" > "${LOG_FILE}"
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> "${LOG_FILE}"
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> "${LOG_FILE}"
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${LOG_FILE}"
@@ -165,7 +156,7 @@ cd "${SCRIPT_DIR}"
 echo "PWD: $PWD"
 #dotnet pwsh -file "${POWERSHELL}" -repos "${REPOS_LIST}" -work "${WORK}" -trackingFolder "${LOGS}" -packageCache "${PACKAGE_CACHE}" -packagesToUpdate "${PACKAGES}" >> "${LOG_FILE}" 2>&1
 dotnet updaterepo \
-        --update PACKAGES \
+        update-packages \
         --repositories "${REPOS_LIST}" \
         --work "${WORK}" \
         --tracking "${TRACKING_FILE}" \
