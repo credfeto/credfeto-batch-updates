@@ -134,6 +134,8 @@ if [ -d "/zram" ] ; then
   dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
 fi
 
+date >> "${LOG_BASE}.install"
+
 if [ -f "${LAST_PACKAGE_CACHE}" ] ; then
 
   cd "${SCRIPT_DIR}"
