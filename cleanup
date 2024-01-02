@@ -94,6 +94,7 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
+date >> "${LOG_BASE}.install"
 
 dotnet tool list >> "${LOG_FILE}.install" 2>&1
 date >> "${RELEASE_LOG_FILE}"
