@@ -56,9 +56,12 @@ RELEASE_LOG_FILE=${LOG_BASE}.release.log
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
 POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 WORKTEMP=/tmp/${TASKNAME}/${REPOS}
+PACKAGES=https://raw.githubusercontent.com/credfeto/auto-update-config/main/packages.json
+RELEASE=https://raw.githubusercontent.com/credfeto/auto-update-config/main/release.config
 [ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
 [ ! -d "$WORKTEMP" ] && mkdir -p "$WORKTEMP"
 export TMPDIR=$WORKTEMP
+
 
 echo "Work: ${WORK}"
 echo "Temp: ${WORKTEMP}"
@@ -105,6 +108,10 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
   dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
 fi
+
+echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" >> "${LOG_BASE}.install"
+dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
+dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
 date >> "${LOG_BASE}.install"
 
 mkdir -p "$WORKTMP"
@@ -114,11 +121,23 @@ dotnet tool list >> "${LOG_FILE}.install" 2>&1
 
 date >> "${RELEASE_LOG_FILE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" > ${LOG_FILE}
+echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" >> ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} > ${LOG_FILE} 2>&1
+
+dotnet updaterepo \
+        update-template \
+        --repositories "${REPOS_LIST}" \
+        --work "${WORK}" \
+        --tracking "${TRACKING_FILE}" \
+        --cache "${PACKAGE_CACHE}" \
+        --packages "${PACKAGES}" \
+        --template "${TEMPLATE}" \
+        --release "${RELEASE}" \
+            >> "${LOG_FILE}" 2>&1
+
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} >> ${LOG_FILE} 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
 [ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
