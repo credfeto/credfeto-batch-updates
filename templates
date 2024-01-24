@@ -131,7 +131,6 @@ dotnet updaterepo \
         --repositories "${REPOS_LIST}" \
         --work "${WORK}" \
         --tracking "${TRACKING_FILE}" \
-        --cache "${PACKAGE_CACHE}" \
         --packages "${PACKAGES}" \
         --template "${TEMPLATE}" \
         --release "${RELEASE}" \
