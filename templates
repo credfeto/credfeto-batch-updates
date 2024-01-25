@@ -96,7 +96,7 @@ export DOTNET_TC_QuickJitForLoops=1
 export DOTNET_TieredPGO=1
 
 # OVERRIDE NUGET LOCATIONS
-dotnet tool restore --verbosity detailed > "${LOG_FILE}.install" 2>&1
+dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
 if [ -d "/zram" ] ; then
   [ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
 
@@ -106,7 +106,7 @@ if [ -d "/zram" ] ; then
   echo "Updating NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}"
   export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}"
-  dotnet tool restore --verbosity detailed >> "${LOG_FILE}.install" 2>&1
+  dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
 fi
 
 echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" >> "${LOG_BASE}.install"
@@ -117,7 +117,7 @@ date >> "${LOG_BASE}.install"
 mkdir -p "$WORKTMP"
 export TMPDIR=$WORKTMP
 
-dotnet tool list >> "${LOG_FILE}.install" 2>&1
+dotnet tool list >> "${LOG_BASE}.install" 2>&1
 
 date >> "${RELEASE_LOG_FILE}"
 echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
