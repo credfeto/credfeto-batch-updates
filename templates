@@ -96,7 +96,7 @@ export DOTNET_TC_QuickJitForLoops=1
 export DOTNET_TieredPGO=1
 
 # OVERRIDE NUGET LOCATIONS
-dotnet tool restore --verbosity detailed >> "${LOG_BASE}.install" 2>&1
+dotnet tool restore --verbosity detailed > "${LOG_BASE}.install" 2>&1
 if [ -d "/zram" ] ; then
   [ -d "/zram" ] && WORKTEMP=/zram/.tmp/${TASKNAME}/${REPOS}/
 
