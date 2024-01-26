@@ -136,7 +136,8 @@ dotnet updaterepo \
         --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
 
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK}/pwsh -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} >> ${LOG_FILE} 2>&1
+[ ! -d "${WORK}/pwsh-build" ] && mkdir -p "${WORK}/pwsh-build"
+dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work "${WORK}/pwsh-build" -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} >> ${LOG_FILE} 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
 [ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
