@@ -28,4 +28,8 @@ fi
 PWDOLD="$PWD"
 cd "/zram/$USERNAME"
 dotnet tool restore
+
+dotnet --list-runtimes
+dotnet --list-sdks
+
 [ ! -z "$PWDOLD" ] && cd "$PWDOLD"
