@@ -109,6 +109,14 @@ echo "DOTNET_ROOT: $DOTNET_ROOT" >> "${TRACE_LOG}"
 echo "DOTNET_INSTALL_DIR: $DOTNET_INSTALL_DIR" >> "${TRACE_LOG}"
 echo "DotNetCLI_Path: $DotNetCLI_Path" >> "${TRACE_LOG}"
 
+
+echo "******************************************************" >> "${TRACE_LOG}"
+echo "Context:" >> "${TRACE_LOG}"
+pwd >> "${TRACE_LOG}"
+dotnet --list-runtimes >> "${TRACE_LOG}"
+dotnet --list-sdks >> "${TRACE_LOG}"
+
+echo "Context:" >> "${LOG_BASE}.install"
 pwd  >> "${LOG_BASE}.install"
 dotnet --list-runtimes >> "${LOG_BASE}.install"
 dotnet --list-sdks >> "${LOG_BASE}.install"
