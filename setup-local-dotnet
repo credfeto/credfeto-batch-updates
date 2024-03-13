@@ -15,11 +15,25 @@ if [ -d "$DOTNETINSTALLFOLDER" ] ; then
  DOTNET_ROOT=/zram/$USERNAME/dotnet
  DOTNET_INSTALL_DIR=/zram/$USERNAME/dotnet
  DotNetCLI_Path=/zram/$USERNAME/dotnet/dotnet
+ DOTNET_MULTILEVEL_LOOKUP=false
+ DOTNET_NOLOGO=true
+ DOTNET_PRINT_TELEMETRY_MESSAGE=false
+ DOTNET_ReadyToRun=0
+ DOTNET_TC_QuickJitForLoops=1
+ DOTNET_TieredPGO=1
+ MSBUILDTERMINALLOGGER=auto
 
  export PATH
  export DOTNET_ROOT
  export DOTNET_INSTALL_DIR
  export DotNetCLI_Path
+ export DOTNET_MULTILEVEL_LOOKUP
+ export DOTNET_NOLOGO
+ export DOTNET_PRINT_TELEMETRY_MESSAGE
+ export DOTNET_ReadyToRun
+ export DOTNET_TC_QuickJitForLoops
+ export DOTNET_TieredPGO
+ export MSBUILDTERMINALLOGGER
 
  echo "PATH: $PATH"
 
