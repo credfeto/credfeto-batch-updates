@@ -109,6 +109,9 @@ echo "DOTNET_ROOT: $DOTNET_ROOT" >> "${TRACE_LOG}"
 echo "DOTNET_INSTALL_DIR: $DOTNET_INSTALL_DIR" >> "${TRACE_LOG}"
 echo "DotNetCLI_Path: $DotNetCLI_Path" >> "${TRACE_LOG}"
 
+dotnet --list-runtimes >> >> "${LOG_BASE}.install"
+dotnet --list-sdks >> "${LOG_BASE}.install"
+
 echo "OVERRIDE NUGET LOCATIONS" >> "${TRACE_LOG}"
 echo "Using default locations and restoring" >> "${LOG_BASE}.install"
 dotnet tool restore --verbosity detailed > "${LOG_BASE}.install" 2>&1
@@ -122,7 +125,7 @@ if [ -d "/zram" ] ; then
   export NUGET_PLUGINS_CACHE_PATH=/zram/.nuget/${TASKNAME}/${REPOS}/plugins-cache
   echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> "${TRACE_LOG}"
 
-  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" >> "${LOG_BASE}.install"
+  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" 
   dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
   dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd >> "${LOG_BASE}.install" 2>&1
 
