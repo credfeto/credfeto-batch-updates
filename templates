@@ -95,7 +95,8 @@ export DOTNET_ReadyToRun=0
 export DOTNET_TC_QuickJitForLoops=1
 export DOTNET_TieredPGO=1
 
-dotnet --list-runtimes >> >> "${LOG_BASE}.install"
+pwd  >> "${LOG_BASE}.install"
+dotnet --list-runtimes >> "${LOG_BASE}.install"
 dotnet --list-sdks >> "${LOG_BASE}.install"
 
 # OVERRIDE NUGET LOCATIONS
