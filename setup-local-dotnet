@@ -19,6 +19,7 @@ if [ -d "$DOTNETINSTALLFOLDER" ] ; then
  export PATH
  export DOTNET_ROOT
  export DOTNET_INSTALL_DIR
+ export DotNetCLI_Path
 
  echo "PATH: $PATH"
 
