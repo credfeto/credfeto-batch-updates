@@ -109,7 +109,8 @@ echo "DOTNET_ROOT: $DOTNET_ROOT" >> "${TRACE_LOG}"
 echo "DOTNET_INSTALL_DIR: $DOTNET_INSTALL_DIR" >> "${TRACE_LOG}"
 echo "DotNetCLI_Path: $DotNetCLI_Path" >> "${TRACE_LOG}"
 
-dotnet --list-runtimes >> >> "${LOG_BASE}.install"
+pwd  >> "${LOG_BASE}.install"
+dotnet --list-runtimes >> "${LOG_BASE}.install"
 dotnet --list-sdks >> "${LOG_BASE}.install"
 
 echo "OVERRIDE NUGET LOCATIONS" >> "${TRACE_LOG}"
