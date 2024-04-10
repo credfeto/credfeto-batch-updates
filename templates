@@ -124,8 +124,6 @@ export TMPDIR=$WORKTMP
 dotnet tool list >> "${LOG_BASE}.install" 2>&1
 
 date >> "${RELEASE_LOG_FILE}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}"
-echo "Running: dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -templateRepo ${TEMPLATE}" >> ${LOG_FILE}
 echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
@@ -139,9 +137,6 @@ dotnet updaterepo \
         --template "${TEMPLATE}" \
         --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
-
-[ ! -d "${WORK}/pwsh-build" ] && mkdir -p "${WORK}/pwsh-build"
-dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work "${WORK}/pwsh-build" -trackingFolder ${LOGS} -templateRepo ${TEMPLATE} >> ${LOG_FILE} 2>&1
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
 [ -f "${LAST_LOG_FILE4}" && -f "${LAST_LOG_FILE3}" ] && rm ${LAST_LOG_FILE4}
