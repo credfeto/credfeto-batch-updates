@@ -54,7 +54,6 @@ LAST_LOG_FILE4=${LOG_BASE}.old.3
 RELEASE_LOG_FILE=${LOG_BASE}.release.log
 
 REPOS_LIST=${SCRIPT_DIR}/config/${REPOS}/repos.lst
-POWERSHELL=${SCRIPT_DIR}/scripts/powershell/UpdateFromTemplate.ps1
 WORKTEMP=/tmp/${TASKNAME}/${REPOS}
 PACKAGES=https://raw.githubusercontent.com/credfeto/auto-update-config/main/packages.json
 RELEASE=https://raw.githubusercontent.com/credfeto/auto-update-config/main/release.config
@@ -67,7 +66,6 @@ echo "Work: ${WORK}"
 echo "Temp: ${WORKTEMP}"
 echo "Logs: ${LOGS}"
 echo "Repos.lst: ${REPOS_LIST}"
-echo "Powershell: ${POWERSHELL}"
 echo "Template: ${TEMPLATE}"
 
 echo "Path: ${PATH}"
@@ -75,7 +73,6 @@ echo "Path: ${PATH}"
 [ ! -d "${LOGS}" ] && mkdir -p ${LOGS}
 [ ! -d "${WORK}" ] && mkdir -p ${WORK}
 
-[ ! -f "${POWERSHELL}" ] && die "${POWERSHELL} does not exist"
 [ ! -f "${REPOS_LIST}" ] && die "${REPOS_LIST} does not exist"
 
 [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
