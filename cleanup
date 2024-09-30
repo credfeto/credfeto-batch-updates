@@ -114,6 +114,7 @@ echo "NUGET_PACKAGES to ${NUGET_PACKAGES}" >> ${LOG_FILE}
 echo "NUGET_HTTP_CACHE_PATH to ${NUGET_HTTP_CACHE_PATH}" >> ${LOG_FILE}
 echo "Updating NUGET_PLUGINS_CACHE_PATH to ${NUGET_PLUGINS_CACHE_PATH}" >> ${LOG_FILE}
 
+echo "***** DOTNET CODECLEANUP *****" >> "${LOG_FILE}"
 dotnet updaterepo \
         code-cleanup \
         --repositories "${REPOS_LIST}" \
@@ -123,6 +124,8 @@ dotnet updaterepo \
         --template "${TEMPLATE}" \
         --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
+
+echo "***** POWERSHELL CODECLEANUP *****" >> "${LOG_FILE}"
 
 dotnet pwsh -file ${POWERSHELL} -repos ${REPOS_LIST} -work ${WORK} -trackingFolder ${LOGS} -tempFolder ${WORKTEMP} >> ${LOG_FILE} 2>&1
 
