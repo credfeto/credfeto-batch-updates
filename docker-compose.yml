@@ -15,8 +15,29 @@ services:
     volumes:
       - ./tracking/templates-personal:/local/tracking
       - ./cache/nuget:/local/.nuget
-      - ./cache/templates-personal:/local/work
+      - ./cache/templateupdate/personal:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/personal:/local/dotnet
+
+  templates-funfair:
+    build: ./templates
+    container_name: templates-funfair
+    restart: no
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
+      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - ./tracking/templates-personal:/local/tracking
+      - ./cache/nuget:/local/.nuget
+      - ./cache/templateupdate/funfair:/local/work
+      - ./config/templateupdate/ssh:/local/.ssh:r
+      - ./config/templateupdate/gnupg:/local/.gnupg:r
+      - ./config/templateupdate/gitconfig:/local/.gitconfig:r
+      - ./dotnet/templateupdate/funfair:/local/dotnet
