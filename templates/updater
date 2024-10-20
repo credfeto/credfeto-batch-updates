@@ -1,0 +1,47 @@
+#! /bin/sh
+
+echo "Running as: $USER"
+echo "Home: $HOME"
+
+for CHANNEL in $DOTNET_CHANNELS
+do
+    echo "Channel: $CHANNEL"
+    /usr/src/app/dotnet-install.sh --install-dir /usr/share/dotnet -channel "$CHANNEL"
+done
+
+export PATH=$PATH:/usr/share/dotnet
+export WORK=/work
+export TRACKING_FILE=/tracking/tracking.json
+export LOG_FILE=/tracking/templates.log
+LOGS=/tracking
+LOG_BASE=${LOGS}/template
+LOG_FILE=${LOG_BASE}.log
+LAST_LOG_FILE1=${LOG_BASE}.old
+LAST_LOG_FILE2=${LOG_BASE}.old.1
+LAST_LOG_FILE3=${LOG_BASE}.old.2
+LAST_LOG_FILE4=${LOG_BASE}.old.3
+RELEASE_LOG_FILE=${LOG_BASE}.release.log
+
+[ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
+[ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE2}" ] && [ -f "${LAST_LOG_FILE1}" ] && mv "${LAST_LOG_FILE2}" "${LAST_LOG_FILE3}"
+[ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
+[ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
+
+{
+  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd" > "${LOG_BASE}.install"
+  dotnet tool install --local Credfeto.DotNet.Repo.Tools.Cmd
+  dotnet tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+  date
+} > "${LOG_BASE}.install" 2>&1
+
+dotnet updaterepo \
+        update-template \
+        --repositories "${REPOS_LIST}" \
+        --work "${WORK}" \
+        --tracking "${TRACKING_FILE}" \
+        --packages "${PACKAGES}" \
+        --template "${TEMPLATE}" \
+        --release "${RELEASE}" \
+            >> "${LOG_FILE}" 2>&1

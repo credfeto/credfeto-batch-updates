@@ -1,0 +1,21 @@
+
+services:
+  templates-personal:
+    build: ./templates
+    container_name: templates-personal
+    restart: always
+    stop_grace_period: 500s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - TEMPLATE=git@github.com:credfeto/cs-template.git
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - ./tracking/templates-personal:/tracking
+      - ./cache/nuget:/root/.nuget
+      - ./cache/templates-personal/work:/work
+      - ./config/templateupdate/ssh:/root/.ssh:r
+      - ./config/templateupdate/gnupg:/root/.gnupg:r
+      - ./config/templateupdate/gitconfig:/root/.gitconfig:r
+      - ./dotnet/templateupdate/personal:/usr/share/dotnet

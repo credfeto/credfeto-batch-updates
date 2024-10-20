@@ -1,0 +1,4 @@
+#! /bin/sh
+sudo docker compose rm -f
+sudo docker image prune --all --force
+sudo docker compose build && sudo docker compose up
