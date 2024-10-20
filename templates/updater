@@ -46,8 +46,6 @@ export MSBUILDTERMINALLOGGER="auto"
 
 cd "$HOME" || die "Could not switch to $HOME"
 
-git clone "$TEMPLATE" "$HOME/work/cs-template"
-
 # Installing .net
 for CHANNEL in $DOTNET_CHANNELS
 do

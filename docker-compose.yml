@@ -149,6 +149,7 @@ services:
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
         condition: service_started
@@ -168,7 +169,7 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/templateupdate/personal:/local/tracking
+      - ./tracking/templateupdate/funfair:/local/tracking
       - ./cache/templateupdate/funfair/nuget:/local/.nuget/packages
       - ./cache/templateupdate/funfair/work:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
@@ -176,6 +177,7 @@ services:
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
     networks:
       - updaters
 
@@ -200,6 +202,7 @@ services:
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
         condition: service_started
@@ -226,8 +229,8 @@ services:
       - ./config/packageupdate/gnupg:/local/.gnupg:r
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/packageupdate/funfair:/local/dotnet
-      - ./nuget/certs/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
         condition: service_started
