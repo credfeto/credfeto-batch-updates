@@ -1,0 +1,102 @@
+#! /bin/sh
+
+
+die() {
+    echo
+    echo "$@"
+    exit 1
+}
+
+
+USER="$(whoami || die "No user")"
+export USER
+
+[ -z "$USER" ] && die "USER not defined"
+[ -z "$HOME" ] && die "HOME not defined"
+
+echo "Running as: $USER"
+echo "Home: $HOME"
+
+echo "Repos: $REPOS_LIST"
+echo "Template: $TEMPLATE"
+echo "Packages: $PACKAGES"
+echo "Release: $RELEASE"
+
+[ -z "$PACKAGES" ] && die "PACKAGES not defined"
+[ -z "$RELEASE" ] && die "RELEASE not defined"
+[ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
+[ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
+
+# Setting permissions
+doas chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
+chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
+chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
+chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
+
+# Dotnet settings
+export DOTNET_MULTILEVEL_LOOKUP="false"
+export DOTNET_NOLOGO="true"
+export DOTNET_PRINT_TELEMETRY_MESSAGE="false"
+export DOTNET_JitCollect64BitCounts="1"
+export DOTNET_ReadyToRun="1"
+export DOTNET_TC_QuickJitForLoops="1"
+export DOTNET_TC_CallCountingDelayMs="0"
+export DOTNET_TieredPGO="1"
+export MSBUILDTERMINALLOGGER="auto"
+
+cd "$HOME" || die "Could not switch to $HOME"
+
+git clone "$TEMPLATE" "$HOME/work/cs-template"
+
+# Installing .net
+for CHANNEL in $DOTNET_CHANNELS
+do
+    echo "Installing DotNet: $CHANNEL"
+    /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$HOME/dotnet" -channel "$CHANNEL"
+done
+
+echo "Setting up environments"
+export PATH="$PATH:$HOME/dotnet"
+export WORK="$HOME/work"
+export TRACKING_FILE="$HOME/tracking/tracking.json"
+LOGS="$HOME/tracking"
+LOG_BASE=${LOGS}/template
+LOG_FILE=${LOG_BASE}.log
+LAST_LOG_FILE1=${LOG_BASE}.old
+LAST_LOG_FILE2=${LOG_BASE}.old.1
+LAST_LOG_FILE3=${LOG_BASE}.old.2
+LAST_LOG_FILE4=${LOG_BASE}.old.3
+RELEASE_LOG_FILE=${LOG_BASE}.release.log
+
+echo "Rotating log files"
+[ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
+[ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
+[ -f "${LAST_LOG_FILE2}" ] && [ -f "${LAST_LOG_FILE1}" ] && mv "${LAST_LOG_FILE2}" "${LAST_LOG_FILE3}"
+[ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
+[ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
+
+echo "Installing updater tool"
+{
+  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+  date
+  [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$HOME/dotnet/dotnet" new tool-manifest
+  "$HOME/dotnet/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
+  "$HOME/dotnet/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+  "$HOME/dotnet/dotnet" tool list
+  date
+} > "${LOG_BASE}.install" 2>&1
+
+
+echo "Running tool"
+"$HOME/dotnet/dotnet" updaterepo \
+        update-packages \
+          --repositories "${REPOS_LIST}" \
+          --work "${WORK}" \
+          --tracking "${TRACKING_FILE}" \
+          --packages "${PACKAGES}" \
+          --template "${TEMPLATE}" \
+          --release "${RELEASE}" \
+            >> "${LOG_FILE}" 2>&1
+
+echo "Done"

@@ -22,9 +22,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - /cache/baget/security/nuget:/root/.aspnet
-      - /cache/baget/packages/nuget:/data/packages
-      - /cache/baget/db/nuget:/data/db
+      - ./cache/baget/security/nuget:/root/.aspnet
+      - ./cache/baget/packages/nuget:/data/packages
+      - ./cache/baget/db/nuget:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -53,9 +53,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - /cache/baget/security/nuget:/root/.aspnet
-      - /cache/baget/packages/funfair-release:/data/packages
-      - /cache/baget/db/funfair-release:/data/db
+      - ./cache/baget/security/nuget:/root/.aspnet
+      - ./cache/baget/packages/funfair-release:/data/packages
+      - ./cache/baget/db/funfair-release:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -84,9 +84,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - /cache/baget/security/nuget:/root/.aspnet
-      - /cache/baget/packages/funfair-prerelease:/data/packages
-      - /cache/baget/db/funfair-prerelease:/data/db
+      - ./cache/baget/security/nuget:/root/.aspnet
+      - ./cache/baget/packages/funfair-prerelease:/data/packages
+      - ./cache/baget/db/funfair-prerelease:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -129,12 +129,13 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/templateupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget
+      - ./cache/nuget:/local/.nuget/packages/packages
       - ./cache/templateupdate/personal:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/personal:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
     depends_on:
       cache-nuget-nginx:
         condition: service_started
@@ -153,12 +154,13 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/templateupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget
+      - ./cache/nuget:/local/.nuget/packages
       - ./cache/templateupdate/funfair:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/funfair:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
 
   packages-personal:
     build: ./packages
@@ -174,12 +176,13 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/packageupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget
+      - ./cache/nuget:/local/.nuget/packages
       - ./cache/packageupdate/personal:/local/work
       - ./config/packageupdate/ssh:/local/.ssh:r
       - ./config/packageupdate/gnupg:/local/.gnupg:r
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/packageupdate/personal:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
     depends_on:
       cache-nuget-nginx:
         condition: service_started
@@ -198,13 +201,14 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/packageupdate/funfair:/local/tracking
-      - ./cache/nuget:/local/.nuget
+      - ./cache/nuget:/local/.nuget/packages
       - ./cache/packageupdate/funfair:/local/work
       - ./config/packageupdate/ssh:/local/.ssh:r
       - ./config/packageupdate/gnupg:/local/.gnupg:r
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/packageupdate/funfair:/local/dotnet
       - ./nuget/certs/funfair:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
     depends_on:
       cache-nuget-nginx:
         condition: service_started
