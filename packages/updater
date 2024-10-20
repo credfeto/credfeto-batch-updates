@@ -33,6 +33,13 @@ chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 
+# Adding Certificates
+doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
+doas cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
+doas cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
+ls -la /usr/local/share/ca-certificates/
+doas update-ca-certificates || die "could not import certificates"
+
 # Dotnet settings
 export DOTNET_MULTILEVEL_LOOKUP="false"
 export DOTNET_NOLOGO="true"
