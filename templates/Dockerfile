@@ -22,6 +22,13 @@ RUN apk add --no-cache \
         openssh \
         zlib
 
+# Set up certificates
+#COPY ./certs/api.nuget.local.pem /usr/local/share/ca-certificates/api.nuget.local.pem
+#COPY ./certs/funfair.nuget.local.pem /usr/local/share/ca-certificates/funfair.nuget.local.pem
+#COPY ./certs/funfair-prerelease.nuget.local.pem /usr/local/share/ca-certificates/funfair-prerelease.nuget.local.pem
+
+RUN update-ca-certificates
+
 # Add Updater group
 RUN \
     # Add updater user \

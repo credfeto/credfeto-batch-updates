@@ -1,5 +1,120 @@
 
 services:
+  cache-nuget:
+    image: bagetter/bagetter:latest
+    container_name: cache-nuget
+    restart: unless-stopped
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    environment:
+      - AllowPackageOverwrites=true
+      - ApiKey=Upload
+      - Database__ConnectionString=Data Source=/data/db/bagetter.db
+      - Database__Type=Sqlite
+      - Logging__Console__LogLevel__Default=Warning
+      - MaxPackageSizeGiB=10
+      - MaxVersionsPerPackage=5
+      - Mirror__Enabled=true
+      - Mirror__PackageDownloadTimeoutSeconds=60000
+      - Mirror__PackageSource=https://api.nuget.org/v3/index.json
+      - PackageDeletionBehavior=HardDelete
+      - Search__Type=Database
+      - Storage__Path=/data/packages
+      - Storage__Type=FileSystem
+    volumes:
+      - /cache/baget/security/nuget:/root/.aspnet
+      - /cache/baget/packages/nuget:/data/packages
+      - /cache/baget/db/nuget:/data/db
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 4s
+      retries: 5
+
+  cache-funfair-release:
+    image: bagetter/bagetter:latest
+    container_name: cache-funfair-release
+    restart: unless-stopped
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    environment:
+      - AllowPackageOverwrites=true
+      - ApiKey=Upload
+      - Database__ConnectionString=Data Source=/data/db/bagetter.db
+      - Database__Type=Sqlite
+      - Logging__Console__LogLevel_Default=Warning
+      - MaxPackageSizeGiB=10
+      - MaxVersionsPerPackage=5
+      - Mirror__Enabled=true
+      - Mirror__PackageDownloadTimeoutSeconds=60000
+      - Mirror__PackageSource=https://dotnet-nuget.s3.eu-west-1.amazonaws.com/index.json
+      - PackageDeletionBehavior=HardDelete
+      - Search__Type=Database
+      - Storage__Path=/data/packages
+      - Storage__Type=FileSystem
+    volumes:
+      - /cache/baget/security/nuget:/root/.aspnet
+      - /cache/baget/packages/funfair-release:/data/packages
+      - /cache/baget/db/funfair-release:/data/db
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 4s
+      retries: 5
+
+  cache-funfair-prerelease:
+    image: bagetter/bagetter:latest
+    container_name: cache-funfair-prerelease
+    restart: unless-stopped
+    stop_grace_period: 15s
+    stop_signal: SIGINT
+    environment:
+      - AllowPackageOverwrites=true
+      - ApiKey=Upload
+      - Database__ConnectionString=Data Source=/data/db/bagetter.db
+      - Database__Type=Sqlite
+      - Logging__Console__LogLevel_Default=Warning
+      - MaxPackageSizeGiB=10
+      - MaxVersionsPerPackage=5
+      - Mirror__Enabled=true
+      - Mirror__PackageDownloadTimeoutSeconds=60000
+      - Mirror__PackageSource=https://dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com/index.json
+      - PackageDeletionBehavior=HardDelete
+      - Search__Type=Database
+      - Storage__Path=/data/packages
+      - Storage__Type=FileSystem
+    volumes:
+      - /cache/baget/security/nuget:/root/.aspnet
+      - /cache/baget/packages/funfair-prerelease:/data/packages
+      - /cache/baget/db/funfair-prerelease:/data/db
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+      interval: 5s
+      timeout: 4s
+      retries: 5
+
+  cache-nuget-nginx:
+    image: nginx:stable-alpine
+    container_name: cache-nuget-nginx
+    restart: unless-stopped
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    volumes:
+      - ./nuget/proxy.conf:/etc/nginx/conf.d/default.conf
+      - ./nuget/certs:/etc/nginx/ssl
+    healthcheck:
+      test: curl --fail http://localhost/health || exit 1
+      interval: 5s
+      timeout: 4s
+      retries: 5
+    depends_on:
+      cache-nuget:
+        condition: service_started
+      cache-funfair-prerelease:
+        condition: service_started
+      cache-funfair-release:
+        condition: service_started
+
   templates-personal:
     build: ./templates
     container_name: templates-personal
@@ -13,13 +128,16 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/templates-personal:/local/tracking
+      - ./tracking/templateupdate/personal:/local/tracking
       - ./cache/nuget:/local/.nuget
       - ./cache/templateupdate/personal:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/personal:/local/dotnet
+    depends_on:
+      cache-nuget-nginx:
+        condition: service_started
 
   templates-funfair:
     build: ./templates
@@ -34,10 +152,59 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/templates-personal:/local/tracking
+      - ./tracking/templateupdate/personal:/local/tracking
       - ./cache/nuget:/local/.nuget
       - ./cache/templateupdate/funfair:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/funfair:/local/dotnet
+
+  packages-personal:
+    build: ./packages
+    container_name: packages-personal
+    restart: no
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - TEMPLATE=git@github.com:credfeto/cs-template.git
+      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - ./tracking/packageupdate/personal:/local/tracking
+      - ./cache/nuget:/local/.nuget
+      - ./cache/packageupdate/personal:/local/work
+      - ./config/packageupdate/ssh:/local/.ssh:r
+      - ./config/packageupdate/gnupg:/local/.gnupg:r
+      - ./config/packageupdate/gitconfig:/local/.gitconfig:r
+      - ./dotnet/packageupdate/personal:/local/dotnet
+    depends_on:
+      cache-nuget-nginx:
+        condition: service_started
+
+  packages-funfair:
+    build: ./packages
+    container_name: packages-funfair
+    restart: no
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
+      - TEMPLATE=git@github.com:credfeto/cs-template.git
+      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - ./tracking/packageupdate/funfair:/local/tracking
+      - ./cache/nuget:/local/.nuget
+      - ./cache/packageupdate/funfair:/local/work
+      - ./config/packageupdate/ssh:/local/.ssh:r
+      - ./config/packageupdate/gnupg:/local/.gnupg:r
+      - ./config/packageupdate/gitconfig:/local/.gitconfig:r
+      - ./dotnet/packageupdate/funfair:/local/dotnet
+      - ./nuget/certs/funfair:/local/dotnet
+    depends_on:
+      cache-nuget-nginx:
+        condition: service_started

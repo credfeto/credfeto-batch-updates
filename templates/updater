@@ -91,12 +91,12 @@ echo "Installing updater tool"
 echo "Running tool"
 "$HOME/dotnet/dotnet" updaterepo \
         update-template \
-        --repositories "${REPOS_LIST}" \
-        --work "${WORK}" \
-        --tracking "${TRACKING_FILE}" \
-        --packages "${PACKAGES}" \
-        --template "${TEMPLATE}" \
-        --release "${RELEASE}" \
+          --repositories "${REPOS_LIST}" \
+          --work "${WORK}" \
+          --tracking "${TRACKING_FILE}" \
+          --packages "${PACKAGES}" \
+          --template "${TEMPLATE}" \
+          --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
 
 echo "Done"
