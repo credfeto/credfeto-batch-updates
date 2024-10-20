@@ -122,6 +122,7 @@ services:
         condition: service_started
     networks:
       nuget-cache:
+      updaters:
         aliases:
           - api.nuget.local
           - funfair.nuget.local
@@ -141,8 +142,8 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/templateupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget/packages/packages
-      - ./cache/templateupdate/personal:/local/work
+      - ./cache/templateupdate/personal/nuget:/local/.nuget/packages/packages
+      - ./cache/templateupdate/personal/work:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
@@ -168,8 +169,8 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/templateupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget/packages
-      - ./cache/templateupdate/funfair:/local/work
+      - ./cache/templateupdate/funfair/nuget:/local/.nuget/packages
+      - ./cache/templateupdate/funfair/work:/local/work
       - ./config/templateupdate/ssh:/local/.ssh:r
       - ./config/templateupdate/gnupg:/local/.gnupg:r
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
@@ -192,8 +193,8 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/packageupdate/personal:/local/tracking
-      - ./cache/nuget:/local/.nuget/packages
-      - ./cache/packageupdate/personal:/local/work
+      - ./cache/packageupdate/personal/nuget:/local/.nuget/packages
+      - ./cache/packageupdate/personal/work:/local/work
       - ./config/packageupdate/ssh:/local/.ssh:r
       - ./config/packageupdate/gnupg:/local/.gnupg:r
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r
@@ -219,8 +220,8 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - ./tracking/packageupdate/funfair:/local/tracking
-      - ./cache/nuget:/local/.nuget/packages
-      - ./cache/packageupdate/funfair:/local/work
+      - ./cache/packageupdate/funfair/nuget:/local/.nuget/packages
+      - ./cache/packageupdate/funfair/work:/local/work
       - ./config/packageupdate/ssh:/local/.ssh:r
       - ./config/packageupdate/gnupg:/local/.gnupg:r
       - ./config/packageupdate/gitconfig:/local/.gitconfig:r

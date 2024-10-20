@@ -1,8 +1,15 @@
 #! /bin/sh
 
-sudo rm -fr cache/nuget/*
-sudo rm -fr cache/templates-personal/*
-sudo rm -fr tracking/templates-personal/*
+sudo rm -fr cache/templateupdate/personal/*
+sudo rm -fr cache/templateupdate/funfair/*
+sudo rm -fr cache/packageupdate/personal/*
+sudo rm -fr cache/packageupdate/funfair/*
+
+sudo rm -fr tracking/templateupdate/personal/*
+sudo rm -fr tracking/templateupdate/funfair/*
+sudo rm -fr tracking/packageupdate/personal/*
+sudo rm -fr tracking/packageupdate/funfair/*
+
 
 sudo docker compose rm -f
 sudo docker image prune --all --force
