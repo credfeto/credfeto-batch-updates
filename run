@@ -11,6 +11,11 @@ sudo rm -fr tracking/packageupdate/personal/*
 sudo rm -fr tracking/packageupdate/funfair/*
 
 
+## TODO
+# * run a container that creates the internal SSL certs that everything that depends on them needs
+# * code-cleanup
+# * Simplify folders and what needs to be set up
+
 sudo docker compose rm -f
 sudo docker image prune --all --force
 sudo docker compose build && sudo docker compose up
