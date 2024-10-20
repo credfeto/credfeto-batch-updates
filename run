@@ -1,4 +1,9 @@
 #! /bin/sh
+
+sudo rm -fr cache/nuget/*
+sudo rm -fr cache/templates-personal/*
+sudo rm -fr tracking/templates-personal/*
+
 sudo docker compose rm -f
 sudo docker image prune --all --force
 sudo docker compose build && sudo docker compose up
