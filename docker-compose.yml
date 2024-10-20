@@ -30,6 +30,8 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    networks:
+      - nuget-cache
 
   cache-funfair-release:
     image: bagetter/bagetter:latest
@@ -61,6 +63,8 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    networks:
+      - nuget-cache
 
   cache-funfair-prerelease:
     image: bagetter/bagetter:latest
@@ -92,6 +96,8 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    networks:
+      - nuget-cache
 
   cache-nuget-nginx:
     image: nginx:stable-alpine
@@ -114,6 +120,12 @@ services:
         condition: service_started
       cache-funfair-release:
         condition: service_started
+    networks:
+      nuget-cache:
+        aliases:
+          - api.nuget.local
+          - funfair.nuget.local
+          - funfair-prerelease.nuget.local
 
   templates-personal:
     build: ./templates
@@ -139,6 +151,8 @@ services:
     depends_on:
       cache-nuget-nginx:
         condition: service_started
+    networks:
+      - updaters
 
   templates-funfair:
     build: ./templates
@@ -161,6 +175,8 @@ services:
       - ./config/templateupdate/gitconfig:/local/.gitconfig:r
       - ./dotnet/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+    networks:
+      - updaters
 
   packages-personal:
     build: ./packages
@@ -186,6 +202,8 @@ services:
     depends_on:
       cache-nuget-nginx:
         condition: service_started
+    networks:
+      - updaters
 
   packages-funfair:
     build: ./packages
@@ -212,3 +230,12 @@ services:
     depends_on:
       cache-nuget-nginx:
         condition: service_started
+    networks:
+      - updaters
+
+networks:
+  nuget-cache:
+    driver: bridge
+
+  updaters:
+    driver: bridge
