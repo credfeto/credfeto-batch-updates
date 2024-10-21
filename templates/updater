@@ -37,7 +37,6 @@ chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
 doas cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
 doas cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
-ls -la /usr/local/share/ca-certificates/
 doas update-ca-certificates || die "could not import certificates"
 
 # Dotnet settings
@@ -59,6 +58,8 @@ do
     echo "Installing DotNet: $CHANNEL"
     /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$HOME/dotnet" -channel "$CHANNEL"
 done
+
+"$HOME/dotnet/dotnet" --list-sdks
 
 echo "Setting up environments"
 export PATH="$PATH:$HOME/dotnet"
