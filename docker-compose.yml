@@ -273,7 +273,7 @@ services:
     stop_signal: SIGINT
     environment:
       - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
