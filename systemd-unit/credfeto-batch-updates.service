@@ -1,11 +1,11 @@
 [Unit]
 Description=Update Credfeto Batch Updates Repo
 After=network.target
-
 [Service]
 Type=oneshot
 IOSchedulingClass=idle
 CPUSchedulingPolicy=idle
 
+WorkingDirectory=/root/work/personal/credfeto-batch-updates
 ExecStart=/root/work/personal/credfeto-batch-updates/update
 
