@@ -147,7 +147,7 @@ services:
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/templateupdate/personal:/local/dotnet
+      - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -175,7 +175,7 @@ services:
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/templateupdate/funfair:/local/dotnet
+      - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
@@ -200,7 +200,7 @@ services:
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/packageupdate/personal:/local/dotnet
+      - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -228,7 +228,7 @@ services:
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/packageupdate/funfair:/local/dotnet
+      - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -256,7 +256,7 @@ services:
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/codecleanup/personal:/local/dotnet
+      - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -284,7 +284,7 @@ services:
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/dotnet/codecleanup/funfair:/local/dotnet
+      - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
