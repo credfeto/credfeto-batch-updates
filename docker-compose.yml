@@ -131,7 +131,7 @@ services:
   templates-personal:
     build: ./templates
     container_name: templates-personal
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
@@ -159,7 +159,7 @@ services:
   templates-funfair:
     build: ./templates
     container_name: templates-funfair
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
@@ -184,7 +184,7 @@ services:
   packages-personal:
     build: ./packages
     container_name: packages-personal
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
@@ -212,7 +212,7 @@ services:
   packages-funfair:
     build: ./packages
     container_name: packages-funfair
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
@@ -240,7 +240,7 @@ services:
   cleanup-personal:
     build: ./cleanup
     container_name: cleanup-personal
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
@@ -268,7 +268,7 @@ services:
   cleanup-funfair:
     build: ./cleanup
     container_name: cleanup-funfair
-    restart: no
+    restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
