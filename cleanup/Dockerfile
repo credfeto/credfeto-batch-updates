@@ -1,0 +1,53 @@
+
+FROM alpine:latest
+
+WORKDIR /usr/src/app
+
+COPY updater .
+
+SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+
+RUN apk add --no-cache \
+        bash \
+        ca-certificates \
+        curl  \
+        doas \
+        git \
+        icu-libs \
+        krb5-libs \
+        libgcc \
+        libintl \
+        libssl3 \
+        libstdc++ \
+        openssh \
+        zlib
+
+# Add Updater group
+RUN \
+    # Add updater user \
+    mkdir /local && \
+    addgroup -S "updater" && \
+    adduser -S -D "updater" -G "updater" -h /local && \
+    chown updater:updater /local && \
+    chmod 700 /local && \
+    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf && \
+    # Get dotnet install script \
+    curl https://dot.net/v1/dotnet-install.sh -L -o /usr/src/app/dotnet-install.sh && \
+    chmod +x /usr/src/app/dotnet-install.sh
+
+USER updater
+
+RUN \
+    mkdir -p /local/tracking && \
+    mkdir -p /local/work && \
+    mkdir -p /local/dotnet && \
+    mkdir -p /local/.ssh && \
+    mkdir -p /local/.gnupg
+
+ENTRYPOINT [ "/usr/src/app/updater" ]
+
+ENV DOTNET_CHANNELS="$DOTNET_CHANNELS"
+ENV REPOS_LIST="$REPOS_LIST"
+ENV PACKAGES="$PACKAGES"
+ENV TEMPLATE="$TEMPLATE"
+ENV RELEASE="$$RELEASE"

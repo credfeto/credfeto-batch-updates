@@ -53,8 +53,6 @@ export MSBUILDTERMINALLOGGER="auto"
 
 cd "$HOME" || die "Could not switch to $HOME"
 
-git clone "$TEMPLATE" "$HOME/work/cs-template"
-
 # Installing .net
 for CHANNEL in $DOTNET_CHANNELS
 do
@@ -66,9 +64,8 @@ echo "Setting up environments"
 export PATH="$PATH:$HOME/dotnet"
 export WORK="$HOME/work"
 export TRACKING_FILE="$HOME/tracking/tracking.json"
-export PACKAGE_CACHE="$HOME/tracking/package-cache.json"
 LOGS="$HOME/tracking"
-LOG_BASE=${LOGS}/packages
+LOG_BASE=${LOGS}/cleanup
 LOG_FILE=${LOG_BASE}.log
 LAST_LOG_FILE1=${LOG_BASE}.old
 LAST_LOG_FILE2=${LOG_BASE}.old.1
@@ -98,12 +95,11 @@ echo "Installing updater tool"
 
 echo "Running tool"
 "$HOME/dotnet/dotnet" updaterepo \
-        update-packages \
+        code-cleanup \
           --repositories "${REPOS_LIST}" \
           --work "${WORK}" \
           --tracking "${TRACKING_FILE}" \
           --packages "${PACKAGES}" \
-          --cache "${PACKAGE_CACHE}" \
           --template "${TEMPLATE}" \
           --release "${RELEASE}" \
             >> "${LOG_FILE}" 2>&1
