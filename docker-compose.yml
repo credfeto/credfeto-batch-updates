@@ -22,9 +22,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - ./cache/baget/security/nuget:/root/.aspnet
-      - ./cache/baget/packages/nuget:/data/packages
-      - ./cache/baget/db/nuget:/data/db
+      - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
+      - $CACHE_ROOT/baget/packages/nuget:/data/packages
+      - $CACHE_ROOT/baget/db/nuget:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -55,9 +55,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - ./cache/baget/security/nuget:/root/.aspnet
-      - ./cache/baget/packages/funfair-release:/data/packages
-      - ./cache/baget/db/funfair-release:/data/db
+      - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
+      - $CACHE_ROOT/baget/packages/funfair-release:/data/packages
+      - $CACHE_ROOT/baget/db/funfair-release:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -88,9 +88,9 @@ services:
       - Storage__Path=/data/packages
       - Storage__Type=FileSystem
     volumes:
-      - ./cache/baget/security/nuget:/root/.aspnet
-      - ./cache/baget/packages/funfair-prerelease:/data/packages
-      - ./cache/baget/db/funfair-prerelease:/data/db
+      - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
+      - $CACHE_ROOT/baget/packages/funfair-prerelease:/data/packages
+      - $CACHE_ROOT/baget/db/funfair-prerelease:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
       interval: 5s
@@ -141,13 +141,13 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/templateupdate/personal:/local/tracking
-      - ./cache/templateupdate/personal/nuget:/local/.nuget/packages/packages
-      - ./cache/templateupdate/personal/work:/local/work
-      - ./config/templateupdate/ssh:/local/.ssh:r
-      - ./config/templateupdate/gnupg:/local/.gnupg:r
-      - ./config/templateupdate/gitconfig:/local/.gitconfig:r
-      - ./dotnet/templateupdate/personal:/local/dotnet
+      - $TRACKING_ROOT/tracking/templateupdate/personal:/local/tracking
+      - $CACHE_ROOT/templateupdate/personal/nuget:/local/.nuget/packages/packages
+      - $CACHE_ROOT/templateupdate/personal/work:/local/work
+      - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -169,13 +169,13 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/templateupdate/funfair:/local/tracking
-      - ./cache/templateupdate/funfair/nuget:/local/.nuget/packages
-      - ./cache/templateupdate/funfair/work:/local/work
-      - ./config/templateupdate/ssh:/local/.ssh:r
-      - ./config/templateupdate/gnupg:/local/.gnupg:r
-      - ./config/templateupdate/gitconfig:/local/.gitconfig:r
-      - ./dotnet/templateupdate/funfair:/local/dotnet
+      - $TRACKING_ROOT/tracking/templateupdate/funfair:/local/tracking
+      - $CACHE_ROOT/templateupdate/funfair/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/templateupdate/funfair/work:/local/work
+      - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
@@ -194,13 +194,13 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/packageupdate/personal:/local/tracking
-      - ./cache/packageupdate/personal/nuget:/local/.nuget/packages
-      - ./cache/packageupdate/personal/work:/local/work
-      - ./config/packageupdate/ssh:/local/.ssh:r
-      - ./config/packageupdate/gnupg:/local/.gnupg:r
-      - ./config/packageupdate/gitconfig:/local/.gitconfig:r
-      - ./dotnet/packageupdate/personal:/local/dotnet
+      - $TRACKING_ROOT/tracking/packageupdate/personal:/local/tracking
+      - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/packageupdate/personal/work:/local/work
+      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
@@ -222,13 +222,69 @@ services:
       - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
-      - ./tracking/packageupdate/funfair:/local/tracking
-      - ./cache/packageupdate/funfair/nuget:/local/.nuget/packages
-      - ./cache/packageupdate/funfair/work:/local/work
-      - ./config/packageupdate/ssh:/local/.ssh:r
-      - ./config/packageupdate/gnupg:/local/.gnupg:r
-      - ./config/packageupdate/gitconfig:/local/.gitconfig:r
-      - ./dotnet/packageupdate/funfair:/local/dotnet
+      - $TRACKING_ROOT/tracking/packageupdate/funfair:/local/tracking
+      - $CACHE_ROOT/packageupdate/funfair/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/packageupdate/funfair/work:/local/work
+      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/packageupdate/funfair:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
+    depends_on:
+      cache-nuget-nginx:
+        condition: service_started
+    networks:
+      - updaters
+
+  cleanup-personal:
+    build: ./cleanup
+    container_name: cleanup-personal
+    restart: no
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - TEMPLATE=git@github.com:credfeto/cs-template.git
+      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - $TRACKING_ROOT/tracking/codecleanup/personal:/local/tracking
+      - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/codecleanup/personal/work:/local/work
+      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/codecleanup/personal:/local/dotnet
+      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs
+    depends_on:
+      cache-nuget-nginx:
+        condition: service_started
+    networks:
+      - updaters
+
+  cleanup-funfair:
+    build: ./cleanup
+    container_name: cleanup-funfair
+    restart: no
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
+      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+    volumes:
+      - $TRACKING_ROOT/tracking/codecleanup/funfair:/local/tracking
+      - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/codecleanup/funfair/work:/local/work
+      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
+      - $DOTNET_CACHE_ROOT/dotnet/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
