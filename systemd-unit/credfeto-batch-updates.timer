@@ -1,0 +1,10 @@
+[Unit]
+Description=Update Credfeto Batch Updates Repo
+
+[Timer]
+OnBootSec=5min
+OnCalendar=*:0/15
+AccuracySec=30
+
+[Install]
+WantedBy=multi-user.target
