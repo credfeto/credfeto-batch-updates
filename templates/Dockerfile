@@ -13,6 +13,7 @@ RUN apk add --no-cache \
         curl  \
         doas \
         git \
+        gnupg \
         icu-libs \
         krb5-libs \
         libgcc \
