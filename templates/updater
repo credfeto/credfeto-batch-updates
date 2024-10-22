@@ -107,6 +107,6 @@ echo "Running tool"
           --packages "${PACKAGES}" \
           --template "${TEMPLATE}" \
           --release "${RELEASE}" \
-            >> "${LOG_FILE}" 2>&1
+            2>&1 | tee 2>&1
 
 echo "Done"
