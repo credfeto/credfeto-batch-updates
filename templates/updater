@@ -44,6 +44,8 @@ doas cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-cer
 doas update-ca-certificates || die "could not import certificates"
 
 # Dotnet settings
+export DOTNET_ROOT="$HOME/dotnet"
+export DOTNET_INSTALL_DIR="$DOTNET_ROOT"
 export DOTNET_MULTILEVEL_LOOKUP="false"
 export DOTNET_NOLOGO="true"
 export DOTNET_PRINT_TELEMETRY_MESSAGE="false"
@@ -60,13 +62,13 @@ cd "$HOME" || die "Could not switch to $HOME"
 for CHANNEL in $DOTNET_CHANNELS
 do
     echo "Installing DotNet: $CHANNEL"
-    /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$HOME/dotnet" -channel "$CHANNEL"
+    /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$DOTNET_ROOT" -channel "$CHANNEL"
 done
 
-"$HOME/dotnet/dotnet" --list-sdks
+"$DOTNET_ROOT/dotnet" --list-sdks
 
 echo "Setting up environments"
-export PATH="$PATH:$HOME/dotnet"
+export PATH="$PATH:$DOTNET_ROOT"
 export WORK="$HOME/work"
 export TRACKING_FILE="$HOME/tracking/tracking.json"
 LOGS="$HOME/tracking"
@@ -90,16 +92,16 @@ echo "Installing updater tool"
 {
   echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
   date
-  [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$HOME/dotnet/dotnet" new tool-manifest
-  "$HOME/dotnet/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
-  "$HOME/dotnet/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
-  "$HOME/dotnet/dotnet" tool list
+  [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
+  "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
+  "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+  "$DOTNET_ROOT/dotnet" tool list
   date
 } > "${LOG_BASE}.install" 2>&1
 
 
 echo "Running tool"
-"$HOME/dotnet/dotnet" updaterepo \
+"$DOTNET_ROOT/dotnet" updaterepo \
         update-template \
           --repositories "${REPOS_LIST}" \
           --work "${WORK}" \
