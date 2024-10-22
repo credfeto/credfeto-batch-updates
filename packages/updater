@@ -109,6 +109,6 @@ echo "Running tool"
           --cache "${PACKAGE_CACHE}" \
           --template "${TEMPLATE}" \
           --release "${RELEASE}" \
-            2>&1 | tee 2>&1
+            2>&1 | tee "${LOG_FILE}"
 
 echo "Done"
