@@ -148,7 +148,7 @@ services:
       - $CONFIG_ROOT/templateupdate/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
@@ -176,7 +176,7 @@ services:
       - $CONFIG_ROOT/templateupdate/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -201,7 +201,7 @@ services:
       - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
@@ -229,7 +229,7 @@ services:
       - $CONFIG_ROOT/packageupdate/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
@@ -257,7 +257,7 @@ services:
       - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
@@ -285,7 +285,7 @@ services:
       - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
-      - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     depends_on:
       cache-nuget-nginx:
