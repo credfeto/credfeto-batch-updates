@@ -34,7 +34,8 @@ chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 
 # checking GPG
-gpg --list-keys
+gpg --list-keys || die "Could not list public keys"
+gpg --list-private-keys || die "Could not list private keys"
 
 # Adding Certificates
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
