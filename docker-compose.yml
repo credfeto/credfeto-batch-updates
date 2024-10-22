@@ -145,7 +145,7 @@ services:
       - $CACHE_ROOT/templateupdate/personal/nuget:/local/.nuget/packages/packages
       - $CACHE_ROOT/templateupdate/personal/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
@@ -173,7 +173,7 @@ services:
       - $CACHE_ROOT/templateupdate/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/templateupdate/funfair/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/templateupdate/gnupg:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
@@ -198,7 +198,7 @@ services:
       - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
       - $CACHE_ROOT/packageupdate/personal/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
@@ -226,7 +226,7 @@ services:
       - $CACHE_ROOT/packageupdate/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/packageupdate/funfair/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/packageupdate/gnupg:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
@@ -254,7 +254,7 @@ services:
       - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
       - $CACHE_ROOT/codecleanup/personal/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
@@ -282,7 +282,7 @@ services:
       - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/codecleanup/funfair/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg:r
+      - $CONFIG_ROOT/codecleanup/gnupg:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/.nuget/NuGet/NuGet.Config:r
