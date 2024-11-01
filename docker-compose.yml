@@ -1,5 +1,18 @@
 
 services:
+  cache-postgresql:
+    container_name: cache-postgresql
+    hostname: cache-postgresql
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: nuget
+      POSTGRES_PASSWORD: nuget
+    volumes:
+      - /cache/baget/db/postgresql:/var/lib/postgresql/data
+    networks:
+      - nuget-cache
+
   cache-nuget:
     image: bagetter/bagetter:latest
     container_name: cache-nuget
@@ -9,8 +22,8 @@ services:
     environment:
       - AllowPackageOverwrites=true
       - ApiKey=Upload
-      - Database__ConnectionString=Data Source=/data/db/bagetter.db
-      - Database__Type=Sqlite
+      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=nuget;User Id=nuget;Password=nuget;
+      - Database__Type=PostgreSql
       - Logging__Console__LogLevel__Default=Warning
       - MaxPackageSizeGiB=10
       - MaxVersionsPerPackage=5
@@ -30,6 +43,9 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    depends_on:
+      cache-postgresql:
+        condition: service_started
     networks:
       - nuget-cache
 
@@ -42,8 +58,8 @@ services:
     environment:
       - AllowPackageOverwrites=true
       - ApiKey=Upload
-      - Database__ConnectionString=Data Source=/data/db/bagetter.db
-      - Database__Type=Sqlite
+      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=funfair-release;User Id=nuget;Password=nuget;
+      - Database__Type=PostgreSql
       - Logging__Console__LogLevel_Default=Warning
       - MaxPackageSizeGiB=10
       - MaxVersionsPerPackage=5
@@ -63,6 +79,9 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    depends_on:
+      cache-postgresql:
+        condition: service_started
     networks:
       - nuget-cache
 
@@ -75,8 +94,8 @@ services:
     environment:
       - AllowPackageOverwrites=true
       - ApiKey=Upload
-      - Database__ConnectionString=Data Source=/data/db/bagetter.db
-      - Database__Type=Sqlite
+      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=funfair-prerelease;User Id=nuget;Password=nuget;
+      - Database__Type=PostgreSql
       - Logging__Console__LogLevel_Default=Warning
       - MaxPackageSizeGiB=10
       - MaxVersionsPerPackage=5
@@ -96,6 +115,9 @@ services:
       interval: 5s
       timeout: 4s
       retries: 5
+    depends_on:
+      cache-postgresql:
+        condition: service_started
     networks:
       - nuget-cache
 
