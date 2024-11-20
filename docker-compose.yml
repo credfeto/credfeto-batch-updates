@@ -7,15 +7,17 @@ services:
     restart: unless-stopped
     stop_grace_period: 500s
     stop_signal: SIGINT
+    user: postgres
     environment:
       POSTGRES_USER: nuget
       POSTGRES_PASSWORD: nuget
+      PGUSER: nuget
     volumes:
       - /cache/baget/db/postgresql:/var/lib/postgresql/data
     networks:
       - nuget-cache
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: ["CMD-SHELL", "pg_isready", "-U", "$POSTGRES_USER"]
       interval: 30s
       timeout: 60s
       retries: 5
