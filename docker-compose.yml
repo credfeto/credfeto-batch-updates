@@ -14,6 +14,12 @@ services:
       - /cache/baget/db/postgresql:/var/lib/postgresql/data
     networks:
       - nuget-cache
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
 
   cache-nuget:
     image: bagetter/bagetter:latest
