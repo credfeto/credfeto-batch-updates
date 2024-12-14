@@ -17,6 +17,7 @@ cd "$BASEDIR" || die "Could not change to $BASEDIR"
 echo "Updating Repo"
 git pull
 
+cat "$BASEDIR/.env"
 . "$BASEDIR/.env"
 
 [ -z "$DOTNET_CHANNELS" ] || die "DOTNET_CHANNELS not defined"
