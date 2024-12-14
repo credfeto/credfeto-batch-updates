@@ -12,7 +12,7 @@ echo "Script Dir: $BASEDIR"
 
 cd "$BASEDIR" || die "Could not change to $BASEDIR"
 
-[ -f "$BASEDIR/.env" ] || die ".env is required"
+[ -f "$BASEDIR/.env" ] || die "$BASEDIR/.env is required"
 
 echo "Updating Repo"
 git pull
