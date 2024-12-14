@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 PROG=$0
 die() {
@@ -18,7 +18,7 @@ echo "Updating Repo"
 git pull
 
 cat "$BASEDIR/.env"
-set -a && . "$BASEDIR/.env" && set +a
+set -a && source "$BASEDIR/.env" && set +a
 
 [ -z "$DOTNET_CHANNELS" ] || die "DOTNET_CHANNELS not defined"
 [ -z "$CACHE_ROOT" ] || die "CACHE_ROOT not defined"
