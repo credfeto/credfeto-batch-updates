@@ -12,7 +12,18 @@ echo "Script Dir: $BASEDIR"
 
 [ -f "$BASEDIR/.env" ] || die ".env is required"
 
+echo "Updating systemd scripts"
 sudo cp "$BASEDIR/systemd-unit/credfeto-batch-updates.service" /etc/systemd/system/
 sudo cp "$BASEDIR/systemd-unit/credfeto-batch-updates.timer" /etc/systemd/system/
+
+
+echo "systemd reload"
 sudo systemctl daemon-reload
-sudo systemctl enable --now credfeto-batch-updates.timer
+
+echo "Enable credfeto-batch-updates.timer"
+sudo systemctl enable credfeto-batch-updates.timer
+
+echo "Start credfeto-batch-updates.timer"
+sudo systemctl start credfeto-batch-updates.timer
+
+echo "Done"

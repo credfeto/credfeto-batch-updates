@@ -12,6 +12,10 @@ echo "Script Dir: $BASEDIR"
 
 [ -f "$BASEDIR/.env" ] || die ".env is required"
 
+echo "Updating Repo"
 git pull
 
+echo "Updating docker"
 sudo docker compose build && sudo docker compose up -d
+
+echo "Done"
