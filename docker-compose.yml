@@ -17,7 +17,7 @@ services:
     networks:
       - nuget-cache
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-U", "$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 30s
       timeout: 60s
       retries: 5
