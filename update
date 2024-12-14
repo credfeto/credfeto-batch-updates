@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 PROG=$0
 die() {
@@ -17,15 +17,20 @@ cd "$BASEDIR" || die "Could not change to $BASEDIR"
 echo "Updating Repo"
 git pull
 
-cat "$BASEDIR/.env"
-set -a && source "$BASEDIR/.env" && set +a
+echo "Using $BASEDIR/.env"
+. "$BASEDIR/.env"
 
-[ -z "$DOTNET_CHANNELS" ] || die "DOTNET_CHANNELS not defined"
-[ -z "$CACHE_ROOT" ] || die "CACHE_ROOT not defined"
-[ -z "$DOTNET_CACHE_ROOT" ] || die "DOTNET_CACHE_ROOT not defined"
-[ -z "$TRACKING_ROOT" ] || die "TRACKING_ROOT not defined"
+echo "DOTNET_CHANNELS: $DOTNET_CHANNELS"
+echo "CACHE_ROOT: $CACHE_ROOT"
+echo "DOTNET_CACHE_ROOT: $DOTNET_CACHE_ROOT"
+echo "TRACKING_ROOT: $TRACKING_ROOT"
 
+[ -z "$DOTNET_CHANNELS" ] && die "DOTNET_CHANNELS not defined"
+[ -z "$CACHE_ROOT" ] && die "CACHE_ROOT not defined"
+[ -z "$DOTNET_CACHE_ROOT" ] && die "DOTNET_CACHE_ROOT not defined"
+[ -z "$TRACKING_ROOT" ] && die "TRACKING_ROOT not defined"
 
+[ -d "$CACHE_ROOT/nuget/postgresql" ] || mkdir -p "$CACHE_ROOT/nuget/postgresql"
 [ -d "$CACHE_ROOT/nuget/packages/nuget" ] || mkdir -p "$CACHE_ROOT/nuget/packages/nuget"
 [ -d "$CACHE_ROOT/nuget/packages/funfair-release" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-release"
 [ -d "$CACHE_ROOT/nuget/packages/funfair-prerelease" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-prerelease"
