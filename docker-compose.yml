@@ -42,11 +42,11 @@ services:
       - Mirror__PackageSource=https://api.nuget.org/v3/index.json
       - PackageDeletionBehavior=HardDelete
       - Search__Type=Database
-      - Storage__Path=/data/packages
+      - Storage__Path=/data
       - Storage__Type=FileSystem
     volumes:
       - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/baget/packages/nuget:/data/packages
+      - $CACHE_ROOT/baget/packages/nuget:/data
       - $CACHE_ROOT/baget/db/nuget:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
@@ -78,11 +78,11 @@ services:
       - Mirror__PackageSource=https://dotnet-nuget.s3.eu-west-1.amazonaws.com/index.json
       - PackageDeletionBehavior=HardDelete
       - Search__Type=Database
-      - Storage__Path=/data/packages
+      - Storage__Path=/data
       - Storage__Type=FileSystem
     volumes:
       - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/baget/packages/funfair-release:/data/packages
+      - $CACHE_ROOT/baget/packages/funfair-release:/data
       - $CACHE_ROOT/baget/db/funfair-release:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
@@ -114,11 +114,11 @@ services:
       - Mirror__PackageSource=https://dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com/index.json
       - PackageDeletionBehavior=HardDelete
       - Search__Type=Database
-      - Storage__Path=/data/packages
+      - Storage__Path=/data
       - Storage__Type=FileSystem
     volumes:
       - $CACHE_ROOT/baget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/baget/packages/funfair-prerelease:/data/packages
+      - $CACHE_ROOT/baget/packages/funfair-prerelease:/data
       - $CACHE_ROOT/baget/db/funfair-prerelease:/data/db
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
