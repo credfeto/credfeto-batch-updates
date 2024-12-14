@@ -36,6 +36,10 @@ chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 # checking GPG
 gpg --list-keys || die "Could not list public keys"
 gpg --list-secret-keys || die "Could not list secret keys"
+if [ -f "$HOME/.gnupg/key.asc" ]; then
+  gpg --import "$HOME/.gnupg/key.asc" || die "Could not import secret keys from $HOME/.gnupg/key.asc"
+  gpg --list-secret-keys || die "Could not list secret keys"
+fi
 
 # Adding Certificates
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
