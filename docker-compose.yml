@@ -7,13 +7,12 @@ services:
     restart: unless-stopped
     stop_grace_period: 500s
     stop_signal: SIGINT
-    user: postgres
     environment:
       POSTGRES_USER: nuget
       POSTGRES_PASSWORD: nuget
       PGUSER: nuget
     volumes:
-      - /cache/nuget/db/postgresql:/var/lib/postgresql/data
+      - /cache/nuget/postgresql:/var/lib/postgresql/data
     networks:
       - nuget-cache
     healthcheck:
