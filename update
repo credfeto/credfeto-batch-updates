@@ -37,6 +37,6 @@ echo "TRACKING_ROOT: $TRACKING_ROOT"
 
 
 echo "Updating docker"
-sudo docker compose build && sudo docker compose up -d
+sudo docker compose pull && sudo docker compose build && sudo docker compose up -d
 
 echo "Done"
