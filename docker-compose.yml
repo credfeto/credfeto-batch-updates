@@ -134,8 +134,9 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     volumes:
-      - ./nuget/proxy.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nuget/certs:/etc/nginx/ssl
+      - $CACHE_ROOT/nginx:/var/cache/nginx/proxy
     healthcheck:
       test: curl --fail http://localhost/health || exit 1
       interval: 5s
