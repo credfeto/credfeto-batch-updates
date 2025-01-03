@@ -94,11 +94,16 @@ echo "Rotating log files"
 
 echo "Installing updater tool"
 {
-  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+  echo "Installing tools..."
   date
   [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
+  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
   "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
   "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+  "$DOTNET_ROOT/dotnet" tool list
+  echo "Installing JetBrains.ReSharper.GlobalTools"
+  "$DOTNET_ROOT/dotnet" tool install --local JetBrains.ReSharper.GlobalTools
+  "$DOTNET_ROOT/dotnet" tool update --local JetBrains.ReSharper.GlobalTools
   "$DOTNET_ROOT/dotnet" tool list
   date
 } > "${LOG_BASE}.install" 2>&1

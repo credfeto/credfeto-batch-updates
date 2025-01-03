@@ -11,6 +11,7 @@ services:
       POSTGRES_USER: nuget
       POSTGRES_PASSWORD: nuget
       PGUSER: nuget
+    ports: []
     volumes:
       - /cache/nuget/postgresql:/var/lib/postgresql/data
     networks:
