@@ -1,7 +1,7 @@
 
 services:
   cache-postgresql:
-    container_name: cache-postgresql
+    container_name: upgrader-cache-postgresql
     hostname: cache-postgresql
     image: postgres:16
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
 
   cache-nuget:
     image: bagetter/bagetter:1.5
-    container_name: cache-nuget
+    container_name: upgrader-cache-nuget
     restart: unless-stopped
     stop_grace_period: 15s
     stop_signal: SIGINT
@@ -59,7 +59,7 @@ services:
 
   cache-funfair-release:
     image: bagetter/bagetter:1.5
-    container_name: cache-funfair-release
+    container_name: upgrader-cache-funfair-release
     restart: unless-stopped
     stop_grace_period: 15s
     stop_signal: SIGINT
@@ -94,7 +94,7 @@ services:
 
   cache-funfair-prerelease:
     image: bagetter/bagetter:1.5
-    container_name: cache-funfair-prerelease
+    container_name: upgrader-cache-funfair-prerelease
     restart: unless-stopped
     stop_grace_period: 15s
     stop_signal: SIGINT
@@ -129,7 +129,7 @@ services:
 
   cache-nuget-nginx:
     image: nginx:stable-alpine
-    container_name: cache-nuget-nginx
+    container_name: upgrader-cache-nuget-nginx
     restart: unless-stopped
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -159,7 +159,7 @@ services:
 
   templates-personal:
     build: ./templates
-    container_name: templates-personal
+    container_name: upgrader-templates-personal
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -187,7 +187,7 @@ services:
 
   templates-funfair:
     build: ./templates
-    container_name: templates-funfair
+    container_name: upgrader-templates-funfair
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -215,7 +215,7 @@ services:
 
   packages-personal:
     build: ./packages
-    container_name: packages-personal
+    container_name: upgrader-packages-personal
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -243,7 +243,7 @@ services:
 
   packages-funfair:
     build: ./packages
-    container_name: packages-funfair
+    container_name: upgrader-packages-funfair
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -271,7 +271,7 @@ services:
 
   cleanup-personal:
     build: ./cleanup
-    container_name: cleanup-personal
+    container_name: upgrader-cleanup-personal
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -299,7 +299,7 @@ services:
 
   cleanup-funfair:
     build: ./cleanup
-    container_name: cleanup-funfair
+    container_name: upgrader-cleanup-funfair
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
