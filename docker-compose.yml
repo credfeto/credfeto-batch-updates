@@ -14,12 +14,12 @@ services:
     ports: []
     volumes:
       - /cache/nuget/postgresql:/var/lib/postgresql/data
-      - ./db/00-max-connections.sql:/docker-entrypoint-initdb.d/00-max-connections.sql:r
-      - ./db/01-users.sql:/docker-entrypoint-initdb.d/01-users.sql:r
+      - ./db/01-max-connections.sh:/docker-entrypoint-initdb.d/01-max-connections.sh
+      - ./db/02-users.sql:/docker-entrypoint-initdb.d/02-users.sql:r
     networks:
       - nuget-cache
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: pg_isready -U nuget
       interval: 30s
       timeout: 60s
       retries: 5
