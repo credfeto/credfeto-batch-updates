@@ -14,6 +14,8 @@ services:
     ports: []
     volumes:
       - /cache/nuget/postgresql:/var/lib/postgresql/data
+      - ./db/00-max-connections.sql:/docker-entrypoint-initdb.d/00-max-connections.sql:r
+      - ./db/01-users.sql:/docker-entrypoint-initdb.d/01-users.sql:r
     networks:
       - nuget-cache
     healthcheck:
