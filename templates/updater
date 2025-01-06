@@ -60,59 +60,62 @@ export DOTNET_TC_CallCountingDelayMs="0"
 export DOTNET_TieredPGO="1"
 export MSBUILDTERMINALLOGGER="auto"
 
-cd "$HOME" || die "Could not switch to $HOME"
+while sleep 120; do
 
-# Installing .net
-for CHANNEL in $DOTNET_CHANNELS
-do
-    echo "Installing DotNet: $CHANNEL"
-    /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$DOTNET_ROOT" -channel "$CHANNEL"
+  cd "$HOME" || die "Could not switch to $HOME"
+
+  # Installing .net
+  for CHANNEL in $DOTNET_CHANNELS
+  do
+      echo "Installing DotNet: $CHANNEL"
+      /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$DOTNET_ROOT" -channel "$CHANNEL"
+  done
+
+  "$DOTNET_ROOT/dotnet" --list-sdks
+
+  echo "Setting up environments"
+  export PATH="$PATH:$DOTNET_ROOT"
+  export WORK="$HOME/work"
+  export TRACKING_FILE="$HOME/tracking/tracking.json"
+  LOGS="$HOME/tracking"
+  LOG_BASE=${LOGS}/template
+  LOG_FILE=${LOG_BASE}.log
+  LAST_LOG_FILE1=${LOG_BASE}.old
+  LAST_LOG_FILE2=${LOG_BASE}.old.1
+  LAST_LOG_FILE3=${LOG_BASE}.old.2
+  LAST_LOG_FILE4=${LOG_BASE}.old.3
+  RELEASE_LOG_FILE=${LOG_BASE}.release.log
+
+  echo "Rotating log files"
+  [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
+  [ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
+  [ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
+  [ -f "${LAST_LOG_FILE2}" ] && [ -f "${LAST_LOG_FILE1}" ] && mv "${LAST_LOG_FILE2}" "${LAST_LOG_FILE3}"
+  [ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
+  [ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
+
+  echo "Installing updater tool"
+  {
+    echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+    date
+    [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
+    "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
+    "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+    "$DOTNET_ROOT/dotnet" tool list
+    date
+  } > "${LOG_BASE}.install" 2>&1
+
+
+  echo "Running tool"
+  "$DOTNET_ROOT/dotnet" updaterepo \
+          update-template \
+            --repositories "${REPOS_LIST}" \
+            --work "${WORK}" \
+            --tracking "${TRACKING_FILE}" \
+            --packages "${PACKAGES}" \
+            --template "${TEMPLATE}" \
+            --release "${RELEASE}" \
+              2>&1 | tee "${LOG_FILE}"
+
+  echo "Done"
 done
-
-"$DOTNET_ROOT/dotnet" --list-sdks
-
-echo "Setting up environments"
-export PATH="$PATH:$DOTNET_ROOT"
-export WORK="$HOME/work"
-export TRACKING_FILE="$HOME/tracking/tracking.json"
-LOGS="$HOME/tracking"
-LOG_BASE=${LOGS}/template
-LOG_FILE=${LOG_BASE}.log
-LAST_LOG_FILE1=${LOG_BASE}.old
-LAST_LOG_FILE2=${LOG_BASE}.old.1
-LAST_LOG_FILE3=${LOG_BASE}.old.2
-LAST_LOG_FILE4=${LOG_BASE}.old.3
-RELEASE_LOG_FILE=${LOG_BASE}.release.log
-
-echo "Rotating log files"
-[ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
-[ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
-[ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
-[ -f "${LAST_LOG_FILE2}" ] && [ -f "${LAST_LOG_FILE1}" ] && mv "${LAST_LOG_FILE2}" "${LAST_LOG_FILE3}"
-[ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
-[ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
-
-echo "Installing updater tool"
-{
-  echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
-  date
-  [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
-  "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
-  "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
-  "$DOTNET_ROOT/dotnet" tool list
-  date
-} > "${LOG_BASE}.install" 2>&1
-
-
-echo "Running tool"
-"$DOTNET_ROOT/dotnet" updaterepo \
-        update-template \
-          --repositories "${REPOS_LIST}" \
-          --work "${WORK}" \
-          --tracking "${TRACKING_FILE}" \
-          --packages "${PACKAGES}" \
-          --template "${TEMPLATE}" \
-          --release "${RELEASE}" \
-            2>&1 | tee "${LOG_FILE}"
-
-echo "Done"
