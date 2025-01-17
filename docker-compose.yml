@@ -1,132 +1,52 @@
 
 services:
-  cache-postgresql:
-    container_name: upgrader-cache-postgresql
-    hostname: cache-postgresql
-    image: postgres:16
-    restart: unless-stopped
+  cache-nuget:
+    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
+    container_name: upgrader-cache-nuget
+    hostname: nuget
+    restart: always
     stop_grace_period: 500s
     stop_signal: SIGINT
     environment:
-      POSTGRES_USER: nuget
-      POSTGRES_PASSWORD: nuget
-      PGUSER: nuget
-    ports: []
+      - Proxy__UpstreamUrl__0=https://api.nuget.org
+      - Proxy__PublicUrl=https://api.nuget.local:5555
+      - Proxy__Packages=/data
     volumes:
-      - /cache/nuget/postgresql:/var/lib/postgresql/data
-      - ./db/01-max-connections.sh:/docker-entrypoint-initdb.d/01-max-connections.sh
-      - ./db/02-users.sql:/docker-entrypoint-initdb.d/02-users.sql:r
-    networks:
-      - nuget-cache
-    healthcheck:
-      test: pg_isready -U nuget
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
-
-  cache-nuget:
-    image: bagetter/bagetter:1.5
-    container_name: upgrader-cache-nuget
-    restart: unless-stopped
-    stop_grace_period: 15s
-    stop_signal: SIGINT
-    environment:
-      - AllowPackageOverwrites=true
-      - ApiKey=Upload
-      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=nuget;User Id=nuget;Password=nuget;
-      - Database__Type=PostgreSql
-      - Logging__Console__LogLevel__Default=Warning
-      - MaxPackageSizeGiB=10
-      - MaxVersionsPerPackage=5
-      - Mirror__Enabled=true
-      - Mirror__PackageDownloadTimeoutSeconds=60000
-      - Mirror__PackageSource=https://api.nuget.org/v3/index.json
-      - PackageDeletionBehavior=HardDelete
-      - Search__Type=Database
-      - Storage__Path=/data
-      - Storage__Type=FileSystem
-    volumes:
-      - $CACHE_ROOT/nuget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/nuget/packages/nuget:/data
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-      interval: 5s
-      timeout: 4s
-      retries: 5
-    depends_on:
-      cache-postgresql:
-        condition: service_healthy
+      - /cache/nuget/api.nuget.local:/data
     networks:
       - nuget-cache
 
   cache-funfair-release:
-    image: bagetter/bagetter:1.5
+    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
     container_name: upgrader-cache-funfair-release
-    restart: unless-stopped
-    stop_grace_period: 15s
+    hostname: funfair-release
+    restart: always
+    stop_grace_period: 500s
     stop_signal: SIGINT
     environment:
-      - AllowPackageOverwrites=true
-      - ApiKey=Upload
-      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=funfair-release;User Id=nuget;Password=nuget;
-      - Database__Type=PostgreSql
-      - Logging__Console__LogLevel_Default=Warning
-      - MaxPackageSizeGiB=10
-      - MaxVersionsPerPackage=5
-      - Mirror__Enabled=true
-      - Mirror__PackageDownloadTimeoutSeconds=60000
-      - Mirror__PackageSource=https://dotnet-nuget.s3.eu-west-1.amazonaws.com/index.json
-      - PackageDeletionBehavior=HardDelete
-      - Search__Type=Database
-      - Storage__Path=/data
-      - Storage__Type=FileSystem
+      - Proxy__UpstreamUrl__0=https://dotnet-nuget.s3.eu-west-1.amazonaws.com
+      - Proxy__UpstreamUrl__1=https://s3.eu-west-1.amazonaws.com/dotnet-nuget
+      - Proxy__PublicUrl=https://funfair.nuget.local:5555
+      - Proxy__Packages=/data
     volumes:
-      - $CACHE_ROOT/nuget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/nuget/packages/funfair-release:/data
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-      interval: 5s
-      timeout: 4s
-      retries: 5
-    depends_on:
-      cache-postgresql:
-        condition: service_healthy
+      - /cache/nuget/funfair.nuget.local:/data
     networks:
       - nuget-cache
 
   cache-funfair-prerelease:
-    image: bagetter/bagetter:1.5
+    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
     container_name: upgrader-cache-funfair-prerelease
-    restart: unless-stopped
-    stop_grace_period: 15s
+    hostname: funfair-prerelease
+    restart: always
+    stop_grace_period: 500s
     stop_signal: SIGINT
     environment:
-      - AllowPackageOverwrites=true
-      - ApiKey=Upload
-      - Database__ConnectionString=Server=cache-postgresql;Port=5432;Database=funfair-prerelease;User Id=nuget;Password=nuget;
-      - Database__Type=PostgreSql
-      - Logging__Console__LogLevel_Default=Warning
-      - MaxPackageSizeGiB=10
-      - MaxVersionsPerPackage=5
-      - Mirror__Enabled=true
-      - Mirror__PackageDownloadTimeoutSeconds=60000
-      - Mirror__PackageSource=https://dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com/index.json
-      - PackageDeletionBehavior=HardDelete
-      - Search__Type=Database
-      - Storage__Path=/data
-      - Storage__Type=FileSystem
+      - Proxy__UpstreamUrl__0=https://dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com
+      - Proxy__UpstreamUrl__1=https://s3.eu-west-1.amazonaws.com/dotnet-nuget-prerelease
+      - Proxy__PublicUrl=https://funfair.nuget.local:5555
+      - Proxy__Packages=/data
     volumes:
-      - $CACHE_ROOT/nuget/security/nuget:/root/.aspnet
-      - $CACHE_ROOT/nuget/packages/funfair-prerelease:/data
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
-      interval: 5s
-      timeout: 4s
-      retries: 5
-    depends_on:
-      cache-postgresql:
-        condition: service_healthy
+      - /cache/nuget/funfair.nuget.local:/data
     networks:
       - nuget-cache
 
