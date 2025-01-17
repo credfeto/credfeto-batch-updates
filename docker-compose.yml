@@ -3,7 +3,7 @@ services:
   cache-nuget:
     image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
     container_name: upgrader-cache-nuget
-    hostname: nuget
+    hostname: cache-nuget
     restart: always
     stop_grace_period: 500s
     stop_signal: SIGINT
@@ -19,7 +19,7 @@ services:
   cache-funfair-release:
     image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
     container_name: upgrader-cache-funfair-release
-    hostname: funfair-release
+    hostname: cache-funfair-release
     restart: always
     stop_grace_period: 500s
     stop_signal: SIGINT
@@ -36,7 +36,7 @@ services:
   cache-funfair-prerelease:
     image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
     container_name: upgrader-cache-funfair-prerelease
-    hostname: funfair-prerelease
+    hostname: cache-funfair-prerelease
     restart: always
     stop_grace_period: 500s
     stop_signal: SIGINT
