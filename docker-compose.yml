@@ -123,9 +123,6 @@ services:
       - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
-        condition: service_healthy
     networks:
       - updaters
 
