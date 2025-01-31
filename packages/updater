@@ -73,6 +73,8 @@ while sleep 120; do
 
   "$DOTNET_ROOT/dotnet" --list-sdks
 
+  "$DOTNET_ROOT/dotnet" nuget list source
+
   echo "Setting up environments"
   export PATH="$PATH:$DOTNET_ROOT"
   export WORK="$HOME/work"
