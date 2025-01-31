@@ -22,6 +22,7 @@ services:
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -47,6 +48,7 @@ services:
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -72,6 +74,7 @@ services:
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -97,6 +100,7 @@ services:
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -122,6 +126,7 @@ services:
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
@@ -147,6 +152,7 @@ services:
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
       - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
     networks:
       - updaters
