@@ -1,84 +1,5 @@
 
 services:
-  cache-nuget:
-    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
-    container_name: upgrader-cache-nuget
-    hostname: cache-nuget
-    restart: always
-    stop_grace_period: 500s
-    stop_signal: SIGINT
-    environment:
-      - Proxy__UpstreamUrl__0=https://api.nuget.org
-      - Proxy__PublicUrl=https://api.nuget.local
-      - Proxy__Packages=/data
-    volumes:
-      - /cache/nuget/api.nuget.local:/data
-    networks:
-      - nuget-cache
-
-  cache-funfair-release:
-    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
-    container_name: upgrader-cache-funfair-release
-    hostname: cache-funfair-release
-    restart: always
-    stop_grace_period: 500s
-    stop_signal: SIGINT
-    environment:
-      - Proxy__UpstreamUrl__0=https://dotnet-nuget.s3.eu-west-1.amazonaws.com
-      - Proxy__UpstreamUrl__1=https://s3.eu-west-1.amazonaws.com/dotnet-nuget
-      - Proxy__PublicUrl=https://funfair.nuget.local
-      - Proxy__Packages=/data
-    volumes:
-      - /cache/nuget/funfair.nuget.local:/data
-    networks:
-      - nuget-cache
-
-  cache-funfair-prerelease:
-    image: docker-registry.markridgwell.com/credfeto/nuget-proxy:latest
-    container_name: upgrader-cache-funfair-prerelease
-    hostname: cache-funfair-prerelease
-    restart: always
-    stop_grace_period: 500s
-    stop_signal: SIGINT
-    environment:
-      - Proxy__UpstreamUrl__0=https://dotnet-nuget-prerelease.s3.eu-west-1.amazonaws.com
-      - Proxy__UpstreamUrl__1=https://s3.eu-west-1.amazonaws.com/dotnet-nuget-prerelease
-      - Proxy__PublicUrl=https://funfair.nuget.local
-      - Proxy__Packages=/data
-    volumes:
-      - /cache/nuget/funfair.nuget.local:/data
-    networks:
-      - nuget-cache
-
-  cache-nuget-nginx:
-    image: nginx:stable-alpine
-    container_name: upgrader-cache-nuget-nginx
-    restart: unless-stopped
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nuget/certs:/etc/nginx/ssl
-      - $CACHE_ROOT/nginx:/var/cache/nginx/proxy
-    healthcheck:
-      test: curl --fail http://localhost/health || exit 1
-      interval: 5s
-      timeout: 4s
-      retries: 5
-    depends_on:
-      cache-nuget:
-        condition: service_healthy
-      cache-funfair-prerelease:
-        condition: service_healthy
-      cache-funfair-release:
-        condition: service_healthy
-    networks:
-      nuget-cache:
-      updaters:
-        aliases:
-          - api.nuget.local
-          - funfair.nuget.local
-          - funfair-prerelease.nuget.local
 
   templates-personal:
     build: ./templates
@@ -102,9 +23,6 @@ services:
       - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
-        condition: service_healthy
     networks:
       - updaters
 
@@ -130,9 +48,6 @@ services:
       - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
-        condition: service_healthy
     networks:
       - updaters
 
@@ -158,8 +73,6 @@ services:
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
         condition: service_healthy
     networks:
       - updaters
@@ -186,9 +99,6 @@ services:
       - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
-        condition: service_healthy
     networks:
       - updaters
 
@@ -242,15 +152,9 @@ services:
       - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-    depends_on:
-      cache-nuget-nginx:
-        condition: service_healthy
     networks:
       - updaters
 
 networks:
-  nuget-cache:
-    driver: bridge
-
   updaters:
     driver: bridge
