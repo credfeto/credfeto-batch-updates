@@ -73,7 +73,6 @@ services:
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs
-        condition: service_healthy
     networks:
       - updaters
 
