@@ -13,7 +13,6 @@ export USER
 
 [ -z "$USER" ] && die "USER not defined"
 [ -z "$HOME" ] && die "HOME not defined"
-
 echo "Running as: $USER"
 echo "Home: $HOME"
 
@@ -22,6 +21,7 @@ echo "Template: $TEMPLATE"
 echo "Packages: $PACKAGES"
 echo "Release: $RELEASE"
 
+[ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "No NuGet.Config"
 [ -z "$PACKAGES" ] && die "PACKAGES not defined"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
@@ -74,6 +74,8 @@ while sleep 120; do
   "$DOTNET_ROOT/dotnet" --list-sdks
 
   "$DOTNET_ROOT/dotnet" nuget list source
+
+  cat "$HOME/.nuget/NuGet/NuGet.Config"
 
   echo "Setting up environments"
   export PATH="$PATH:$DOTNET_ROOT"
