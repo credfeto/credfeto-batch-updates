@@ -110,14 +110,16 @@ while sleep 120; do
     date
   } > "${LOG_BASE}.install" 2>&1
 
+  curl -v "${REPOS_LIST}" -L -f -o  "${WORK}/repos.lst" && die "Could not download repos"
+  curl -v "${PACKAGES}" -L -f -o  "${WORK}/packages.json" && die "Could not download packages"
 
   echo "Running tool"
   "$DOTNET_ROOT/dotnet" updaterepo \
           update-template \
-            --repositories "${REPOS_LIST}" \
+            --repositories "${WORK}/repos.lst" \
             --work "${WORK}" \
             --tracking "${TRACKING_FILE}" \
-            --packages "${PACKAGES}" \
+            --packages "${WORK}/packages.json" \
             --template "${TEMPLATE}" \
             --release "${RELEASE}" \
               2>&1 | tee "${LOG_FILE}"
