@@ -8,10 +8,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/personal:/local/tracking
@@ -34,10 +34,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
@@ -60,10 +60,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/packageupdate/personal:/local/tracking
@@ -86,10 +86,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/packageupdate/funfair:/local/tracking
@@ -112,10 +112,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/personal/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/codecleanup/personal:/local/tracking
@@ -138,10 +138,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/packages.json
-      - REPOS_LIST=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/funfair/repos.lst
+      - PACKAGES=https://updates.markridgwell.com/packages.config
+      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://github.com/credfeto/auto-update-config/raw/refs/heads/main/release.config
+      - RELEASE=https://updates.markridgwell.com/release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
