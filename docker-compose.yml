@@ -11,7 +11,8 @@ services:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - RELEASE=https://updates.markridgwell.com/personal-release.config
+      - TEMPLATECONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/personal:/local/tracking
@@ -37,7 +38,8 @@ services:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - RELEASE=https://updates.markridgwell.com/funfair-release.config
+      - TEMPLATECONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
@@ -63,7 +65,7 @@ services:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - RELEASE=https://updates.markridgwell.com/personal-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/packageupdate/personal:/local/tracking
@@ -88,8 +90,8 @@ services:
     environment:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
-      - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+      - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/packageupdate/funfair:/local/tracking
@@ -115,7 +117,7 @@ services:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - RELEASE=https://updates.markridgwell.com/personal-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/codecleanup/personal:/local/tracking
@@ -141,7 +143,7 @@ services:
       - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/release.config
+      - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
