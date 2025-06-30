@@ -27,6 +27,7 @@ echo "Release: $RELEASE"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
+[ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG not defined"
 
 # Setting permissions
 doas chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
@@ -118,6 +119,7 @@ while sleep 120; do
             --tracking "${TRACKING_FILE}" \
             --packages "${PACKAGES}" \
             --template "${TEMPLATE}" \
+            --template-config "${TEMPLATE_CONFIG}" \
             --release "${RELEASE}" \
               2>&1 | tee "${LOG_FILE}"
 

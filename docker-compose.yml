@@ -12,7 +12,7 @@ services:
       - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
       - RELEASE=https://updates.markridgwell.com/personal-release.config
-      - TEMPLATECONFIG=https://updates.markridgwell.com/personal-templates.config
+      - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/personal:/local/tracking
@@ -39,7 +39,7 @@ services:
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
       - RELEASE=https://updates.markridgwell.com/funfair-release.config
-      - TEMPLATECONFIG=https://updates.markridgwell.com/personal-templates.config
+      - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
