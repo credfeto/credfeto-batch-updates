@@ -21,8 +21,8 @@ services:
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/templateupdate/personal/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/templateupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
@@ -49,8 +49,8 @@ services:
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/templateupdate/funfair/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/templateupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
@@ -76,8 +76,8 @@ services:
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/packageupdate/personal/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/packageupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
@@ -103,8 +103,8 @@ services:
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/packageupdate/funfair/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/packageupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
@@ -130,8 +130,8 @@ services:
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
@@ -157,8 +157,8 @@ services:
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
       - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
-      - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
-      - $DOTNET_CACHE_ROOT/downloads:/local/downloads
+      - $DOTNET_CACHE_ROOT/codecleanup/funfair/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/codecleanup/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
