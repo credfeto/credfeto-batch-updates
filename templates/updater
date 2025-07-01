@@ -47,6 +47,7 @@ fi
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
 doas cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
 doas cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
+doas cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
 doas update-ca-certificates || die "could not import certificates"
 
 # Dotnet settings
