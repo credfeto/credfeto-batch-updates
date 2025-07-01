@@ -46,7 +46,8 @@ RUN \
     mkdir -p /local/work && \
     mkdir -p /local/dotnet && \
     mkdir -p /local/.ssh && \
-    mkdir -p /local/.gnupg
+    mkdir -p /local/.gnupg && \
+    mkdir -p /local/downloads
 
 ENTRYPOINT [ "/usr/src/app/updater" ]
 

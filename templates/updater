@@ -7,6 +7,8 @@ die() {
     exit 1
 }
 
+BASEDIR="$(dirname "$(readlink -f "$0")")"
+
 
 USER="$(whoami || die "No user")"
 export USER
@@ -63,15 +65,33 @@ export DOTNET_TC_CallCountingDelayMs="0"
 export DOTNET_TieredPGO="1"
 export MSBUILDTERMINALLOGGER="auto"
 
+[ -f "/bin/tar" ] || die "tar not found"
+
+. "$BASEDIR/install-dotnet"
+
 while sleep 120; do
 
   cd "$HOME" || die "Could not switch to $HOME"
 
   # Installing .net
-  for CHANNEL in $DOTNET_CHANNELS
+  for VERSION in $DOTNET_CHANNELS
   do
-      echo "Installing DotNet: $CHANNEL"
-      /bin/bash /usr/src/app/dotnet-install.sh --install-dir "$DOTNET_ROOT" -channel "$CHANNEL"
+    SDK_VERSION_URL="$DOTNET_SOURCE/dotnet/Sdk/$VERSION/latest.version"
+
+    echo "Checking latest sdk version from $SDK_VERSION_URL"
+    echo ""
+    SDK_VERSION=$(curl --connect-timeout 5 \
+                            --max-time 10 \
+                            --retry 5 \
+                            --retry-delay 1 \
+                            --retry-max-time 40 \
+                            -s \
+                            -L \
+                            -f \
+                            "$SDK_VERSION_URL" || die "Could not read SDK Version from $SDK_VERSION_URL")
+
+    install_dotnet_version "$VERSION" "$SDK_VERSION"
+
   done
 
   "$DOTNET_ROOT/dotnet" --list-sdks

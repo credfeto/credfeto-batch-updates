@@ -1,0 +1,195 @@
+#! /bin/bash
+
+DOWNLOADS=$HOME/downloads
+TMPBASE=${TMPDIR:-$HOME/tmp}
+[ -d "$TMPBASE" ] || mkdir -p "$TMPBASE"
+[ -d "$DOWNLOADS" ] || mkdir -p "$DOWNLOADS"
+
+temporary_file_template="$TMPBASE/dotnet.XXXXXXXXX"
+override_non_versioned_files=true
+verbose=0
+
+export DOTNET_SOURCE=https://builds.dotnet.microsoft.com
+export PROXY_HOST=https://builds.dotnet.local:5555
+
+# args:
+# zip_path - $1
+# out_path - $2
+extract_dotnet_package() {
+#    eval $invocation
+
+    local zip_path="$1"
+    local out_path="$2"
+
+    local temp_out_path="$(mktemp -d "$temporary_file_template")"
+
+    #echo "Zip: $zip_path"
+    #echo "Out: $out_path"
+    #echo "Temp: $temp_out_path"
+
+    echo "Extracting..."
+    local failed=false
+    tar -xvzf "$zip_path" -C "$temp_out_path" > /dev/null || failed=true
+
+    echo "Install..."
+    local folders_with_version_regex='^.*/[0-9]+\.[0-9]+[^/]+/'
+    find "$temp_out_path" -type f | grep -Eo "$folders_with_version_regex" | sort | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" false
+    find "$temp_out_path" -type f | grep -Ev "$folders_with_version_regex" | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" "$override_non_versioned_files"
+
+    doas rm -rf "$temp_out_path"
+    #doas rm -f "$zip_path" && say_verbose "Temporary archive file $zip_path was removed"
+
+    [ -f "$out_path/dotnet" ] || echo "Missing dotnet"
+    [ -f "$out_path/dotnet" ] || failed=true
+
+    if [ "$failed" = true ]; then
+        say_err "Extraction failed"
+        return 1
+    fi
+    return 0
+}
+
+# args:
+# input_files - stdin
+# root_path - $1
+# out_path - $2
+# override - $3
+copy_files_or_dirs_from_list() {
+    eval $invocation
+
+    local root_path="$(remove_trailing_slash "$1")"
+    local out_path="$(remove_trailing_slash "$2")"
+    local override="$3"
+    local override_switch="$(get_cp_options "$override")"
+
+    cat | uniq | while read -r file_path; do
+        local path="$(remove_beginning_slash "${file_path#$root_path}")"
+        local target="$out_path/$path"
+        if [ "$override" = true ] || (! ([ -d "$target" ] || [ -e "$target" ])); then
+            doas mkdir -p "$out_path/$(dirname "$path")"
+            if [ -d "$target" ]; then
+                doas rm -rf "$target"
+            fi
+            doas cp -R $override_switch "$root_path/$path" "$target"
+        fi
+    done
+}
+
+# args:
+# override - $1 (boolean, true or false)
+get_cp_options() {
+    eval $invocation
+
+    local override="$1"
+    local override_switch=""
+
+    if [ "$override" = false ]; then
+        override_switch="-n"
+
+        # create temporary files to check if 'cp -u' is supported
+        tmp_dir="$(doas mktemp -d)"
+        tmp_file="$tmp_dir/testfile"
+        tmp_file2="$tmp_dir/testfile2"
+
+        doas touch "$tmp_file"
+
+        # use -u instead of -n if it's available
+        if doas cp -u "$tmp_file" "$tmp_file2" 2>/dev/null; then
+            override_switch="-u"
+        fi
+
+        # clean up
+        doas rm -f "$tmp_file" "$tmp_file2"
+        doas rm -rf "$tmp_dir"
+    fi
+
+    echo "$override_switch"
+}
+
+
+# args:
+# input - $1
+remove_trailing_slash() {
+    #eval $invocation
+
+    local input="${1:-}"
+    echo "${input%/}"
+    return 0
+}
+
+# args:
+# input - $1
+remove_beginning_slash() {
+    #eval $invocation
+
+    local input="${1:-}"
+    echo "${input#/}"
+    return 0
+}
+
+say() {
+    echo "dotnet-install: $1"
+}
+
+say_verbose() {
+    if [ "$verbose" = true ]; then
+        say "$1"
+    fi
+}
+
+say_err() {
+  say "$1"
+  exit 1
+}
+
+# args:
+# version - $1
+# sdk version - $2
+install_dotnet_version() {
+  local VERSION="$1"
+  local SDK_VERSION="$2"
+
+  echo "**********************************************************************************************"
+  echo "* Installing dotnet: $VERSION"
+  echo "*       Current SDK: $SDK_VERSION"
+  echo "**********************************************************************************************"
+  echo ""
+
+  if [ -f "$DOTNET_ROOT/dotnet" ]; then
+    SDK_INSTALLED=$("$DOTNET_ROOT/dotnet" --list-sdks | cut -f 1 -d " " | grep -F "$SDK_VERSION")
+    echo "Installed: $SDK_INSTALLED"
+
+    if [ "$SDK_INSTALLED" = "$SDK_VERSION" ]; then
+      echo "Already installed - skipping"
+      return
+    else
+      echo "New Install (Previous installed): $SDK_VERSION"
+    fi
+  else
+    echo "New Install (None installed): $SDK_VERSION"
+  fi
+
+  TEMPORARY_FILE="$DOWNLOADS/$SDK_VERSION.tgz"
+
+  if [ -f "$TEMPORARY_FILE" ]; then
+    echo "Already downloaded $TEMPORARY_FILE"
+  else
+    DOWNLOAD_URL=$PROXY_HOST/dotnet/Sdk/$SDK_VERSION/dotnet-sdk-$SDK_VERSION-linux-musl-x64.tar.gz
+    echo "Download $DOWNLOAD_URL to $TEMPORARY_FILE..."
+    curl --max-time 10 \
+          --retry 5 \
+          --retry-delay 1 \
+          --retry-max-time 40 \
+          -s \
+          -L \
+          -f \
+          "$DOWNLOAD_URL" \
+          -o "$TEMPORARY_FILE" || say_err "Could not download: $DOWNLOAD_URL"
+
+    [ -f "$TEMPORARY_FILE" ] || say_err "Temp file not downloaded ($DOWNLOAD_URL)"
+   fi
+
+   extract_dotnet_package "$TEMPORARY_FILE" "$DOTNET_ROOT" || say_err "Could not install"
+
+   "$DOTNET_ROOT/dotnet" --list-sdks || say_err "Dotnet $SDK_VERSION not installed properly"
+}
