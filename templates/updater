@@ -65,7 +65,6 @@ export DOTNET_TC_CallCountingDelayMs="0"
 export DOTNET_TieredPGO="1"
 export MSBUILDTERMINALLOGGER="auto"
 
-[ -f "/bin/curl" ] || die "cur not found"
 [ -f "/bin/tar" ] || die "tar not found"
 
 . "$BASEDIR/install-dotnet"
