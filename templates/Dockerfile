@@ -4,6 +4,7 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY updater .
+COPY install-dotnet .
 COPY healthcheck .
 
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
