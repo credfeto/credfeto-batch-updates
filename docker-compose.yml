@@ -24,7 +24,7 @@ services:
       - $DOTNET_CACHE_ROOT/templateupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
@@ -51,7 +51,7 @@ services:
       - $DOTNET_CACHE_ROOT/templateupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
@@ -77,7 +77,7 @@ services:
       - $DOTNET_CACHE_ROOT/packageupdate/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
@@ -103,7 +103,7 @@ services:
       - $DOTNET_CACHE_ROOT/packageupdate/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
@@ -129,7 +129,7 @@ services:
       - $DOTNET_CACHE_ROOT/codecleanup/personal:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
@@ -155,7 +155,7 @@ services:
       - $DOTNET_CACHE_ROOT/codecleanup/funfair:/local/dotnet
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs
+      - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
