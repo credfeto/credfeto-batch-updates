@@ -4,6 +4,7 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY updater .
+COPY install-dotnet .
 COPY healthcheck .
 
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
@@ -32,12 +33,7 @@ RUN \
     adduser -S -D "updater" -G "updater" -h /local && \
     chown updater:updater /local && \
     chmod 700 /local && \
-    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf && \
-    # Get dotnet install script \
-    curl https://dot.net/v1/dotnet-install.sh -L -o /usr/src/app/dotnet-install.sh && \
-    sed -i "s|https://builds.dotnet.microsoft.com/dotnet|http://builds.dotnet.local:5554/dotnet|g" /usr/src/app/dotnet-install.sh && \
-    sed -i "s|https://ci.dot.net/public|http://builds.dotnet.local:5554/dotnet/dotnet|g" /usr/src/app/dotnet-install.sh && \
-    chmod +x /usr/src/app/dotnet-install.sh
+    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
 
 USER updater
 

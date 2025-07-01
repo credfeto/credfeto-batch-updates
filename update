@@ -41,4 +41,7 @@ sudo docker compose pull \
   && sudo docker compose build \
   && sudo docker compose up -d --remove-orphans
 
+echo "Removing old images"
+sudo docker image prune -f
+
 echo "Done"
