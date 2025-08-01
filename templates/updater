@@ -31,6 +31,11 @@ echo "Release: $RELEASE"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
 [ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG not defined"
 
+# Ensure that TMP environment variables are set up as used by dotnet and tests
+export TMP=$(mktemp -d)
+export TEMP=$TMP
+export TMPDIR=$TMP
+
 # Setting permissions
 doas chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
 chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"

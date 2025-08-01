@@ -36,6 +36,11 @@ chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 
+# Ensure that TMP environment variables are set up as used by dotnet and tests
+export TMP=$(mktemp -d)
+export TEMP=$TMP
+export TMPDIR=$TMP
+
 # checking GPG
 gpg --list-keys || die "Could not list public keys"
 gpg --list-secret-keys || die "Could not list secret keys"
