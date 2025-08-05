@@ -145,8 +145,10 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
+      - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+      - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
@@ -195,10 +197,8 @@ services:
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
     volumes:
       - $TRACKING_ROOT/dependencies/funfair:/local/tracking
