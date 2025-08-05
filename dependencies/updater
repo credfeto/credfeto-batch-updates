@@ -137,13 +137,11 @@ while sleep 120; do
 
   echo "Running tool"
   "$DOTNET_ROOT/dotnet" updaterepo \
-          code-cleanup \
+          reduce-dependencies \
             --repositories "${REPOS_LIST}" \
             --work "${WORK}" \
             --tracking "${TRACKING_FILE}" \
-            --packages "${PACKAGES}" \
             --template "${TEMPLATE}" \
-            --release "${RELEASE}" \
                2>&1 | tee "${LOG_FILE}"
 
   echo "Done"

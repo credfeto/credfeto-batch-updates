@@ -1,0 +1,9 @@
+#! /bin/sh
+
+# Check if dotnet process is running
+CHECK_TASK_PID=$(pidof dotnet sleep)
+if [ -z "$CHECK_TASK_PID" ]; then
+    exit 1
+fi
+
+exit 0
