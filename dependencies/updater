@@ -19,12 +19,8 @@ echo "Home: $HOME"
 
 echo "Repos: $REPOS_LIST"
 echo "Template: $TEMPLATE"
-echo "Packages: $PACKAGES"
-echo "Release: $RELEASE"
 
 [ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "No NuGet.Config"
-[ -z "$PACKAGES" ] && die "PACKAGES not defined"
-[ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
 
