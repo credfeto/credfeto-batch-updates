@@ -20,7 +20,7 @@ services:
       - $CACHE_ROOT/templateupdate/personal/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/templateupdate/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -48,7 +48,7 @@ services:
       - $CACHE_ROOT/templateupdate/funfair/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/templateupdate/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -75,7 +75,7 @@ services:
       - $CACHE_ROOT/packageupdate/personal/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/packageupdate/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -102,7 +102,7 @@ services:
       - $CACHE_ROOT/packageupdate/funfair/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/packageupdate/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -129,7 +129,7 @@ services:
       - $CACHE_ROOT/codecleanup/personal/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -156,7 +156,7 @@ services:
       - $CACHE_ROOT/codecleanup/funfair/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/codecleanup/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -181,7 +181,7 @@ services:
       - $CACHE_ROOT/dependencies/personal/work:/local/work
       - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
       - $CONFIG_ROOT/dependencies/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/dependencies/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -206,7 +206,7 @@ services:
       - $CACHE_ROOT/dependencies/funfair/work:/local/work
       - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
       - $CONFIG_ROOT/dependencies/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig:r
+      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/dependencies/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
