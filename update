@@ -35,6 +35,11 @@ echo "TRACKING_ROOT: $TRACKING_ROOT"
 [ -d "$CACHE_ROOT/nuget/packages/funfair-release" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-release"
 [ -d "$CACHE_ROOT/nuget/packages/funfair-prerelease" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-prerelease"
 
+# Update scripts before building docker
+cp "$BASEDIR/scripts/*" "$BASEDIR/cleanup/"
+cp "$BASEDIR/scripts/*" "$BASEDIR/dependencies/"
+cp "$BASEDIR/scripts/*" "$BASEDIR/packages/"
+cp "$BASEDIR/scripts/*" "$BASEDIR/templates/"
 
 echo "Updating docker"
 sudo docker compose pull \
