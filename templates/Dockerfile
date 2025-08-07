@@ -4,8 +4,8 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY updater .
-COPY setup-gpg .
-COPY install-dotnet .
+COPY ../scripts/setup-gpg .
+COPY ../scripts/install-dotnet .
 COPY healthcheck .
 
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
