@@ -4,6 +4,7 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY updater .
+COPY ../scripts/setup-git .
 COPY ../scripts/setup-gpg .
 COPY ../scripts/install-dotnet .
 COPY healthcheck .
