@@ -18,7 +18,7 @@ fi
 
 
 # disable gpg commit signing
-git config --global commit.gpgsign true || die "Could not disable signing"
+git config --global commit.gpgsign false
 
 GIT_USER=$(git config --global user.email)
 [ -z "$GIT_USER" ] && die "Git user email not defined"

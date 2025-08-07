@@ -42,7 +42,7 @@ export TEMP=$TMP
 export TMPDIR=$TMP
 
 # Setup gpg signing
-"$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc"
+"$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc" || die "GPG setup failed"
 
 # Adding Certificates
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
