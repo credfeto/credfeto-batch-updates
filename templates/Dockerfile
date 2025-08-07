@@ -4,10 +4,11 @@ FROM alpine:latest
 WORKDIR /usr/src/app
 
 COPY updater .
+COPY healthcheck .
+COPY install-dotnet .
+COPY optimise-git .
 COPY setup-git .
 COPY setup-gpg .
-COPY install-dotnet .
-COPY healthcheck .
 
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 

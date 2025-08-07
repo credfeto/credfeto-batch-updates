@@ -37,18 +37,22 @@ echo "TRACKING_ROOT: $TRACKING_ROOT"
 
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
+cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/cleanup/"
 
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/dependencies/"
+cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/dependencies/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/dependencies/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/dependencies/"
 
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/packages/"
+cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/packages/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/packages/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/packages/"
 
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/templates/"
+cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 

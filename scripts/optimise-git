@@ -1,0 +1,13 @@
+#! /bin/sh
+
+for line in $(find /local/work/* -name '*.git' -printf '%h\n' | sort -u | grep -v .cache)
+do
+  echo "$line"
+  CURRENT_DIR=$line
+
+  echo ""
+  echo "Optimising $CURRENT_DIR..."
+  git -C "$CURRENT_DIR" gc --aggressive --prune 2>&1
+
+  echo " * done"
+done
