@@ -14,13 +14,14 @@ services:
       - RELEASE=https://updates.markridgwell.com/personal-release.config
       - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/templateupdate/personal:/local/tracking
       - $CACHE_ROOT/templateupdate/personal/nuget:/local/.nuget/packages/packages
       - $CACHE_ROOT/templateupdate/personal/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/templateupdate/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -42,13 +43,14 @@ services:
       - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
       - $CACHE_ROOT/templateupdate/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/templateupdate/funfair/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/templateupdate/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/templateupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/templateupdate/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -69,13 +71,14 @@ services:
       - TEMPLATE=git@github.com:credfeto/cs-template.git
       - RELEASE=https://updates.markridgwell.com/personal-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/packageupdate/personal:/local/tracking
       - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
       - $CACHE_ROOT/packageupdate/personal/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/packageupdate/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -96,13 +99,14 @@ services:
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
       - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/packageupdate/funfair:/local/tracking
       - $CACHE_ROOT/packageupdate/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/packageupdate/funfair/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
       - $CONFIG_ROOT/packageupdate/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/packageupdate/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/packageupdate/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -123,13 +127,14 @@ services:
       - TEMPLATE=git@github.com:credfeto/cs-template.git
       - RELEASE=https://updates.markridgwell.com/personal-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/codecleanup/personal:/local/tracking
       - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
       - $CACHE_ROOT/codecleanup/personal/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -150,13 +155,14 @@ services:
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
       - RELEASE=https://updates.markridgwell.com/funfair-release.config
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
       - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/codecleanup/funfair/work:/local/work
       - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
       - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/codecleanup/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/codecleanup/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -175,13 +181,14 @@ services:
       - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
       - TEMPLATE=git@github.com:credfeto/cs-template.git
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/dependencies/personal:/local/tracking
       - $CACHE_ROOT/dependencies/personal/nuget:/local/.nuget/packages
       - $CACHE_ROOT/dependencies/personal/work:/local/work
       - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
       - $CONFIG_ROOT/dependencies/gnupg.personal:/local/.gnupg
-      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/dependencies/personal/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/personal/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
@@ -200,13 +207,14 @@ services:
       - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
       - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
     volumes:
       - $TRACKING_ROOT/dependencies/funfair:/local/tracking
       - $CACHE_ROOT/dependencies/funfair/nuget:/local/.nuget/packages
       - $CACHE_ROOT/dependencies/funfair/work:/local/work
       - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
       - $CONFIG_ROOT/dependencies/gnupg.funfair:/local/.gnupg
-      - $CONFIG_ROOT/dependencies/gitconfig:/local/.gitconfig
       - $DOTNET_CACHE_ROOT/dependencies/funfair/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/funfair/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r

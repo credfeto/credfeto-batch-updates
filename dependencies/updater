@@ -33,7 +33,21 @@ export TMPDIR=$TMP
 doas chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
 chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
-chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
+
+# Setup git
+[ -z "$GIT_USER_NAME" ] && die "GIT_USER_NAME not defiled"
+[ -z "$GIT_USER_EMAIL" ] && die "GIT_USER_EMAIL not defiled"
+git config --global user.name "$GIT_USER_NAME"
+git config --global user.email "$GIT_USER_EMAIL"
+git config --global pull.rebase true
+git config --global merge.ff false
+git config --global rebase.autosquash true
+git config --global core.autocrlf false
+git config --global core.ignorecase false
+git config --global fetch.prune true
+git config --global push.autoSetupRemote true
+git config --global core.preloadindex true
+git config --global core.fscache true
 
 # Setup gpg signing
 "$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc" || die "GPG setup failed"
