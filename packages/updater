@@ -148,4 +148,6 @@ while sleep 120; do
               2>&1 | tee "${LOG_FILE}"
 
   echo "Done"
+
+  "$BASEDIR/optimise-git" || die "GIT optimise failed"
 done
