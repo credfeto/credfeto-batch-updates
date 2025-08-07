@@ -35,13 +35,8 @@ chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 chmod 400 "$HOME/.gitconfig" || die "Could not ensure .gitconfig permissions"
 
-# checking GPG
-gpg --list-keys || die "Could not list public keys"
-gpg --list-secret-keys || die "Could not list secret keys"
-if [ -f "$HOME/.gnupg/key.asc" ]; then
-  gpg --import "$HOME/.gnupg/key.asc" || die "Could not import secret keys from $HOME/.gnupg/key.asc"
-  gpg --list-secret-keys || die "Could not list secret keys"
-fi
+# Setup gpg signing
+"$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc"
 
 # Adding Certificates
 doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
