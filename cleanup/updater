@@ -67,6 +67,8 @@ export MSBUILDTERMINALLOGGER="auto"
 
 [ -f "/bin/tar" ] || die "tar not found"
 
+. "$BASEDIR/install-dotnet"
+
 while sleep 120; do
 
   cd "$HOME" || die "Could not switch to $HOME"
