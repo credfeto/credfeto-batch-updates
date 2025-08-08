@@ -22,7 +22,7 @@ do
   echo "* Expiring reflog..."
   git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago
   echo "*Garbage collecting..."
-  git -C "$CURRENT_DIR" gc --aggressive --prune 2>&1
+  git -C "$CURRENT_DIR" gc --aggressive --prune --force
 
   echo " * done"
 done
