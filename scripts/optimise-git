@@ -25,4 +25,7 @@ do
   git -C "$CURRENT_DIR" gc --aggressive --prune --force
 
   echo " * done"
+
 done
+
+echo "Repo optimisation completed"
