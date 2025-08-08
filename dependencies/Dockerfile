@@ -20,6 +20,7 @@ RUN apk add --no-cache \
         git \
         gnupg \
         icu-libs \
+        jq \
         krb5-libs \
         libgcc \
         libintl \
