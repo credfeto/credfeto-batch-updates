@@ -12,6 +12,8 @@ verbose=0
 export DOTNET_SOURCE=https://builds.dotnet.microsoft.com
 export PROXY_HOST=https://builds.dotnet.local:5555
 
+USER_AGENT="DotnetVersionChecker/1.0.0"
+
 # args:
 # zip_path - $1
 # out_path - $2
