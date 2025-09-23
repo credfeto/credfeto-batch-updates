@@ -96,7 +96,7 @@ while sleep 120; do
   export PATH="$PATH:$DOTNET_ROOT"
   export WORK="$HOME/work"
   export TRACKING_FILE="$HOME/tracking/tracking.json"
-  export PACKAGE_CACHE="$HOME/tracking/package-cache.json"
+  export PACKAGE_CACHE="$HOME/tracking/packages.cache.json"
   LOGS="$HOME/tracking"
   LOG_BASE=${LOGS}/packages
   LOG_FILE=${LOG_BASE}.log
