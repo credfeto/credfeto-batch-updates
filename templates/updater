@@ -144,4 +144,4 @@ while sleep 120; do
 
   "$BASEDIR/optimise-git" || die "GIT optimise failed"
 
-}done
+done
