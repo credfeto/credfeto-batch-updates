@@ -1,6 +1,6 @@
 
 #FROM alpine:latest
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-noble
 
 WORKDIR /usr/src/app
 
@@ -30,7 +30,7 @@ SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 #        openssh \
 #        zlib
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
         bash \
         ca-certificates \
         curl  \
@@ -47,7 +47,8 @@ RUN \
     adduser -S -D "updater" -G "updater" -h /local && \
     chown updater:updater /local && \
     chmod 700 /local && \
-    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
+    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/doas.d/doas.conf
+#    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
 
 USER updater
 
