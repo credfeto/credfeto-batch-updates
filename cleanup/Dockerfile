@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
         curl  \
         git \
         gnupg \
-        jq
+        jq \
+        sudo
 
 # Add Updater group
 RUN \

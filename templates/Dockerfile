@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
         curl  \
         git \
         gnupg \
-        jq
+        jq \
+        sudo
 
 # Add Updater group
 RUN \
@@ -27,7 +28,7 @@ RUN \
     adduser -S -D "updater" -G "updater" -h /local && \
     chown updater:updater /local && \
     chmod 700 /local && \
-    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudoers.conf
+    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_updater
 
 USER updater
 
