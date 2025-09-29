@@ -10,7 +10,7 @@ override_non_versioned_files=true
 verbose=0
 
 export DOTNET_SOURCE=https://builds.dotnet.microsoft.com
-export PROXY_HOST=https://builds.dotnet.local:5555
+export PROXY_HOST=https://dotnet.markridgwell.com
 
 USER_AGENT="DotnetVersionChecker/1.0.0"
 
