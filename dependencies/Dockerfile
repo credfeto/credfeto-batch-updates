@@ -26,7 +26,6 @@ RUN \
            --create-home \
            --system \
            --user-group \
-           --groups buildagents,docker \
            --shell /bin/bash \
            --home-dir /local \
            --comment "Template updater" \
