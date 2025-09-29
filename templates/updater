@@ -137,8 +137,8 @@ while sleep 120; do
               --template "${TEMPLATE}" \
               --template-config "${TEMPLATE_CONFIG}" \
               --release "${RELEASE}" \
-        || die "Update failed"
-  } 2>&1 | tee "${LOG_FILE}"
+        || die "Update failed #1"
+  } 2>&1 | tee "${LOG_FILE}" || die "Update failed #2"
 
   echo "Done"
 
