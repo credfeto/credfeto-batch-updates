@@ -9,24 +9,7 @@ COPY optimise-git .
 COPY setup-git .
 COPY setup-gpg .
 
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
-
-#RUN apk add --no-cache \
-#        bash \
-#        ca-certificates \
-#        curl  \
-#        doas \
-#        git \
-#        gnupg \
-#        icu-libs \
-#        jq \
-#        krb5-libs \
-#        libgcc \
-#        libintl \
-#        libssl3 \
-#        libstdc++ \
-#        openssh \
-#        zlib
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update && apt-get install -y \
         bash \
@@ -45,7 +28,6 @@ RUN \
     chown updater:updater /local && \
     chmod 700 /local && \
     echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_updater
-#    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
 
 USER updater
 
