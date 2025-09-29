@@ -20,16 +20,18 @@ RUN apt-get update && apt-get install -y \
         jq \
         sudo
 
-# Add Updater group
+# Add updater user
 RUN \
-    # Add updater user \
-    mkdir /local && \
-    addgroup -S "updater" && \
-    adduser -S -D "updater" -G "updater" -h /local && \
-    chown updater:updater /local && \
-    chmod 700 /local && \
+    useradd \
+           --create-home \
+           --system \
+           --user-group \
+           --groups buildagents,docker \
+           --shell /bin/bash \
+           --home-dir /local \
+           --comment "Template updater" \
+           "updater" && \
     echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_updater
-
 
 USER updater
 
