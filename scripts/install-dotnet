@@ -186,7 +186,7 @@ install_dotnet_version() {
   if [ -f "$TEMPORARY_FILE" ]; then
     echo "Already downloaded $TEMPORARY_FILE"
   else
-    DOWNLOAD_URL=$PROXY_HOST/dotnet/Sdk/$SDK_VERSION/dotnet-sdk-$SDK_VERSION-linux-musl-x64.tar.gz
+    DOWNLOAD_URL=$PROXY_HOST/dotnet/Sdk/$SDK_VERSION/dotnet-sdk-$SDK_VERSION-linux-x64.tar.gz
     echo "Download $DOWNLOAD_URL to $TEMPORARY_FILE..."
     curl \
          --max-time 120 \
