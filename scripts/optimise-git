@@ -8,6 +8,10 @@ do
   echo ""
   echo "Optimising $CURRENT_DIR..."
 
+  echo "* Clearing Locks..."
+  [ -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock" ] && rm -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock"
+
+
   echo "* Pruning remotes..."
   for REMOTE in $(git -C "$CURRENT_DIR" remote)
   do
