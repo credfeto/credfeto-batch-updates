@@ -124,21 +124,24 @@ while sleep 120; do
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool list
     date
-  } > "${LOG_BASE}.install" 2>&1
+  }  2>&1 | tee "${LOG_BASE}.install"
 
-  echo "Running tool"
-  "$DOTNET_ROOT/dotnet" updaterepo \
+  {
+    echo "Running tool"
+    "$DOTNET_ROOT/dotnet" updaterepo \
           update-template \
-            --repositories "${REPOS_LIST}" \
-            --work "${WORK}" \
-            --tracking "${TRACKING_FILE}" \
-            --packages "${PACKAGES}" \
-            --template "${TEMPLATE}" \
-            --template-config "${TEMPLATE_CONFIG}" \
-            --release "${RELEASE}" \
-              2>&1 | tee "${LOG_FILE}"
+              --repositories "${REPOS_LIST}" \
+              --work "${WORK}" \
+              --tracking "${TRACKING_FILE}" \
+              --packages "${PACKAGES}" \
+              --template "${TEMPLATE}" \
+              --template-config "${TEMPLATE_CONFIG}" \
+              --release "${RELEASE}" \
+        || die "Update failed"
+  } 2>&1 | tee "${LOG_FILE}"
 
   echo "Done"
 
   "$BASEDIR/optimise-git" || die "GIT optimise failed"
-done
+
+}done
