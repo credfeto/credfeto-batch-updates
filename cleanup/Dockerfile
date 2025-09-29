@@ -1,5 +1,6 @@
 
-FROM alpine:latest
+#FROM alpine:latest
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine
 
 WORKDIR /usr/src/app
 
@@ -12,6 +13,23 @@ COPY setup-gpg .
 
 SHELL ["/bin/ash", "-o", "pipefail", "-c"]
 
+#RUN apk add --no-cache \
+#        bash \
+#        ca-certificates \
+#        curl  \
+#        doas \
+#        git \
+#        gnupg \
+#        icu-libs \
+#        jq \
+#        krb5-libs \
+#        libgcc \
+#        libintl \
+#        libssl3 \
+#        libstdc++ \
+#        openssh \
+#        zlib
+
 RUN apk add --no-cache \
         bash \
         ca-certificates \
@@ -19,15 +37,7 @@ RUN apk add --no-cache \
         doas \
         git \
         gnupg \
-        icu-libs \
-        jq \
-        krb5-libs \
-        libgcc \
-        libintl \
-        libssl3 \
-        libstdc++ \
-        openssh \
-        zlib
+        jq
 
 # Add Updater group
 RUN \
