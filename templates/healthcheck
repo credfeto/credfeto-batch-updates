@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Check if dotnet process is running
-CHECK_TASK_PID=$(pidof dotnet sleep git)
+CHECK_TASK_PID=$(pidof dotnet sleep git curl)
 if [ -z "$CHECK_TASK_PID" ]; then
     exit 1
 fi
