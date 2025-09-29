@@ -34,7 +34,7 @@ extract_dotnet_package() {
     tar -xvzf "$zip_path" -C "$temp_out_path" > /dev/null || failed=true
 
     if [ "$failed" = true ]; then
-      doas rm -f "$zip_path" && say_verbose "Temporary archive file $zip_path was removed"
+      sudo rm -f "$zip_path" && say_verbose "Temporary archive file $zip_path was removed"
       say_err "Extraction failed"
       return 1
     fi
@@ -44,8 +44,8 @@ extract_dotnet_package() {
     find "$temp_out_path" -type f | grep -Eo "$folders_with_version_regex" | sort | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" false
     find "$temp_out_path" -type f | grep -Ev "$folders_with_version_regex" | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" "$override_non_versioned_files"
 
-    doas rm -rf "$temp_out_path"
-    #doas rm -f "$zip_path" && say_verbose "Temporary archive file $zip_path was removed"
+    sudo rm -rf "$temp_out_path"
+    #sudo rm -f "$zip_path" && say_verbose "Temporary archive file $zip_path was removed"
 
     [ -f "$out_path/dotnet" ] || echo "Missing dotnet"
     [ -f "$out_path/dotnet" ] || failed=true
@@ -74,11 +74,11 @@ copy_files_or_dirs_from_list() {
         local path="$(remove_beginning_slash "${file_path#$root_path}")"
         local target="$out_path/$path"
         if [ "$override" = true ] || (! ([ -d "$target" ] || [ -e "$target" ])); then
-            doas mkdir -p "$out_path/$(dirname "$path")"
+            sudo mkdir -p "$out_path/$(dirname "$path")"
             if [ -d "$target" ]; then
-                doas rm -rf "$target"
+                sudo rm -rf "$target"
             fi
-            doas cp -R $override_switch "$root_path/$path" "$target"
+            sudo cp -R $override_switch "$root_path/$path" "$target"
         fi
     done
 }
@@ -95,20 +95,20 @@ get_cp_options() {
         override_switch="-n"
 
         # create temporary files to check if 'cp -u' is supported
-        tmp_dir="$(doas mktemp -d)"
+        tmp_dir="$(sudo mktemp -d)"
         tmp_file="$tmp_dir/testfile"
         tmp_file2="$tmp_dir/testfile2"
 
-        doas touch "$tmp_file"
+        sudo touch "$tmp_file"
 
         # use -u instead of -n if it's available
-        if doas cp -u "$tmp_file" "$tmp_file2" 2>/dev/null; then
+        if sudo cp -u "$tmp_file" "$tmp_file2" 2>/dev/null; then
             override_switch="-u"
         fi
 
         # clean up
-        doas rm -f "$tmp_file" "$tmp_file2"
-        doas rm -rf "$tmp_dir"
+        sudo rm -f "$tmp_file" "$tmp_file2"
+        sudo rm -rf "$tmp_dir"
     fi
 
     echo "$override_switch"

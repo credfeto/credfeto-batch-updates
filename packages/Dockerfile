@@ -1,5 +1,4 @@
-
-FROM alpine:latest
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-noble
 
 WORKDIR /usr/src/app
 
@@ -10,24 +9,15 @@ COPY optimise-git .
 COPY setup-git .
 COPY setup-gpg .
 
-SHELL ["/bin/ash", "-o", "pipefail", "-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y \
         bash \
         ca-certificates \
         curl  \
-        doas \
         git \
         gnupg \
-        icu-libs \
-        jq \
-        krb5-libs \
-        libgcc \
-        libintl \
-        libssl3 \
-        libstdc++ \
-        openssh \
-        zlib
+        jq
 
 # Add Updater group
 RUN \
@@ -37,7 +27,8 @@ RUN \
     adduser -S -D "updater" -G "updater" -h /local && \
     chown updater:updater /local && \
     chmod 700 /local && \
-    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
+    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudoers.conf
+
 
 USER updater
 

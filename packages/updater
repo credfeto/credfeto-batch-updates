@@ -31,7 +31,7 @@ echo "Release: $RELEASE"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
 
 # Setting permissions
-doas chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
+sudo chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
 chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 
@@ -47,11 +47,11 @@ export TMPDIR=$TMP
 "$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc" || die "GPG setup failed"
 
 # Adding Certificates
-doas cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
-doas cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
-doas cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
-doas cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
-doas update-ca-certificates || die "could not import certificates"
+sudo cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
+sudo cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
+sudo cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
+sudo cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
+sudo update-ca-certificates || die "could not import certificates"
 
 # Dotnet settings
 export DOTNET_ROOT="$HOME/dotnet"

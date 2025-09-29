@@ -1,5 +1,3 @@
-
-#FROM alpine:latest
 FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-noble
 
 WORKDIR /usr/src/app
@@ -34,7 +32,6 @@ RUN apt-get update && apt-get install -y \
         bash \
         ca-certificates \
         curl  \
-        doas \
         git \
         gnupg \
         jq
@@ -47,7 +44,7 @@ RUN \
     adduser -S -D "updater" -G "updater" -h /local && \
     chown updater:updater /local && \
     chmod 700 /local && \
-    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/doas.d/doas.conf
+    echo 'updater ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_updater
 #    echo 'permit nopass :updater as root' > /etc/doas.d/doas.conf
 
 USER updater
