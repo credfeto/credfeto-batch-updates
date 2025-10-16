@@ -16,6 +16,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=1
     volumes:
       - $TRACKING_ROOT/templateupdate/personal:/local/tracking
       - $CACHE_ROOT/templateupdate/personal/nuget:/local/.nuget/packages/packages
@@ -45,6 +46,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=2
     volumes:
       - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
       - $CACHE_ROOT/templateupdate/funfair/nuget:/local/.nuget/packages
@@ -73,6 +75,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=3
     volumes:
       - $TRACKING_ROOT/packageupdate/personal:/local/tracking
       - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
@@ -101,6 +104,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=4
     volumes:
       - $TRACKING_ROOT/packageupdate/funfair:/local/tracking
       - $CACHE_ROOT/packageupdate/funfair/nuget:/local/.nuget/packages
@@ -129,6 +133,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=5
     volumes:
       - $TRACKING_ROOT/codecleanup/personal:/local/tracking
       - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
@@ -157,6 +162,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=6
     volumes:
       - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
       - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
@@ -183,6 +189,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=1
     volumes:
       - $TRACKING_ROOT/dependencies/personal:/local/tracking
       - $CACHE_ROOT/dependencies/personal/nuget:/local/.nuget/packages
@@ -209,6 +216,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=2
     volumes:
       - $TRACKING_ROOT/dependencies/funfair:/local/tracking
       - $CACHE_ROOT/dependencies/funfair/nuget:/local/.nuget/packages
