@@ -46,11 +46,6 @@ echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
 [ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
 
 
-[ -d "$CACHE_ROOT/nuget/postgresql" ] || mkdir -p "$CACHE_ROOT/nuget/postgresql"
-[ -d "$CACHE_ROOT/nuget/packages/nuget" ] || mkdir -p "$CACHE_ROOT/nuget/packages/nuget"
-[ -d "$CACHE_ROOT/nuget/packages/funfair-release" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-release"
-[ -d "$CACHE_ROOT/nuget/packages/funfair-prerelease" ] || mkdir -p "$CACHE_ROOT/nuget/packages/funfair-prerelease"
-
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/cleanup/"
