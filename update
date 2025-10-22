@@ -25,10 +25,26 @@ echo "CACHE_ROOT: $CACHE_ROOT"
 echo "DOTNET_CACHE_ROOT: $DOTNET_CACHE_ROOT"
 echo "TRACKING_ROOT: $TRACKING_ROOT"
 
+echo "PACKAGES: $PACKAGES"
+echo "REPOS_LIST: $REPOS_LIST"
+echo "RELEASE: $RELEASE"
+echo "TEMPLATE_CONFIG: $TEMPLATE_CONFIG"
+echo "TEMPLATE: $TEMPLATE"
+echo "ENV_PREFIX: $ENV_PREFIX"
+
+
 [ -z "$DOTNET_CHANNELS" ] && die "DOTNET_CHANNELS not defined"
 [ -z "$CACHE_ROOT" ] && die "CACHE_ROOT not defined"
 [ -z "$DOTNET_CACHE_ROOT" ] && die "DOTNET_CACHE_ROOT not defined"
 [ -z "$TRACKING_ROOT" ] && die "TRACKING_ROOT not defined"
+
+[ -z "$PACKAGES" ] && die "PACKAGES not defined"
+[ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
+[ -z "$RELEASE" ] && die "RELEASE not defined"
+[ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG"
+[ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
+[ -z "$ENV_PREFIX" ] && die "ENV_PREFIX not defined"
+
 
 [ -d "$CACHE_ROOT/nuget/postgresql" ] || mkdir -p "$CACHE_ROOT/nuget/postgresql"
 [ -d "$CACHE_ROOT/nuget/packages/nuget" ] || mkdir -p "$CACHE_ROOT/nuget/packages/nuget"

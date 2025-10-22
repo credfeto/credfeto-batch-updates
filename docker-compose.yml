@@ -1,106 +1,46 @@
 
 services:
 
-  templates-personal:
-    build: ./templates
-    container_name: upgrader-templates-personal
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
-      - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/personal-release.config
-      - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=1
-    volumes:
-      - $TRACKING_ROOT/templateupdate/personal:/local/tracking
-      - $CACHE_ROOT/templateupdate/personal/nuget:/local/.nuget/packages/packages
-      - $CACHE_ROOT/templateupdate/personal/work:/local/work
-      - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/templateupdate/gnupg.personal:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/templateupdate/personal/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/templateupdate/personal/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
 
-  templates-funfair:
+  templates:
     build: ./templates
-    container_name: upgrader-templates-funfair
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
-      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/funfair-release.config
-      - TEMPLATE_CONFIG=https://updates.markridgwell.com/personal-templates.config
+      - PACKAGES=$PACKAGES
+      - REPOS_LIST=$REPOS_LIST
+      - TEMPLATE=$TEMPLATE
+      - RELEASE=$RELEASE
+      - TEMPLATE_CONFIG=$TEMPLATE_CONFIG
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
       - GIT_OPTIMIZE_DAY=2
     volumes:
-      - $TRACKING_ROOT/templateupdate/funfair:/local/tracking
-      - $CACHE_ROOT/templateupdate/funfair/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/templateupdate/funfair/work:/local/work
+      - $TRACKING_ROOT/templateupdate/$ENV_PREFIX:/local/tracking
+      - $CACHE_ROOT/templateupdate/$ENV_PREFIX/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/templateupdate/$ENV_PREFIX/work:/local/work
       - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/templateupdate/gnupg.funfair:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/templateupdate/funfair/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/templateupdate/funfair/downloads:/local/downloads
+      - $CONFIG_ROOT/templateupdate/gnupg.$ENV_PREFIX:/local/.gnupg
+      - $DOTNET_CACHE_ROOT/templateupdate/$ENV_PREFIX/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/templateupdate/$ENV_PREFIX/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
     networks:
       - updaters
 
-  packages-personal:
+  packages:
     build: ./packages
-    container_name: upgrader-packages-personal
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
     environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
-      - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/personal-release.config
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=3
-    volumes:
-      - $TRACKING_ROOT/packageupdate/personal:/local/tracking
-      - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/packageupdate/personal/work:/local/work
-      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/packageupdate/personal/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/packageupdate/personal/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
-
-  packages-funfair:
-    build: ./packages
-    container_name: upgrader-packages-funfair
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
-      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/funfair-release.config
+      - PACKAGES=$PACKAGES
+      - REPOS_LIST=$REPOS_LIST
+      - TEMPLATE=$TEMPLATE
+      - RELEASE=$RELEASE
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
@@ -118,6 +58,36 @@ services:
       - ./nuget/certs:/local/certs:r
     networks:
       - updaters
+
+#  packages-personal:
+#    build: ./packages
+#    container_name: upgrader-packages-personal
+#    restart: always
+#    stop_grace_period: 5s
+#    stop_signal: SIGINT
+#    environment:
+#      - PACKAGES=https://updates.markridgwell.com/packages.config
+#      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
+#      - TEMPLATE=git@github.com:credfeto/cs-template.git
+#      - RELEASE=https://updates.markridgwell.com/personal-release.config
+#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+#      - GIT_USER_NAME=$GIT_USER_NAME
+#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+#      - GIT_OPTIMIZE_DAY=3
+#    volumes:
+#      - $TRACKING_ROOT/packageupdate/personal:/local/tracking
+#      - $CACHE_ROOT/packageupdate/personal/nuget:/local/.nuget/packages
+#      - $CACHE_ROOT/packageupdate/personal/work:/local/work
+#      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
+#      - $CONFIG_ROOT/packageupdate/gnupg.personal:/local/.gnupg
+#      - $DOTNET_CACHE_ROOT/packageupdate/personal/installed:/local/dotnet
+#      - $DOTNET_CACHE_ROOT/packageupdate/personal/downloads:/local/downloads
+#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/certs:/local/certs:r
+#    networks:
+#      - updaters
+
 
 #  cleanup-personal:
 #    build: ./cleanup

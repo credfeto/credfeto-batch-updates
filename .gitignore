@@ -6,3 +6,7 @@
 /nuget/
 /temp/
 /tracking/
+/packages/.idea/.gitignore
+/packages/.idea/misc.xml
+/packages/.idea/modules.xml
+/packages/.idea/packages.iml
