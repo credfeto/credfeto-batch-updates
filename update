@@ -30,7 +30,7 @@ echo "REPOS_LIST: $REPOS_LIST"
 echo "RELEASE: $RELEASE"
 echo "TEMPLATE_CONFIG: $TEMPLATE_CONFIG"
 echo "TEMPLATE: $TEMPLATE"
-echo "ENV_PREFIX: $ENV_PREFIX"
+echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
 
 
 [ -z "$DOTNET_CHANNELS" ] && die "DOTNET_CHANNELS not defined"
@@ -43,7 +43,7 @@ echo "ENV_PREFIX: $ENV_PREFIX"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
-[ -z "$ENV_PREFIX" ] && die "ENV_PREFIX not defined"
+[ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
 
 
 [ -d "$CACHE_ROOT/nuget/postgresql" ] || mkdir -p "$CACHE_ROOT/nuget/postgresql"
@@ -75,7 +75,7 @@ cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 echo "Updating docker"
 sudo docker compose pull || die "Failed to pull images"
 sudo docker compose build || die "Failed to build images"
-sudo docker compose up -d --remove-orphans --project-name "$ENV_PREFIX" || die "Failed to bring up services"
+sudo docker compose up -d --remove-orphans --project-name "$COMPOSE_PROJECT_NAME" || die "Failed to bring up services"
 
 echo "Removing old images"
 sudo docker image prune -f || die "Failed to prune old images"
