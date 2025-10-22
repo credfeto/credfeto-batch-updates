@@ -119,117 +119,117 @@ services:
     networks:
       - updaters
 
-  cleanup-personal:
-    build: ./cleanup
-    container_name: upgrader-cleanup-personal
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
-      - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - RELEASE=https://updates.markridgwell.com/personal-release.config
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=5
-    volumes:
-      - $TRACKING_ROOT/codecleanup/personal:/local/tracking
-      - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/codecleanup/personal/work:/local/work
-      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
-
-  cleanup-funfair:
-    build: ./cleanup
-    container_name: upgrader-cleanup-funfair
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - PACKAGES=https://updates.markridgwell.com/packages.config
-      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
-      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - RELEASE=https://updates.markridgwell.com/funfair-release.config
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=6
-    volumes:
-      - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
-      - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/codecleanup/funfair/work:/local/work
-      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/codecleanup/funfair/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/codecleanup/funfair/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
-
-  dependencies-personal:
-    build: ./dependencies
-    container_name: upgrader-dependencies-personal
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
-      - TEMPLATE=git@github.com:credfeto/cs-template.git
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=1
-    volumes:
-      - $TRACKING_ROOT/dependencies/personal:/local/tracking
-      - $CACHE_ROOT/dependencies/personal/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/dependencies/personal/work:/local/work
-      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/dependencies/gnupg.personal:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/dependencies/personal/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/dependencies/personal/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
-
-  dependencies-funfair:
-    build: ./dependencies
-    container_name: upgrader-dependencies-funfair
-    restart: always
-    stop_grace_period: 5s
-    stop_signal: SIGINT
-    environment:
-      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
-      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
-      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-      - GIT_USER_NAME=$GIT_USER_NAME
-      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=2
-    volumes:
-      - $TRACKING_ROOT/dependencies/funfair:/local/tracking
-      - $CACHE_ROOT/dependencies/funfair/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/dependencies/funfair/work:/local/work
-      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/dependencies/gnupg.funfair:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/dependencies/funfair/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/dependencies/funfair/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
-    networks:
-      - updaters
+#  cleanup-personal:
+#    build: ./cleanup
+#    container_name: upgrader-cleanup-personal
+#    restart: always
+#    stop_grace_period: 5s
+#    stop_signal: SIGINT
+#    environment:
+#      - PACKAGES=https://updates.markridgwell.com/packages.config
+#      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
+#      - TEMPLATE=git@github.com:credfeto/cs-template.git
+#      - RELEASE=https://updates.markridgwell.com/personal-release.config
+#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+#      - GIT_USER_NAME=$GIT_USER_NAME
+#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+#      - GIT_OPTIMIZE_DAY=5
+#    volumes:
+#      - $TRACKING_ROOT/codecleanup/personal:/local/tracking
+#      - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
+#      - $CACHE_ROOT/codecleanup/personal/work:/local/work
+#      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+#      - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
+#      - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
+#      - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
+#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/certs:/local/certs:r
+#    networks:
+#      - updaters
+#
+#  cleanup-funfair:
+#    build: ./cleanup
+#    container_name: upgrader-cleanup-funfair
+#    restart: always
+#    stop_grace_period: 5s
+#    stop_signal: SIGINT
+#    environment:
+#      - PACKAGES=https://updates.markridgwell.com/packages.config
+#      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
+#      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+#      - RELEASE=https://updates.markridgwell.com/funfair-release.config
+#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+#      - GIT_USER_NAME=$GIT_USER_NAME
+#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+#      - GIT_OPTIMIZE_DAY=6
+#    volumes:
+#      - $TRACKING_ROOT/codecleanup/funfair:/local/tracking
+#      - $CACHE_ROOT/codecleanup/funfair/nuget:/local/.nuget/packages
+#      - $CACHE_ROOT/codecleanup/funfair/work:/local/work
+#      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+#      - $CONFIG_ROOT/codecleanup/gnupg.funfair:/local/.gnupg
+#      - $DOTNET_CACHE_ROOT/codecleanup/funfair/installed:/local/dotnet
+#      - $DOTNET_CACHE_ROOT/codecleanup/funfair/downloads:/local/downloads
+#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/certs:/local/certs:r
+#    networks:
+#      - updaters
+#
+#  dependencies-personal:
+#    build: ./dependencies
+#    container_name: upgrader-dependencies-personal
+#    restart: always
+#    stop_grace_period: 5s
+#    stop_signal: SIGINT
+#    environment:
+#      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
+#      - TEMPLATE=git@github.com:credfeto/cs-template.git
+#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+#      - GIT_USER_NAME=$GIT_USER_NAME
+#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+#      - GIT_OPTIMIZE_DAY=1
+#    volumes:
+#      - $TRACKING_ROOT/dependencies/personal:/local/tracking
+#      - $CACHE_ROOT/dependencies/personal/nuget:/local/.nuget/packages
+#      - $CACHE_ROOT/dependencies/personal/work:/local/work
+#      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
+#      - $CONFIG_ROOT/dependencies/gnupg.personal:/local/.gnupg
+#      - $DOTNET_CACHE_ROOT/dependencies/personal/installed:/local/dotnet
+#      - $DOTNET_CACHE_ROOT/dependencies/personal/downloads:/local/downloads
+#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/certs:/local/certs:r
+#    networks:
+#      - updaters
+#
+#  dependencies-funfair:
+#    build: ./dependencies
+#    container_name: upgrader-dependencies-funfair
+#    restart: always
+#    stop_grace_period: 5s
+#    stop_signal: SIGINT
+#    environment:
+#      - REPOS_LIST=https://updates.markridgwell.com/funfair-repos.config
+#      - TEMPLATE=git@github.com:funfair-tech/funfair-server-template.git
+#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+#      - GIT_USER_NAME=$GIT_USER_NAME
+#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+#      - GIT_OPTIMIZE_DAY=2
+#    volumes:
+#      - $TRACKING_ROOT/dependencies/funfair:/local/tracking
+#      - $CACHE_ROOT/dependencies/funfair/nuget:/local/.nuget/packages
+#      - $CACHE_ROOT/dependencies/funfair/work:/local/work
+#      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
+#      - $CONFIG_ROOT/dependencies/gnupg.funfair:/local/.gnupg
+#      - $DOTNET_CACHE_ROOT/dependencies/funfair/installed:/local/dotnet
+#      - $DOTNET_CACHE_ROOT/dependencies/funfair/downloads:/local/downloads
+#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+#      - ./nuget/certs:/local/certs:r
+#    networks:
+#      - updaters
 
 networks:
   updaters:
