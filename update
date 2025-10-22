@@ -74,7 +74,7 @@ cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 
 echo "Updating docker"
 sudo docker compose pull || die "Failed to pull images"
-sudo docker compose build --project-name "$ENV_PREFIX" || die "Failed to build images"
+sudo docker compose build || die "Failed to build images"
 sudo docker compose up -d --remove-orphans --project-name "$ENV_PREFIX" || die "Failed to bring up services"
 
 echo "Removing old images"
