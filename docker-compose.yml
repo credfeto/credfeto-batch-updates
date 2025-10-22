@@ -46,13 +46,13 @@ services:
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
       - GIT_OPTIMIZE_DAY=4
     volumes:
-      - $TRACKING_ROOT/packageupdate/funfair:/local/tracking
-      - $CACHE_ROOT/packageupdate/funfair/nuget:/local/.nuget/packages
-      - $CACHE_ROOT/packageupdate/funfair/work:/local/work
+      - $TRACKING_ROOT/packageupdate/$ENV_PREFIX:/local/tracking
+      - $CACHE_ROOT/packageupdate/$ENV_PREFIX/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/packageupdate/$ENV_PREFIX/work:/local/work
       - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
-      - $CONFIG_ROOT/packageupdate/gnupg.funfair:/local/.gnupg
-      - $DOTNET_CACHE_ROOT/packageupdate/funfair/installed:/local/dotnet
-      - $DOTNET_CACHE_ROOT/packageupdate/funfair/downloads:/local/downloads
+      - $CONFIG_ROOT/packageupdate/gnupg.$ENV_PREFIX:/local/.gnupg
+      - $DOTNET_CACHE_ROOT/packageupdate/$ENV_PREFIX/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/packageupdate/$ENV_PREFIX/downloads:/local/downloads
       - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
       - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
       - ./nuget/certs:/local/certs:r
