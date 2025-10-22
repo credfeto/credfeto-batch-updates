@@ -16,7 +16,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=2
+      - GIT_OPTIMIZE_DAY=1
     volumes:
       - $TRACKING_ROOT/templateupdate/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
@@ -44,7 +44,7 @@ services:
       - DOTNET_CHANNELS=$DOTNET_CHANNELS
       - GIT_USER_NAME=$GIT_USER_NAME
       - GIT_USER_EMAIL=$GIT_USER_EMAIL
-      - GIT_OPTIMIZE_DAY=4
+      - GIT_OPTIMIZE_DAY=2
     volumes:
       - $TRACKING_ROOT/packageupdate/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
@@ -58,6 +58,61 @@ services:
       - ./nuget/certs:/local/certs:r
     networks:
       - updaters
+
+  cleanup:
+    build: ./cleanup
+    restart: always
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - PACKAGES=$PACKAGES
+      - REPOS_LIST=$REPOS_LIST
+      - TEMPLATE=$TEMPLATE
+      - RELEASE=$RELEASE
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=3
+    volumes:
+      - $TRACKING_ROOT/codecleanup/$COMPOSE_PROJECT_NAME:/local/tracking
+      - $CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/work:/local/work
+      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/codecleanup/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
+      - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs:r
+    networks:
+      - updaters
+
+  dependencies:
+    build: ./dependencies
+    restart: always
+    stop_grace_period: 5s
+    stop_signal: SIGINT
+    environment:
+      - REPOS_LIST=$REPOS_LIST
+      - TEMPLATE=$TEMPLATE
+      - DOTNET_CHANNELS=$DOTNET_CHANNELS
+      - GIT_USER_NAME=$GIT_USER_NAME
+      - GIT_USER_EMAIL=$GIT_USER_EMAIL
+      - GIT_OPTIMIZE_DAY=4
+    volumes:
+      - $TRACKING_ROOT/dependencies/$COMPOSE_PROJECT_NAME:/local/tracking
+      - $CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
+      - $CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/work:/local/work
+      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/dependencies/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
+      - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
+      - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
+      - ./nuget/certs:/local/certs:r
+    networks:
+      - updaters
+
 
 #  packages-personal:
 #    build: ./packages
@@ -89,34 +144,7 @@ services:
 #      - updaters
 
 
-#  cleanup-personal:
-#    build: ./cleanup
-#    container_name: upgrader-cleanup-personal
-#    restart: always
-#    stop_grace_period: 5s
-#    stop_signal: SIGINT
-#    environment:
-#      - PACKAGES=https://updates.markridgwell.com/packages.config
-#      - REPOS_LIST=https://updates.markridgwell.com/personal-repos.config
-#      - TEMPLATE=git@github.com:credfeto/cs-template.git
-#      - RELEASE=https://updates.markridgwell.com/personal-release.config
-#      - DOTNET_CHANNELS=$DOTNET_CHANNELS
-#      - GIT_USER_NAME=$GIT_USER_NAME
-#      - GIT_USER_EMAIL=$GIT_USER_EMAIL
-#      - GIT_OPTIMIZE_DAY=5
-#    volumes:
-#      - $TRACKING_ROOT/codecleanup/personal:/local/tracking
-#      - $CACHE_ROOT/codecleanup/personal/nuget:/local/.nuget/packages
-#      - $CACHE_ROOT/codecleanup/personal/work:/local/work
-#      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
-#      - $CONFIG_ROOT/codecleanup/gnupg.personal:/local/.gnupg
-#      - $DOTNET_CACHE_ROOT/codecleanup/personal/installed:/local/dotnet
-#      - $DOTNET_CACHE_ROOT/codecleanup/personal/downloads:/local/downloads
-#      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-#      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-#      - ./nuget/certs:/local/certs:r
-#    networks:
-#      - updaters
+
 #
 #  cleanup-funfair:
 #    build: ./cleanup
