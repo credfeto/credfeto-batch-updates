@@ -73,9 +73,9 @@ cp "$BASEDIR/scripts/setup-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 
 echo "Updating docker"
-sudo docker compose pull \
-  && sudo docker compose build \
-  && sudo docker compose up -d --remove-orphans
+sudo docker compose pull --project-name "$ENV_PREFIX" \
+  && sudo docker compose build --project-name "$ENV_PREFIX" \
+  && sudo docker compose up -d --remove-orphans --project-name "$ENV_PREFIX"
 
 echo "Removing old images"
 sudo docker image prune -f
