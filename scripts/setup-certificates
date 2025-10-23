@@ -4,13 +4,17 @@ CERTIFICATES="api.nuget.local funfair.nuget.local funfair-prerelease.nuget.local
 
 echo "Ensuring certs folder created"
 [ -d /usr/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local
+[ -d /usr/local/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local
 
 echo "Installing certificates into folders..."
 
 for CERTIFICATE in $CERTIFICATES; do
   echo "* $CERTIFICATE"
-  echo "  -- Copying file"
+  echo "  -- Copying file to /usr/share/ca-certificates/local/"
   sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
+
+  echo "  -- Copying file to /usr/local/share/ca-certificates/local/"
+  sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/local/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
 
   INSTALLED=$(grep "local/$CERTIFICATE.crt" /etc/ca-certificates.conf)
   if [ -z "$INSTALLED" ]; then
