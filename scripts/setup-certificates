@@ -13,4 +13,4 @@ sudo cp "$HOME/certs/funfair.nuget.local.crt" /usr/share/ca-certificates/local/ 
 sudo cp "$HOME/certs/funfair-prerelease.nuget.local.crt" /usr/share/ca-certificates/local/ || die "could not import funfair-prerelease.nuget.local.pem"
 sudo cp "$HOME/certs/builds.dotnet.local.crt" /usr/share/ca-certificates/local/ || die "could not import builds.dotnet.local.pem"
 
-sudo update-ca-certificates || die "could not import certificates"
+sudo update-ca-certificates --verbose --fresh || die "could not import certificates"
