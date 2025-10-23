@@ -14,6 +14,8 @@ cd "$BASEDIR" || die "Could not change to $BASEDIR"
 
 [ -f "$BASEDIR/.env" ] || die "$BASEDIR/.env is required"
 
+[ -f "$BASEDIR/nuget/NuGet.Config" ] || die "$BASEDIR/nuget/NuGet.Config is required"
+
 echo "Updating Repo"
 git pull
 
