@@ -44,13 +44,8 @@ chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 # Setup gpg signing
 "$BASEDIR/setup-gpg" "$HOME/.gnupg/key.asc" || die "GPG setup failed"
 
-
 # Adding Certificates
-sudo cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
-sudo cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
-sudo cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
-sudo cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
-sudo update-ca-certificates || die "could not import certificates"
+"$BASEDIR/setup-certificates" || die "GPG setup failed"
 
 # Dotnet settings
 export DOTNET_ROOT="$HOME/dotnet"

@@ -8,6 +8,7 @@ COPY install-dotnet .
 COPY optimise-git .
 COPY setup-git .
 COPY setup-gpg .
+COPY setup-certificates .
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
