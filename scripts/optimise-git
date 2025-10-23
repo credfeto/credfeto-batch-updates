@@ -1,5 +1,12 @@
 #! /bin/sh
 
+die() {
+    echo
+    echo "$@"
+    exit 1
+}
+
+
 for line in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
 do
   echo "$line"

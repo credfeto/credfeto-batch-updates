@@ -3,6 +3,7 @@
 DOWNLOADS=$HOME/downloads
 TMPBASE=${TMPDIR:-$HOME/tmp}
 [ -d "$TMPBASE" ] || mkdir -p "$TMPBASE"
+[ -d "$TMPBASE" ] || mkdir -p "$TMPBASE"
 [ -d "$DOWNLOADS" ] || mkdir -p "$DOWNLOADS"
 
 temporary_file_template="$TMPBASE/dotnet.XXXXXXXXX"

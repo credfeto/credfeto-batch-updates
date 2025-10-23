@@ -1,5 +1,12 @@
 #! /bin/sh
 
+die() {
+    echo
+    echo "$@"
+    exit 1
+}
+
+
 [ -z "$GIT_USER_NAME" ] && die "GIT_USER_NAME not defiled"
 [ -z "$GIT_USER_EMAIL" ] && die "GIT_USER_EMAIL not defiled"
 git config --global user.name "$GIT_USER_NAME"
