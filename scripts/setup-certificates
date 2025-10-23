@@ -3,8 +3,8 @@
 CERTIFICATES="api.nuget.local funfair.nuget.local funfair-prerelease.nuget.local builds.dotnet.local"
 
 echo "Ensuring certs folder created"
-[ -d /usr/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local
-[ -d /usr/local/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local
+[ ! -d /usr/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local && die "Could not create /usr/share/ca-certificates/local"
+[ ! -d /usr/local/share/ca-certificates/local ] && sudo mkdir -p /usr/local/share/ca-certificates/local && die "Could not create /usr/local/share/ca-certificates/local"
 
 echo "Installing certificates into folders..."
 
