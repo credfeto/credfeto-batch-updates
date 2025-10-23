@@ -9,13 +9,20 @@ echo "Installing certificates into folders..."
 
 for CERTIFICATE in $CERTIFICATES; do
   echo "* $CERTIFICATE"
-  if [ -f "/usr/share/ca-certificates/local/$CERTIFICATE.crt" ]; then
-    echo "  -- Copying file"
-    sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
+  echo "  -- Copying file"
+  sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
+
+  INSTALLED=$(grep "local/$CERTIFICATE.crt" /etc/ca-certificates.conf)
+  if [ -z "$INSTALLED" ]; then
+    echo "  -- Installing Link"
     echo "local/$CERTIFICATE.crt" | sudo tee -a /etc/ca-certificates.conf
   else
-    echo "  -- Already installed"
+    echo "  -- Link already installed"
   fi
+
+  INSTALLED=$(grep "local/$CERTIFICATE.crt" /etc/ca-certificates.conf)
+  [ -z "$INSTALLED" ] && die "local/$CERTIFICATE.crt isn't installed"
+
 done
 
 echo "Importing certificates..."
