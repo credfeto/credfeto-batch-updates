@@ -9,9 +9,12 @@ temporary_file_template="$TMPBASE/dotnet.XXXXXXXXX"
 override_non_versioned_files=true
 verbose=0
 
-export DOTNET_SOURCE=https://builds.dotnet.microsoft.com
-export PROXY_HOST=https://dotnet.markridgwell.com
-#export PROXY_HOST=https://builds.dotnet.microsoft.com
+[ -z "$DOTNET_SOURCE" ] && export DOTNET_SOURCE=https://builds.dotnet.microsoft.com
+[ -z "$DOTNET_PROXY_HOST" ] && export DOTNET_PROXY_HOST=https://dotnet.markridgwell.com
+#export DOTNET_PROXY_HOST=https://builds.dotnet.microsoft.com
+
+[ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
+[ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 USER_AGENT="DotnetVersionChecker/1.0.0"
 
@@ -187,7 +190,7 @@ install_dotnet_version() {
   if [ -f "$TEMPORARY_FILE" ]; then
     echo "Already downloaded $TEMPORARY_FILE"
   else
-    DOWNLOAD_URL=$PROXY_HOST/dotnet/Sdk/$SDK_VERSION/dotnet-sdk-$SDK_VERSION-linux-x64.tar.gz
+    DOWNLOAD_URL=$DOTNET_PROXY_HOST/dotnet/Sdk/$SDK_VERSION/dotnet-sdk-$SDK_VERSION-linux-x64.tar.gz
     echo "Download $DOWNLOAD_URL to $TEMPORARY_FILE..."
     curl \
          --max-time 120 \
