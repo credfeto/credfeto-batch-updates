@@ -1,0 +1,14 @@
+#! /bin/sh
+
+# Adding Certificates
+sudo cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
+sudo cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
+sudo cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
+sudo cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
+
+sudo cp "$HOME/certs/api.nuget.local.crt" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
+sudo cp "$HOME/certs/funfair.nuget.local.crt" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
+sudo cp "$HOME/certs/funfair-prerelease.nuget.local.crt" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
+sudo cp "$HOME/certs/builds.dotnet.local.crt" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
+
+sudo update-ca-certificates || die "could not import certificates"
