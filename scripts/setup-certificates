@@ -1,16 +1,25 @@
 #! /bin/sh
 
-# Adding Certificates
-sudo cp "$HOME/certs/api.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import api.nuget.local.pem"
-sudo cp "$HOME/certs/funfair.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair.nuget.local.pem"
-sudo cp "$HOME/certs/funfair-prerelease.nuget.local.pem" /usr/local/share/ca-certificates/ || die "could not import funfair-prerelease.nuget.local.pem"
-sudo cp "$HOME/certs/builds.dotnet.local.pem" /usr/local/share/ca-certificates/ || die "could not import builds.dotnet.local.pem"
+CERTIFICATES="api.nuget.local funfair.nuget.local funfair-prerelease.nuget.local builds.dotnet.local"
 
-sudo mkdir -p /usr/share/ca-certificates/local
+echo "Ensuring certs folder created"
+[ -d /usr/share/ca-certificates/local ] && sudo mkdir -p /usr/share/ca-certificates/local
 
-sudo cp "$HOME/certs/api.nuget.local.crt" /usr/share/ca-certificates/local/ || die "could not import api.nuget.local.pem"
-sudo cp "$HOME/certs/funfair.nuget.local.crt" /usr/share/ca-certificates/local/ || die "could not import funfair.nuget.local.pem"
-sudo cp "$HOME/certs/funfair-prerelease.nuget.local.crt" /usr/share/ca-certificates/local/ || die "could not import funfair-prerelease.nuget.local.pem"
-sudo cp "$HOME/certs/builds.dotnet.local.crt" /usr/share/ca-certificates/local/ || die "could not import builds.dotnet.local.pem"
+echo "Installing certificates into folders..."
 
+for CERTIFICATE in $CERTIFICATES; do
+  echo "* $CERTIFICATE"
+  if [ -f "/usr/share/ca-certificates/local/$CERTIFICATE.crt" ]; then
+    echo "  -- Copying file"
+    sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
+    echo "local/$CERTIFICATE.crt" | sudo tee -a /etc/ca-certificates.conf
+  else
+    echo "  -- Already installed"
+  fi
+done
+
+echo "Importing certificates..."
 sudo update-ca-certificates --verbose --fresh || die "could not import certificates"
+
+
+echo echo "Importing certificates completed"
