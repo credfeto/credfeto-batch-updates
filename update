@@ -46,8 +46,8 @@ echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
 [ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
 [ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
-[ -z "$DOTNET_SOURCE" ] && die "$DOTNET_SOURCE not defined"
-[ -z "$DOTNET_PROXY_HOST" ] && die "$DOTNET_PROXY_HOST not defined"
+[ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
+[ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
