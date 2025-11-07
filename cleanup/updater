@@ -7,6 +7,11 @@ die() {
     exit 1
 }
 
+echo "*****************************************************************************"
+echo "* CLEANUP"
+echo "*****************************************************************************"
+echo ""
+
 BASEDIR="$(dirname "$(readlink -f "$0")")"
 
 USER="$(whoami || die "No user")"
@@ -27,6 +32,8 @@ echo "Release: $RELEASE"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
+[ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
+[ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 # Ensure that TMP environment variables are set up as used by dotnet and tests
 export TMP=$(mktemp -d)

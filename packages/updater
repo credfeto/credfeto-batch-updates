@@ -7,6 +7,11 @@ die() {
     exit 1
 }
 
+echo "*****************************************************************************"
+echo "* PACKAGES"
+echo "*****************************************************************************"
+echo ""
+
 BASEDIR="$(dirname "$(readlink -f "$0")")"
 
 
@@ -29,6 +34,8 @@ echo "Release: $RELEASE"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
+[ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
+[ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 # Setting permissions
 sudo chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
