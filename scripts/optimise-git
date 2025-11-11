@@ -16,6 +16,7 @@ do
   echo "Optimising $CURRENT_DIR..."
 
   echo "* Clearing Locks..."
+  [ -f "$CURRENT_DIR/.git/index.lock" ] && rm -f "$CURRENT_DIR/.git/index.lock"
   [ -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock" ] && rm -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock"
 
 
