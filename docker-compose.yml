@@ -78,6 +78,7 @@ services:
     stop_signal: SIGINT
     profiles:
       - cleanup
+      - alt
       - full
     environment:
       - PACKAGES=$PACKAGES
@@ -111,6 +112,7 @@ services:
     stop_signal: SIGINT
     profiles:
       - dependencies
+      - alt
       - full
     environment:
       - REPOS_LIST=$REPOS_LIST
