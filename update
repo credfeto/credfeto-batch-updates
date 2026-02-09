@@ -77,8 +77,12 @@ cp "$BASEDIR/scripts/setup-certificates" "$BASEDIR/templates/"
 echo "Updating docker"
 sudo docker compose pull || die "Failed to pull images"
 sudo docker compose build || die "Failed to build images"
-sudo docker compose up -d --remove-orphans || die "Failed to bring up services"
 
+if [ -z "$COMPOSE_PROFILE" ]; then
+  sudo docker compose up -d --remove-orphans || die "Failed to bring up services"
+else
+  sudo docker compose up -d --remove-orphans --profile "$COMPOSE_PROFILE" || die "Failed to bring up services"
+fi
 echo "Removing old images"
 sudo docker image prune -f || die "Failed to prune old images"
 

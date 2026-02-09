@@ -7,6 +7,10 @@ services:
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
+    profiles:
+      - templates
+      - minimal
+      - full
     environment:
       - PACKAGES=$PACKAGES
       - REPOS_LIST=$REPOS_LIST
@@ -38,6 +42,10 @@ services:
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
+    profiles:
+      - packages
+      - minimal
+      - full
     environment:
       - PACKAGES=$PACKAGES
       - REPOS_LIST=$REPOS_LIST
@@ -68,6 +76,9 @@ services:
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
+    profiles:
+      - cleanup
+      - full
     environment:
       - PACKAGES=$PACKAGES
       - REPOS_LIST=$REPOS_LIST
@@ -98,6 +109,9 @@ services:
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
+    profiles:
+      - dependencies
+      - full
     environment:
       - REPOS_LIST=$REPOS_LIST
       - TEMPLATE=$TEMPLATE
