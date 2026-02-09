@@ -33,7 +33,7 @@ echo "RELEASE: $RELEASE"
 echo "TEMPLATE_CONFIG: $TEMPLATE_CONFIG"
 echo "TEMPLATE: $TEMPLATE"
 echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
-
+echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 [ -z "$DOTNET_CHANNELS" ] && die "DOTNET_CHANNELS not defined"
 [ -z "$CACHE_ROOT" ] && die "CACHE_ROOT not defined"
@@ -48,6 +48,7 @@ echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
 [ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
 [ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
+#[ -z "$COMPOSE_PROFILE" ] && die "COMPOSE_PROFILE not defined"
 
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
