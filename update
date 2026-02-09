@@ -48,7 +48,9 @@ echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 [ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
 [ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
-#[ -z "$COMPOSE_PROFILE" ] && die "COMPOSE_PROFILE not defined"
+[ -z "$COMPOSE_PROFILE" ] && COMPOSE_PROFILE=full
+
+echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
@@ -79,11 +81,8 @@ echo "Updating docker"
 sudo docker compose pull || die "Failed to pull images"
 sudo docker compose build || die "Failed to build images"
 
-if [ -z "$COMPOSE_PROFILE" ]; then
-  sudo docker compose up -d --remove-orphans || die "Failed to bring up services"
-else
-  sudo docker compose --profile "$COMPOSE_PROFILE" up -d --remove-orphans  || die "Failed to bring up services"
-fi
+sudo docker compose --profile "$COMPOSE_PROFILE" up -d --remove-orphans  || die "Failed to bring up services"
+
 echo "Removing old images"
 sudo docker image prune -f || die "Failed to prune old images"
 
