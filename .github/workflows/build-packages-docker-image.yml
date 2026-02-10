@@ -6,10 +6,10 @@ on:
     paths:
       - "cleanup/**/*"
       - "scripts/**/*"
-      - .github/workflows/build-dependencies-docker-image.yml
+      - .github/workflows/build-packages-docker-image.yml
 
 concurrency:
-  group: "${{github.workflow}}-${{github.ref}}-dependencies-docker-image"
+  group: "${{github.workflow}}-${{github.ref}}-packages-docker-image"
   cancel-in-progress: false
 
 permissions:
@@ -19,9 +19,9 @@ jobs:
   build-cleanup-docker-image:
     env:
       APP_OWNER: credfeto
-      APP_NAME: dev-dependencies
+      APP_NAME: dev-packages
       CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
-      APP_PATH: dependencies
+      APP_PATH: packages
 
     runs-on: ubuntu-latest
     steps:
