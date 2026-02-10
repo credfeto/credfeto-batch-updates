@@ -16,6 +16,7 @@ cd "$BASEDIR" || die "Could not change to $BASEDIR"
 
 [ -f "$BASEDIR/nuget/NuGet.Config" ] || die "$BASEDIR/nuget/NuGet.Config is required"
 
+
 echo "Updating Repo"
 git pull
 
@@ -52,6 +53,10 @@ echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
+COMPOSE_FILE="$BASEDIR\docker-compose.yml"
+[ "$COMPOSE_PROFILE" = "minimal" ] && COMPOSE_FILE="$BASEDIR\docker-compose.minimal.yml"
+[ "$COMPOSE_PROFILE" = "alt" ] && COMPOSE_FILE="$BASEDIR\docker-compose.alt.yml"
+
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/cleanup/"
@@ -81,7 +86,7 @@ echo "Updating docker"
 sudo docker compose pull || die "Failed to pull images"
 sudo docker compose build || die "Failed to build images"
 
-sudo docker compose --profile "$COMPOSE_PROFILE" up -d --remove-orphans  || die "Failed to bring up services"
+sudo docker compose --file "$COMPOSE_FILE" up -d --remove-orphans  || die "Failed to bring up services"
 
 echo "Removing old images"
 sudo docker image prune -f || die "Failed to prune old images"
