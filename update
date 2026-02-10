@@ -82,9 +82,10 @@ cp "$BASEDIR/scripts/setup-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-certificates" "$BASEDIR/templates/"
 
-echo "Updating docker"
-sudo docker compose pull || die "Failed to pull images"
-sudo docker compose build || die "Failed to build images"
+echo "Updating docker $COMPOSE_FILE"
+sudo docker compose --file "$COMPOSE_FILE"  pull || die "Failed to pull images"
+#sudo docker compose --file "$COMPOSE_FILE" build || die "Failed to build images"
+
 
 sudo docker compose --file "$COMPOSE_FILE" up -d --remove-orphans  || die "Failed to bring up services"
 
