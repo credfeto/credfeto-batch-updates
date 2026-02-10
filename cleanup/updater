@@ -93,6 +93,10 @@ while sleep 120; do
 
     install_dotnet_version "$VERSION" "$SDK_VERSION"
 
+    SDK_INSTALLED_NOW=$("$DOTNET_ROOT/dotnet" --list-sdks | cut -f 1 -d " " | grep -F "$SDK_VERSION")
+    [ -z "$SDK_INSTALLED_NOW" ] || die "Dotnet $SDK_VERSION not installed properly (Found None)"
+    [ "$SDK_INSTALLED_NOW" != "$SDK_VERSION" ] || die "Dotnet $SDK_VERSION not installed properly (Found $SDK_INSTALLED_NOW)"
+
   done
 
   echo "Installed versions"
