@@ -213,9 +213,10 @@ install_dotnet_version() {
    echo "Installed SDKS":
    "$DOTNET_ROOT/dotnet" --list-sdks || say_err "Dotnet $SDK_VERSION not installed properly (No dotnet)"
 
+   [ -x "$DOTNET_ROOT/dotnet" ] || say_err "Dotnet $SDK_VERSION not installed properly (dotnet exe not installed)"
    SDK_INSTALLED_NOW=$("$DOTNET_ROOT/dotnet" --list-sdks | cut -f 1 -d " " | grep -F "$SDK_VERSION")
-   [ -z "$SDK_INSTALLED_NOW" ] || say_err "Dotnet $SDK_VERSION not installed properly (Found None)"
-   [ "$SDK_INSTALLED_NOW" != "$SDK_VERSION" ] || say_err "Dotnet $SDK_VERSION not installed properly (Found $SDK_INSTALLED_NOW)"
+   [ -z "$SDK_INSTALLED_NOW" ] && say_err "Dotnet $SDK_VERSION not installed properly (Found None)"
+   [ "$SDK_INSTALLED_NOW" = "$SDK_VERSION" ] || say_err "Dotnet $SDK_VERSION not installed properly (Found $SDK_INSTALLED_NOW)"
 }
 
 get_latest_dotnet_sdk_version() {
