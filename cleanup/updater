@@ -95,6 +95,7 @@ while sleep 120; do
 
   done
 
+  echo "Installed versions"
   "$DOTNET_ROOT/dotnet" --list-sdks
 
   "$DOTNET_ROOT/dotnet" nuget list source
