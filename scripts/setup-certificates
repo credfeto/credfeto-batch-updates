@@ -39,4 +39,4 @@ echo "Importing certificates..."
 sudo update-ca-certificates --verbose --fresh || die "could not import certificates"
 
 
-echo echo "Importing certificates completed"
+echo "Importing certificates completed"
