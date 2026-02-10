@@ -1,4 +1,4 @@
-name: "Build: Cleanup Docker Image"
+name: "Build: Dependencies Docker Image"
 on:
   push:
     branches:
@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  build-cleanup-docker-image:
+  build-dependencies-docker-image:
     env:
       APP_OWNER: credfeto
       APP_NAME: dev-dependencies
