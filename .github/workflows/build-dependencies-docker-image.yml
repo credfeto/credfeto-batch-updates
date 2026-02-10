@@ -1,0 +1,74 @@
+name: "Build: Cleanup Docker Image"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "cleanup/**/*"
+      - "scripts/**/*"
+      - .github/workflows/build-cleanup-docker-image.yml
+
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}-dependencies-docker-image"
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-cleanup-docker-image:
+    env:
+      APP_OWNER: credfeto
+      APP_NAME: dev-dependencies
+      CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
+      APP_PATH: dependencies
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out repo"
+        uses: actions/checkout@v4.1.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: "Copy common scripts"
+        shell: bash
+        run: |
+          cp "${{github.workspace}}/scripts/install-dotnet" "${{github.workspace}}/${{env.APP_PATH}}"
+          cp "${{github.workspace}}/scripts/optimise-git" "${{github.workspace}}/${{env.APP_PATH}}"
+          cp "${{github.workspace}}/scripts/setup-certificates" "${{github.workspace}}/${{env.APP_PATH}}"
+          cp "${{github.workspace}}/scripts/setup-git" "${{github.workspace}}/${{env.APP_PATH}}"
+          cp "${{github.workspace}}/scripts/setup-gpg" "${{github.workspace}}/${{env.APP_PATH}}"
+
+      - name: "Set up Docker Buildx"
+        uses: docker/setup-buildx-action@v3.0.0
+
+      - name: "Docker Trust Enable"
+        shell: bash
+        run: |
+          echo "DOCKER_CONTENT_TRUST_ORIGINAL=${{env.DOCKER_CONTENT_TRUST}}" >> "$GITHUB_ENV"
+          echo "DOCKER_CONTENT_TRUST=1" >> "$GITHUB_ENV"
+
+      - name: "Docker: Test Build"
+        uses: docker/build-push-action@v6.15.0
+        with:
+          context: ${{github.workspace}}/${{env.APP_PATH}}
+          platforms: linux/amd64
+          load: true
+          tags: |
+            ${{env.APP_OWNER}}/${{env.APP_NAME}}:test
+          provenance: false
+
+      - name: "Docker: Build with tags"
+        uses: docker/build-push-action@v6.15.0
+        with:
+          context: ${{github.workspace}}/${{env.APP_PATH}}
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{env.CONTAINER_REGISTRY}}/${{env.APP_OWNER}}/${{env.APP_NAME}}:latest
+          provenance: false
+
+      - name: "Docker Trust Restore"
+        shell: bash
+        run: echo "DOCKER_CONTENT_TRUST=${{env.DOCKER_CONTENT_TRUST_ORIGINAL}}" >> "$GITHUB_ENV"
