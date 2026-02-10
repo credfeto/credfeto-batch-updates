@@ -30,6 +30,11 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: "Copy common scripts"
+        shell: bash
+        run: |
+          cp "${{github.workspace}}/scripts/*" "${{github.workspace}}/cleanup"
+
       - name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v3.0.0
 
