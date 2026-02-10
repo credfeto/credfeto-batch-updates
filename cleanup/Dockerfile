@@ -12,14 +12,23 @@ COPY setup-certificates .
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-RUN apt-get update && apt-get install -y \
+# Install prerequisites.
+# Note fonts required for SixLabours.Fonts
+RUN \
+    apt-get update && \
+    apt-get upgrade -y && \
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections && \
+    apt-get install -y ttf-mscorefonts-installer --no-install-recommends && \
+    apt-get install -y \
         bash \
         ca-certificates \
         curl  \
         git \
         gnupg \
         jq \
-        sudo
+        sudo && \
+    apt-get autoremove -y && \
+    apt-get clean
 
 # Add updater user
 RUN \
