@@ -16,7 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  build-cache-docker-image:
+  build-cleanup-docker-image:
     env:
       APP_OWNER: credfeto
       APP_NAME: dev-cleanup
@@ -42,7 +42,7 @@ jobs:
       - name: "Docker: Test Build"
         uses: docker/build-push-action@v6.15.0
         with:
-          context: ${{github.workspace}}/cache
+          context: ${{github.workspace}}/cleanup
           platforms: linux/amd64
           load: true
           tags: |
@@ -52,7 +52,7 @@ jobs:
       - name: "Docker: Build with tags"
         uses: docker/build-push-action@v6.15.0
         with:
-          context: ${{github.workspace}}/cache
+          context: ${{github.workspace}}/cleanup
           platforms: linux/amd64
           push: true
           tags: |
