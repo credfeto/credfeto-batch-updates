@@ -53,9 +53,9 @@ echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
-COMPOSE_FILE="$BASEDIR\docker-compose.yml"
-[ "$COMPOSE_PROFILE" = "minimal" ] && COMPOSE_FILE="$BASEDIR\docker-compose.minimal.yml"
-[ "$COMPOSE_PROFILE" = "alt" ] && COMPOSE_FILE="$BASEDIR\docker-compose.alt.yml"
+COMPOSE_FILE="$BASEDIR/docker-compose.yml"
+[ "$COMPOSE_PROFILE" = "minimal" ] && COMPOSE_FILE="$BASEDIR/docker-compose.minimal.yml"
+[ "$COMPOSE_PROFILE" = "alt" ] && COMPOSE_FILE="$BASEDIR/docker-compose.alt.yml"
 
 # Update scripts before building docker
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
