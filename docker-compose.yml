@@ -3,7 +3,7 @@ services:
 
 
   templates:
-    build: ./templates
+    image: docker-registry.markridgwell.com/credfeto/dev-templates:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -38,7 +38,7 @@ services:
       - updaters
 
   packages:
-    build: ./packages
+    image: docker-registry.markridgwell.com/credfeto/dev-packages:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -72,7 +72,7 @@ services:
       - updaters
 
   cleanup:
-    build: ./cleanup
+    image: docker-registry.markridgwell.com/credfeto/dev-cleanup:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -106,7 +106,7 @@ services:
       - updaters
 
   dependencies:
-    build: ./dependencies
+    image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
