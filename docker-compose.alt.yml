@@ -30,6 +30,8 @@ services:
       - ./nuget/certs:/local/certs:r
     networks:
       - updaters
+    security_opt:
+      - no-new-privileges:true
 
   dependencies:
     image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
@@ -58,6 +60,8 @@ services:
       - ./nuget/certs:/local/certs:r
     networks:
       - updaters
+    security_opt:
+      - no-new-privileges:true
 
 networks:
   updaters:
