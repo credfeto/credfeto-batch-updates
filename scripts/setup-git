@@ -6,11 +6,16 @@ die() {
     exit 1
 }
 
-
+## Check that name and email are set, otherwise git will complain when we try to commit something.
 [ -z "$GIT_USER_NAME" ] && die "GIT_USER_NAME not defiled"
 [ -z "$GIT_USER_EMAIL" ] && die "GIT_USER_EMAIL not defiled"
+
+
+# User details
 git config --global user.name "$GIT_USER_NAME"
 git config --global user.email "$GIT_USER_EMAIL"
+
+# General settings
 git config --global core.autocrlf false
 git config --global core.fscache true
 git config --global core.ignorecase false
