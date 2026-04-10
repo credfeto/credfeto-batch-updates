@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "cleanup/**/*"
+      - "packages/**/*"
       - "scripts/**/*"
       - .github/workflows/build-packages-docker-image.yml
 
