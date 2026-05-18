@@ -1,15 +1,20 @@
 #! /bin/sh
 
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
-## Check that name and email are set, otherwise git will complain when we try to commit something.
-[ -z "$GIT_USER_NAME" ] && die "GIT_USER_NAME not defiled"
-[ -z "$GIT_USER_EMAIL" ] && die "GIT_USER_EMAIL not defiled"
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
 
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+
+[ -z "$GIT_USER_NAME" ] && die "GIT_USER_NAME not defined"
+[ -z "$GIT_USER_EMAIL" ] && die "GIT_USER_EMAIL not defined"
 
 # User details
 git config --global user.name "$GIT_USER_NAME"
@@ -32,10 +37,9 @@ git config --global rebase.autosquash true
 git config --global core.packedGitLimit 512m
 git config --global core.packedGitWindowSize 512m
 
-# Sparse checkout?
-# git config --global core.sparseCheckout true
-
 # Rewrite common https urls to the ssh equivalent.
 git config --global url."git@github.com:".insteadOf "https://github.com/"
 git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
 git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"
+
+success "Git configured"

@@ -1,16 +1,19 @@
 #! /bin/bash
 
-
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
-echo "*****************************************************************************"
-echo "* CLEANUP"
-echo "*****************************************************************************"
-echo ""
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
+
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+
+info "CLEANUP"
 
 BASEDIR="$(dirname "$(readlink -f "$0")")"
 
@@ -19,13 +22,13 @@ export USER
 
 [ -z "$USER" ] && die "USER not defined"
 [ -z "$HOME" ] && die "HOME not defined"
-echo "Running as: $USER"
-echo "Home: $HOME"
+info "Running as: $USER"
+info "Home: $HOME"
 
-echo "Repos: $REPOS_LIST"
-echo "Template: $TEMPLATE"
-echo "Packages: $PACKAGES"
-echo "Release: $RELEASE"
+info "Repos: $REPOS_LIST"
+info "Template: $TEMPLATE"
+info "Packages: $PACKAGES"
+info "Release: $RELEASE"
 
 [ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "No NuGet.Config"
 [ -z "$PACKAGES" ] && die "PACKAGES not defined"
@@ -36,7 +39,8 @@ echo "Release: $RELEASE"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 # Ensure that TMP environment variables are set up as used by dotnet and tests
-export TMP=$(mktemp -d)
+export TMP
+TMP=$(mktemp -d)
 export TEMP=$TMP
 export TMPDIR=$TMP
 
@@ -69,6 +73,7 @@ export MSBUILDTERMINALLOGGER="auto"
 
 [ -f "/bin/tar" ] || die "tar not found"
 
+# shellcheck source=/dev/null
 . "$BASEDIR/install-dotnet"
 
 export PATH=$PATH:$DOTNET_ROOT
@@ -85,29 +90,25 @@ while sleep 120; do
 
     [ -z "$SDK_VERSION" ] && die "Could not determine latest SDK version for $VERSION"
 
-    echo "**********************************************************************************************"
-    echo "* Installing dotnet: $VERSION"
-    echo "*       Current SDK: $SDK_VERSION"
-    echo "**********************************************************************************************"
-    echo ""
+    info "Installing dotnet: $VERSION (SDK: $SDK_VERSION)"
 
     install_dotnet_version "$VERSION" "$SDK_VERSION"
 
     [ -x "$DOTNET_ROOT/dotnet" ] || die "Dotnet $SDK_VERSION not installed properly (dotnet exe not installed)"
     SDK_INSTALLED_NOW=$("$DOTNET_ROOT/dotnet" --list-sdks | cut -f 1 -d " " | grep -F "$SDK_VERSION")
     [ -z "$SDK_INSTALLED_NOW" ] && die "Dotnet $SDK_VERSION not installed properly (Found None)"
-    [ "$SDK_INSTALLED_NOW" == "$SDK_VERSION" ] || die "Dotnet $SDK_VERSION not installed properly (Found $SDK_INSTALLED_NOW)"
+    [ "$SDK_INSTALLED_NOW" = "$SDK_VERSION" ] || die "Dotnet $SDK_VERSION not installed properly (Found $SDK_INSTALLED_NOW)"
 
   done
 
-  echo "Installed versions"
+  info "Installed versions"
   "$DOTNET_ROOT/dotnet" --list-sdks
 
   "$DOTNET_ROOT/dotnet" nuget list source
 
   cat "$HOME/.nuget/NuGet/NuGet.Config"
 
-  echo "Setting up environments"
+  info "Setting up environments"
   export PATH="$PATH:$DOTNET_ROOT"
   export WORK="$HOME/work"
   export TRACKING_FILE="$HOME/tracking/tracking.json"
@@ -121,7 +122,7 @@ while sleep 120; do
   RELEASE_LOG_FILE=${LOG_BASE}.release.log
   GIT_OPTIMISE=${LOG_BASE}.optimise
 
-  echo "Rotating log files"
+  info "Rotating log files"
   [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
   [ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
   [ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
@@ -129,12 +130,12 @@ while sleep 120; do
   [ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
   [ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
 
-  echo "Installing updater tool"
+  info "Installing updater tool"
   {
-    echo "Installing tools..."
+    info "Installing tools..."
     date
     [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
-    echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+    info "Installing Credfeto.DotNet.Repo.Tools.Cmd"
     "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool list
@@ -142,7 +143,7 @@ while sleep 120; do
   }  2>&1 | tee "${LOG_BASE}.install"
 
   {
-    echo "Running tool"
+    info "Running tool"
     "$DOTNET_ROOT/dotnet" updaterepo \
           code-cleanup \
               --repositories "${REPOS_LIST}" \
@@ -153,20 +154,20 @@ while sleep 120; do
               --release "${RELEASE}" \
       || die "Update failed"
   } 2>&1 | tee "${LOG_FILE}"
-  echo "Done"
+  success "Done"
 
-  echo "Git Optimise"
+  info "Git Optimise"
   WEEKDAY=$(date +%u)
-  if [ $GIT_OPTIMIZE_DAY = $WEEKDAY ]; then
+  if [ "$GIT_OPTIMIZE_DAY" = "$WEEKDAY" ]; then
     if [ ! -f "$GIT_OPTIMISE" ]; then
-      echo " -- Optimising"
+      info "Optimising"
       touch "$GIT_OPTIMISE"
       "$BASEDIR/optimise-git" || die "GIT optimise failed"
     else
-      echo " -- Not optimising - already run today"
+      info "Not optimising - already run today"
     fi
   else
-    echo " -- Not optimising today"
+    info "Not optimising today"
     rm -fr "$GIT_OPTIMISE"
   fi
 done

@@ -1,6 +1,4 @@
-
 services:
-
 
   templates:
     image: docker-registry.markridgwell.com/credfeto/dev-templates:latest
@@ -66,7 +64,7 @@ services:
       - updaters
     security_opt:
       - no-new-privileges:false
-      
+
 networks:
   updaters:
     driver: bridge
