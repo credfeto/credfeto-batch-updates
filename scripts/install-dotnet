@@ -1,5 +1,9 @@
 #! /bin/bash
 # Requires die() and info() to be defined by the sourcing script.
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    printf '\033[31m✗\033[0m install-dotnet must be sourced, not executed directly\n' >&2
+    exit 1
+fi
 
 DOWNLOADS=$HOME/downloads
 TMPBASE=${TMPDIR:-$HOME/tmp}
@@ -54,12 +58,8 @@ extract_dotnet_package() {
 
     sudo rm -rf "$temp_out_path"
 
-    local missing=false
-    [ -f "$out_path/dotnet" ] || info "Missing dotnet"
-    [ -f "$out_path/dotnet" ] || missing=true
-
-    if [ "$missing" = true ]; then
-        die "Extraction failed"
+    if [ ! -f "$out_path/dotnet" ]; then
+        die "Extraction failed: dotnet binary missing at $out_path/dotnet"
     fi
     return 0
 }
