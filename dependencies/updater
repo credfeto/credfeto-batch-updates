@@ -1,16 +1,19 @@
 #! /bin/bash
 
-
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
-echo "*****************************************************************************"
-echo "* DEPENDENCIES"
-echo "*****************************************************************************"
-echo ""
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
+
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+
+info "DEPENDENCIES"
 
 BASEDIR="$(dirname "$(readlink -f "$0")")"
 
@@ -19,11 +22,11 @@ export USER
 
 [ -z "$USER" ] && die "USER not defined"
 [ -z "$HOME" ] && die "HOME not defined"
-echo "Running as: $USER"
-echo "Home: $HOME"
+info "Running as: $USER"
+info "Home: $HOME"
 
-echo "Repos: $REPOS_LIST"
-echo "Template: $TEMPLATE"
+info "Repos: $REPOS_LIST"
+info "Template: $TEMPLATE"
 
 [ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "No NuGet.Config"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
@@ -32,7 +35,8 @@ echo "Template: $TEMPLATE"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
 # Ensure that TMP environment variables are set up as used by dotnet and tests
-export TMP=$(mktemp -d)
+export TMP
+TMP=$(mktemp -d)
 export TEMP=$TMP
 export TMPDIR=$TMP
 
@@ -65,6 +69,7 @@ export MSBUILDTERMINALLOGGER="auto"
 
 [ -f "/bin/tar" ] || die "tar not found"
 
+# shellcheck source=/dev/null
 . "$BASEDIR/install-dotnet"
 
 export PATH=$PATH:$DOTNET_ROOT
@@ -91,7 +96,7 @@ while sleep 120; do
 
   cat "$HOME/.nuget/NuGet/NuGet.Config"
 
-  echo "Setting up environments"
+  info "Setting up environments"
   export PATH="$PATH:$DOTNET_ROOT"
   export WORK="$HOME/work"
   export TRACKING_FILE="$HOME/tracking/tracking.json"
@@ -104,7 +109,7 @@ while sleep 120; do
   LAST_LOG_FILE4=${LOG_BASE}.old.3
   RELEASE_LOG_FILE=${LOG_BASE}.release.log
 
-  echo "Rotating log files"
+  info "Rotating log files"
   [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
   [ -f "${LAST_LOG_FILE4}" ] && [ -f "${LAST_LOG_FILE3}" ] && rm "${LAST_LOG_FILE4}"
   [ -f "${LAST_LOG_FILE3}" ] && [ -f "${LAST_LOG_FILE2}" ] && mv "${LAST_LOG_FILE3}" "${LAST_LOG_FILE4}"
@@ -112,12 +117,12 @@ while sleep 120; do
   [ -f "${LAST_LOG_FILE1}" ] && [ -f "${LOG_FILE}" ] && mv "${LAST_LOG_FILE1}" "${LAST_LOG_FILE2}"
   [ -f "${LOG_FILE}" ] && mv "${LOG_FILE}" "${LAST_LOG_FILE1}"
 
-  echo "Installing updater tool"
+  info "Installing updater tool"
   {
-    echo "Installing tools..."
+    info "Installing tools..."
     date
     [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
-    echo "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+    info "Installing Credfeto.DotNet.Repo.Tools.Cmd"
     "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool list
@@ -126,7 +131,7 @@ while sleep 120; do
 
 
   {
-    echo "Running tool"
+    info "Running tool"
     "$DOTNET_ROOT/dotnet" updaterepo \
           reduce-dependencies \
               --repositories "${REPOS_LIST}" \
@@ -136,7 +141,7 @@ while sleep 120; do
         || die "Update failed"
   } 2>&1 | tee "${LOG_FILE}"
 
-  echo "Done"
+  success "Done"
 
   "$BASEDIR/optimise-git" || die "GIT optimise failed"
 done

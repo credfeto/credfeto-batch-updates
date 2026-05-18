@@ -1,14 +1,20 @@
 #! /bin/sh
 
-PROG=$0
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
+
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+
 BASEDIR="$(dirname "$(readlink -f "$0")")"
-echo "Script Dir: $BASEDIR"
+info "Script Dir: $BASEDIR"
 
 cd "$BASEDIR" || die "Could not change to $BASEDIR"
 
@@ -16,25 +22,25 @@ cd "$BASEDIR" || die "Could not change to $BASEDIR"
 
 [ -f "$BASEDIR/nuget/NuGet.Config" ] || die "$BASEDIR/nuget/NuGet.Config is required"
 
-
-echo "Updating Repo"
+info "Updating Repo"
 git pull
 
-echo "Using $BASEDIR/.env"
+info "Using $BASEDIR/.env"
+# shellcheck source=/dev/null
 . "$BASEDIR/.env"
 
-echo "DOTNET_CHANNELS: $DOTNET_CHANNELS"
-echo "CACHE_ROOT: $CACHE_ROOT"
-echo "DOTNET_CACHE_ROOT: $DOTNET_CACHE_ROOT"
-echo "TRACKING_ROOT: $TRACKING_ROOT"
+info "DOTNET_CHANNELS: $DOTNET_CHANNELS"
+info "CACHE_ROOT: $CACHE_ROOT"
+info "DOTNET_CACHE_ROOT: $DOTNET_CACHE_ROOT"
+info "TRACKING_ROOT: $TRACKING_ROOT"
 
-echo "PACKAGES: $PACKAGES"
-echo "REPOS_LIST: $REPOS_LIST"
-echo "RELEASE: $RELEASE"
-echo "TEMPLATE_CONFIG: $TEMPLATE_CONFIG"
-echo "TEMPLATE: $TEMPLATE"
-echo "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
-echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
+info "PACKAGES: $PACKAGES"
+info "REPOS_LIST: $REPOS_LIST"
+info "RELEASE: $RELEASE"
+info "TEMPLATE_CONFIG: $TEMPLATE_CONFIG"
+info "TEMPLATE: $TEMPLATE"
+info "COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME"
+info "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 [ -z "$DOTNET_CHANNELS" ] && die "DOTNET_CHANNELS not defined"
 [ -z "$CACHE_ROOT" ] && die "CACHE_ROOT not defined"
@@ -44,20 +50,20 @@ echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 [ -z "$PACKAGES" ] && die "PACKAGES not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
 [ -z "$RELEASE" ] && die "RELEASE not defined"
-[ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG"
+[ -z "$TEMPLATE_CONFIG" ] && die "TEMPLATE_CONFIG not defined"
 [ -z "$TEMPLATE" ] && die "TEMPLATE not defined"
 [ -z "$COMPOSE_PROJECT_NAME" ] && die "COMPOSE_PROJECT_NAME not defined"
 [ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 [ -z "$COMPOSE_PROFILE" ] && COMPOSE_PROFILE=full
 
-echo "COMPOSE_PROFILE: $COMPOSE_PROFILE"
+info "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 
 COMPOSE_FILE="$BASEDIR/docker-compose.yml"
 [ "$COMPOSE_PROFILE" = "minimal" ] && COMPOSE_FILE="$BASEDIR/docker-compose.minimal.yml"
 [ "$COMPOSE_PROFILE" = "alt" ] && COMPOSE_FILE="$BASEDIR/docker-compose.alt.yml"
 
-# Update scripts before building docker
+info "Copying scripts to containers"
 cp "$BASEDIR/scripts/install-dotnet" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/cleanup/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/cleanup/"
@@ -82,14 +88,12 @@ cp "$BASEDIR/scripts/setup-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-certificates" "$BASEDIR/templates/"
 
-echo "Updating docker $COMPOSE_FILE"
-sudo docker compose --file "$COMPOSE_FILE"  pull || die "Failed to pull images"
-#sudo docker compose --file "$COMPOSE_FILE" build || die "Failed to build images"
+info "Updating docker: $COMPOSE_FILE"
+sudo docker compose --file "$COMPOSE_FILE" pull || die "Failed to pull images"
 
+sudo docker compose --file "$COMPOSE_FILE" up -d --remove-orphans || die "Failed to bring up services"
 
-sudo docker compose --file "$COMPOSE_FILE" up -d --remove-orphans  || die "Failed to bring up services"
-
-echo "Removing old images"
+info "Removing old images"
 sudo docker image prune -f || die "Failed to prune old images"
 
-echo "Done"
+success "Done"

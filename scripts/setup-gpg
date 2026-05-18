@@ -1,9 +1,16 @@
 #! /bin/sh
 
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
+}
+
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
+
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
 }
 
 GPG_KEY_FILE=$1
@@ -12,10 +19,9 @@ GPG_KEY_FILE=$1
 gpg --list-keys || die "Could not list public keys"
 gpg --list-secret-keys || die "Could not list secret keys"
 if [ -f "$GPG_KEY_FILE" ]; then
-  gpg --import "$GPG_KEY_FILE" || die "Could not import secret keys from $HOME/.gnupg/key.asc"
+  gpg --import "$GPG_KEY_FILE" || die "Could not import secret keys from $GPG_KEY_FILE"
   gpg --list-secret-keys || die "Could not list secret keys"
 fi
-
 
 # disable gpg commit signing
 git config --global commit.gpgsign false
@@ -23,16 +29,18 @@ git config --global commit.gpgsign false
 GIT_USER=$(git config --global user.email)
 [ -z "$GIT_USER" ] && die "Git user email not defined"
 
-GPG_KEY_ID=$(gpg --list-keys "$GIT_USER" | grep -E "^\s\s\s\s\s\s([A-Z0-9]+)$" | head -1)
+GPG_KEY_ID=$(gpg --list-keys "$GIT_USER" | grep -E "^\s{6}([A-Z0-9]+)$" | head -1)
 
-echo "Git email: $GIT_USER"
-echo "GPG Key id: $GPG_KEY_ID"
+info "Git email: $GIT_USER"
+info "GPG Key id: $GPG_KEY_ID"
 
 if [ -z "$GPG_KEY_ID" ]; then
-  echo "Disabling commit signing"
+  info "Disabling commit signing"
   git config --global commit.gpgsign false || die "Could not disable signing"
 else
-  echo "Enabling commit signing"
+  info "Enabling commit signing"
   git config --global user.signingkey "$GPG_KEY_ID" || die "Could not set key"
   git config --global commit.gpgsign true || die "Could not enable signing"
 fi
+
+success "GPG configured"

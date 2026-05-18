@@ -1,6 +1,4 @@
-
 services:
-
 
   templates:
     image: docker-registry.markridgwell.com/credfeto/dev-templates:latest

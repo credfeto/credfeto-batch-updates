@@ -1,44 +1,43 @@
 #! /bin/sh
 
 die() {
-    echo
-    echo "$@"
+    printf '\n\033[31m✗\033[0m %s\n' "$*" >&2
     exit 1
 }
 
+success() {
+    printf '\n\033[32m✓\033[0m %s\n' "$*"
+}
 
-for line in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
+info() {
+    printf '\n\033[32m→\033[0m %s\n' "$*"
+}
+
+for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
 do
-  echo "$line"
-  CURRENT_DIR=$line
+  info "Optimising $CURRENT_DIR..."
 
-  echo ""
-  echo "Optimising $CURRENT_DIR..."
-
-  echo "* Clearing Locks..."
+  info "Clearing locks..."
   find "$CURRENT_DIR/.git" -name "*.lock"
   [ -f "$CURRENT_DIR/.git/index.lock" ] && rm -f "$CURRENT_DIR/.git/index.lock"
   [ -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock" ] && rm -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock"
 
-
-  echo "* Pruning remotes..."
+  info "Pruning remotes..."
   for REMOTE in $(git -C "$CURRENT_DIR" remote)
   do
-    echo "  + Pruning $REMOTE..."
+    info "Pruning $REMOTE..."
     git -C "$CURRENT_DIR" remote prune "$REMOTE"
   done
 
-  echo "* Repacking..."
+  info "Repacking..."
   git -C "$CURRENT_DIR" repack
-  echo "* Pruning packed..."
+  info "Pruning packed..."
   git -C "$CURRENT_DIR" prune-packed
-  echo "* Expiring reflog..."
+  info "Expiring reflog..."
   git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago
-  echo "* Garbage collecting..."
+  info "Garbage collecting..."
   git -C "$CURRENT_DIR" gc --aggressive --prune --force
-
-  echo " * done"
 
 done
 
-echo "Repo optimisation completed"
+success "Repo optimisation completed"

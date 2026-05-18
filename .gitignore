@@ -3,6 +3,8 @@
 /cache/
 /config/
 /dotnet/
-/nuget/
+/nuget/NuGet.Config
+/nuget/certs/*.key
+/nuget/certs/*.pfx
 /temp/
 /tracking/
