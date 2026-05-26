@@ -30,7 +30,7 @@ services:
     networks:
       - updaters
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges:false
 
   dependencies:
     image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
@@ -60,7 +60,7 @@ services:
     networks:
       - updaters
     security_opt:
-      - no-new-privileges:true
+      - no-new-privileges:false
 
 networks:
   updaters:
