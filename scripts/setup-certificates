@@ -47,7 +47,11 @@ sudo update-ca-certificates --verbose --fresh || die "could not import certifica
 
 
 info "Checking NuGet endpoint connectivity..."
-for NUGET_URL in "https://api.nuget.local:5555/v3/index.json" "https://funfair.nuget.local:5555/index.json" "https://funfair-prerelease.nuget.local:5555/index.json"; do
+[ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "NuGet.Config not found at $HOME/.nuget/NuGet/NuGet.Config"
+NUGET_URLS=$(grep 'value=' "$HOME/.nuget/NuGet/NuGet.Config" | sed 's/.*value="\([^"]*\)".*/\1/' | grep '^https://')
+[ -z "$NUGET_URLS" ] && die "No HTTPS package source URLs found in $HOME/.nuget/NuGet/NuGet.Config"
+# shellcheck disable=SC2086
+for NUGET_URL in $NUGET_URLS; do
     info "Checking $NUGET_URL"
     CURL_ERROR=$(curl --silent --show-error --fail --connect-timeout 10 "$NUGET_URL" 2>&1 >/dev/null)
     CURL_EXIT=$?
