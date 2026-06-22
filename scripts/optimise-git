@@ -18,9 +18,10 @@ do
   info "Optimising $CURRENT_DIR..."
 
   info "Clearing locks..."
-  find "$CURRENT_DIR/.git" -name "*.lock"
-  [ -f "$CURRENT_DIR/.git/index.lock" ] && rm -f "$CURRENT_DIR/.git/index.lock"
-  [ -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock" ] && rm -f "$CURRENT_DIR/.git/objects/info/commit-graph.lock"
+  find "$CURRENT_DIR/.git" -name "*.lock" -delete
+
+  info "Cleaning working tree..."
+  git -C "$CURRENT_DIR" clean -fdx
 
   info "Pruning remotes..."
   for REMOTE in $(git -C "$CURRENT_DIR" remote)
@@ -29,14 +30,10 @@ do
     git -C "$CURRENT_DIR" remote prune "$REMOTE"
   done
 
-  info "Repacking..."
-  git -C "$CURRENT_DIR" repack
-  info "Pruning packed..."
-  git -C "$CURRENT_DIR" prune-packed
   info "Expiring reflog..."
-  git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago
+  git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
   info "Garbage collecting..."
-  git -C "$CURRENT_DIR" gc --aggressive --prune --force
+  git -C "$CURRENT_DIR" gc --aggressive --prune=now --force
 
 done
 
