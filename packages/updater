@@ -134,6 +134,8 @@ while sleep 120; do
     date
   }  2>&1 | tee "${LOG_BASE}.install"
 
+  info "Checking Credfeto.DotNet.Repo.Tools.Cmd is installed..."
+  "$DOTNET_ROOT/dotnet" tool list --local | grep -qi "credfeto.dotnet.repo.tools.cmd" || die "Credfeto.DotNet.Repo.Tools.Cmd is not installed"
 
   {
     info "Running tool"
