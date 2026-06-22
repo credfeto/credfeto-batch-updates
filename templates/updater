@@ -126,12 +126,15 @@ while sleep 120; do
   {
     info "Installing Credfeto.DotNet.Repo.Tools.Cmd"
     date
-    [ ! -d ./.config ] && [ ! -f "$HOME/.config/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
+    [ ! -f "$HOME/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
     "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool list
     date
   }  2>&1 | tee "${LOG_BASE}.install"
+
+  info "Checking Credfeto.DotNet.Repo.Tools.Cmd is installed..."
+  "$DOTNET_ROOT/dotnet" tool list --local | grep -qi "credfeto.dotnet.repo.tools.cmd" || die "Credfeto.DotNet.Repo.Tools.Cmd is not installed"
 
   {
     info "Running tool"

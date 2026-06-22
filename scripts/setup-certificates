@@ -45,4 +45,15 @@ done
 info "Importing certificates..."
 sudo update-ca-certificates --verbose --fresh || die "could not import certificates"
 
+
+info "Checking NuGet endpoint connectivity..."
+for NUGET_URL in "https://api.nuget.local:5555/v3/index.json" "https://funfair.nuget.local:5555/index.json" "https://funfair-prerelease.nuget.local:5555/index.json"; do
+    info "Checking $NUGET_URL"
+    CURL_ERROR=$(curl --silent --show-error --fail --connect-timeout 10 "$NUGET_URL" 2>&1 >/dev/null)
+    CURL_EXIT=$?
+    if [ "$CURL_EXIT" -ne 0 ]; then
+        die "Connectivity check failed for $NUGET_URL: $CURL_ERROR"
+    fi
+done
+
 success "Importing certificates completed"
