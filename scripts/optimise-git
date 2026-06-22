@@ -33,7 +33,7 @@ do
   info "Expiring reflog..."
   git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
   info "Garbage collecting..."
-  git -C "$CURRENT_DIR" gc --aggressive --prune=now --force
+  git -C "$CURRENT_DIR" gc --prune=now --force
 
 done
 
