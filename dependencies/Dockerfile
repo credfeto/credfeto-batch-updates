@@ -32,6 +32,16 @@ RUN \
     apt-get autoremove -y && \
     apt-get clean
 
+# Fail the build immediately if any of these did not actually get installed
+# (e.g. a Recommends silently dropped by --no-install-recommends), rather
+# than discovering it later as an opaque runtime failure.
+# hadolint ignore=DL3001
+RUN \
+    ssh -V && \
+    gpg --version && \
+    jq --version && \
+    git --version
+
 # Install custom CA certificates for internal package feeds into the
 # system trust store at build time, avoiding the need for runtime write
 # access to /usr/share/ca-certificates etc. under a read-only rootfs.
