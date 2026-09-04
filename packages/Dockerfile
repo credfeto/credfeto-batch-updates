@@ -30,12 +30,18 @@ RUN \
     apt-get autoremove -y && \
     apt-get clean
 
-# Add updater user
+# Add updater user with a stable uid/gid so host-provisioned bind-mount
+# directories can be chowned to a known, fixed owner rather than whatever
+# the base image happened to have free at build time.
 RUN \
+    groupadd \
+           --gid 20000 \
+           "updater" && \
     useradd \
+           --uid 20000 \
+           --gid 20000 \
            --create-home \
            --system \
-           --user-group \
            --shell /bin/bash \
            --home-dir /local \
            --comment "Template updater" \
