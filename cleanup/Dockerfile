@@ -30,12 +30,18 @@ RUN \
     apt-get autoremove -y && \
     apt-get clean
 
-# Add updater user
+# Add updater user with a stable uid/gid so host-provisioned bind-mount
+# directories can be chowned to a known, fixed owner rather than whatever
+# the base image happened to have free at build time.
 RUN \
+    groupadd \
+           --gid 20000 \
+           "updater" && \
     useradd \
+           --uid 20000 \
+           --gid 20000 \
            --create-home \
            --system \
-           --user-group \
            --shell /bin/bash \
            --home-dir /local \
            --comment "Template updater" \
@@ -47,6 +53,7 @@ USER updater
 RUN \
     mkdir -p /local/tracking && \
     mkdir -p /local/work && \
+    mkdir -p /local/work/tmp && \
     mkdir -p /local/dotnet && \
     mkdir -p /local/.ssh && \
     mkdir -p /local/.gnupg && \
@@ -59,5 +66,10 @@ ENV REPOS_LIST="$REPOS_LIST"
 ENV PACKAGES="$PACKAGES"
 ENV TEMPLATE="$TEMPLATE"
 ENV RELEASE="$$RELEASE"
+# NuGet/dotnet compatibility probes write scratch files under TMPDIR; point
+# it at the bind-mounted work cache so they don't accumulate unbounded in
+# the container's own writable layer on the host root filesystem (issue:
+# inode exhaustion on dev-upgrader-01 from leaked restore-probe temp dirs).
+ENV TMPDIR=/local/work/tmp
 
 HEALTHCHECK --interval=5s --timeout=2s --retries=3 --start-period=60s CMD [ "/usr/src/app/healthcheck" ]

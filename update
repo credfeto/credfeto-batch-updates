@@ -46,6 +46,7 @@ info "COMPOSE_PROFILE: $COMPOSE_PROFILE"
 [ -z "$CACHE_ROOT" ] && die "CACHE_ROOT not defined"
 [ -z "$DOTNET_CACHE_ROOT" ] && die "DOTNET_CACHE_ROOT not defined"
 [ -z "$TRACKING_ROOT" ] && die "TRACKING_ROOT not defined"
+[ -z "$CONFIG_ROOT" ] && die "CONFIG_ROOT not defined"
 
 [ -z "$PACKAGES" ] && die "PACKAGES not defined"
 [ -z "$REPOS_LIST" ] && die "REPOS_LIST not defined"
@@ -87,6 +88,32 @@ cp "$BASEDIR/scripts/optimise-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-git" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-gpg" "$BASEDIR/templates/"
 cp "$BASEDIR/scripts/setup-certificates" "$BASEDIR/templates/"
+
+info "Ensuring cache/tracking directories are owned by the updater user"
+# The updater user inside each image is a fixed uid/gid (20000:20000, see
+# the role Dockerfiles) so that these host-provisioned directories can be
+# chowned to a known owner here rather than relying on an in-container
+# runtime chown (which needed broad sudo rights and blindly touched
+# read-only-mounted paths like NuGet.Config too). $CONFIG_ROOT/*/ssh is
+# deliberately left alone: it holds externally-provisioned secrets mounted
+# read-only, not something this script should create or take ownership of.
+for ROLE in templateupdate packageupdate codecleanup dependencies; do
+    sudo mkdir -p \
+        "$TRACKING_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
+        "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/nuget" \
+        "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/work" \
+        "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/installed" \
+        "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/downloads" \
+        "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
+        || die "Could not create $ROLE cache/tracking directories"
+
+    sudo chown -R 20000:20000 \
+        "$TRACKING_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
+        "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
+        "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
+        "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
+        || die "Could not set ownership for $ROLE cache/tracking directories"
+done
 
 info "Updating docker: $COMPOSE_FILE"
 sudo docker compose --file "$COMPOSE_FILE" pull || die "Failed to pull images"
