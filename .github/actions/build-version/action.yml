@@ -1,0 +1,26 @@
+--- # Define build version properties
+# Maintain in repo: funfair-server-template
+name: 'Define Build Version'
+description: 'Defines the build version properties'
+inputs:
+  # GENERAL
+  github-token:
+    description: 'Github Token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Define Build Version"
+      uses: ./.github/actions/dotnet-tool-run
+      with:
+        working-directory: "${{github.workspace}}"
+        tool-name: "buildversion"
+        tool-arguments: "--GithubToken \"${{inputs.github-token}}\" --TagPrefix \"github\""
+
+    - name: "Log build version"
+      shell: bash
+      run: |
+        echo "****************************************************************"
+        echo "* Current Build: ${{env.BUILD_VERSION}}"
+        echo "****************************************************************"

@@ -1,0 +1,24 @@
+--- # Run dotnet tool
+# Maintain in repo: funfair-server-template
+name: 'Run dotnet tool'
+description: 'Run dotnet tool'
+inputs:
+  working-directory:
+    description: 'Working directory'
+    required: true
+    default: 'latest'
+  tool-name:
+    description: 'Tool to run'
+    required: true
+  tool-arguments:
+    description: 'Tool arguments'
+    required: false
+    default: 'latest'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Run dotnet tool (Latest)"
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: dotnet tool run --allow-roll-forward ${{inputs.tool-name}} ${{inputs.tool-arguments}}

@@ -1,0 +1,316 @@
+--- # PR: find branches without open pull requests
+# Maintain in repo: funfair-server-template
+name: "PR: Find branches without PR's"
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - ".github/workflows/create-prs-for-stale-branches.yml"
+      - ".github/actions/find-pull-request/**"
+      - ".github/actions/read-file/**"
+      - ".github/actions/create-pull-request/**"
+      - ".github/actions/sync-labels/**"
+      - ".github/actions/delete-branch/**"
+  schedule:
+    - cron: "0 1 * * *"
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Info"
+        shell: bash
+        run: |
+          echo "Repo: ${{github.repository}}"
+          echo "Owner: ${{github.repository_owner}}"
+
+      - name: "Ensure JQ is installed"
+        shell: bash
+        run: sudo apt install -y jq
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 0
+          fetch-tags: true
+          ref: main
+          repository: ${{github.repository}}
+
+      - name: "Create matrix of branches"
+        id: set-matrix
+        shell: bash
+        run: |
+          BRANCHES=$(git branch --remote --format='%(refname:short)' \
+            | grep -Po 'origin/\K[^*]*' \
+            | grep -vE 'HEAD|release/|hotfix/' \
+            | jq -R -s -c 'split("\n")[:-1]')
+          echo "branches=$BRANCHES" >> "$GITHUB_OUTPUT"
+    outputs:
+      branches: ${{steps.set-matrix.outputs.branches}}
+
+  check-branch:
+    needs: build-matrix
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    strategy:
+      matrix:
+        branch: ${{fromJson(needs.build-matrix.outputs.branches)}}
+    env:
+      BRANCH: ${{matrix.branch}}
+
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 0
+          fetch-tags: true
+          ref: main
+          repository: ${{github.repository}}
+
+      - name: "Check Required Secrets"
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Branch Detection"
+        id: detection
+        shell: bash
+        run: |
+          echo "defaultbranch=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_OUTPUT"
+          echo "DEFAULT_BRANCH=$(git remote show origin | grep -Po 'HEAD\sbranch:\s+\K[^.*]*')" >> "$GITHUB_ENV"
+
+      # On Default branch
+      - name: "On Default Branch"
+        if: steps.detection.outputs.defaultbranch == matrix.branch
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            core.info("On Default branch - don't do anything");
+
+      # On Non-Default branch
+      - name: "On Non-Default branch"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            core.info('On non-default branch');
+
+      - name: "Find Existing PR"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
+        uses: ./.github/actions/find-pull-request
+        id: find-pull-request
+        with:
+          branch: "${{env.BRANCH}}"
+
+      - name: "Display Found PR"
+        if: steps.detection.outputs.defaultbranch != matrix.branch
+        shell: bash
+        run: echo "Pull Request ${{steps.find-pull-request.outputs.number}} (${{steps.find-pull-request.outputs.head-sha}})"
+      - name: "Check Branch Status"
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
+        shell: bash
+        run: |
+          echo "Check to see if $DEFAULT_BRANCH is ahead or behind $BRANCH..."
+          COUNTS=$(git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH")
+          echo "$COUNTS" | awk -v branch="$BRANCH" -v defaultbranch="$DEFAULT_BRANCH" '{ print branch" is behind "defaultbranch" by "$1" commit(s)" }'
+          echo "$COUNTS" | awk -v branch="$BRANCH" -v defaultbranch="$DEFAULT_BRANCH" '{ print branch" is ahead of "defaultbranch" by "$2" commit(s)" }'
+        env:
+          DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
+      - name: "Get last update time of branch"
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
+        id: lastupdate
+        shell: bash
+        run: echo "time=$(git log -1 --format=@%ct "origin/$BRANCH")" >> "$GITHUB_OUTPUT"
+
+      - name: "Check Ahead and Behind Status"
+        if: steps.detection.outputs.defaultbranch != matrix.branch && steps.find-pull-request.outputs.number == ''
+        id: aheadbehind
+        shell: bash
+        run: >
+          { \
+            git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH" \
+              | awk '{ print "behind="$1 }' ; \
+            git rev-list --left-right --count "origin/$DEFAULT_BRANCH...origin/$BRANCH" \
+              | awk '{ print "ahead="$2 }' ; \
+            echo "dayssinceupdate=$((($(date +%s)-$(date +%s --date "$LAST_UPDATE"))/(3600*24)))" ; \
+            echo "COMMIT_MSG=$(git log -1 --pretty=%B "$ORIGIN_DEFAULT_BRANCH")" ; \
+          } >> "$GITHUB_OUTPUT"
+        env:
+          DEFAULT_BRANCH: ${{steps.detection.outputs.defaultbranch}}
+          ORIGIN_DEFAULT_BRANCH: origin/${{steps.detection.outputs.defaultbranch}}
+          LAST_UPDATE: ${{steps.lastupdate.outputs.time}}
+
+      # Non-default - ahead of default branch, and no -re-existing PR then create one.
+      - name: "Read PR Template"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead != 0
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
+        id: pr-template
+        uses: ./.github/actions/read-file
+        with:
+          path: ./.github/PULL_REQUEST_TEMPLATE.md
+
+      - name: "Check Required Secrets"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead != 0
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
+        shell: bash
+        run: |
+          if [ -z "${{secrets.PR_CREATE_TOKEN}}" ]; then
+            echo "::error::PR_CREATE_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Create PR"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead != 0
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
+        id: open-pr
+        uses: ./.github/actions/create-pull-request
+        with:
+          github-token: ${{secrets.PR_CREATE_TOKEN}}
+          source-branch: ${{matrix.branch}}
+          destination-branch: ${{steps.detection.outputs.defaultbranch}}
+          assignee: ${{github.actor}}
+          labels: "auto-pr,stale"
+          draft: true
+          title: "${{steps.aheadbehind.outputs.COMMIT_MSG}} [No commits for ${{steps.aheadbehind.outputs.dayssinceupdate}} days]"
+          body: "${{steps.pr-template.outputs.content}}"
+
+      - name: "New PR Details"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead != 0
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_URL: ${{steps.open-pr.outputs.pr_url}}
+          PR_NUMBER: ${{steps.open-pr.outputs.pr_number}}
+          HAS_CHANGED_FILES: ${{steps.open-pr.outputs.has_changed_files}}
+        with:
+          script: |
+            core.info(`URL: ${process.env.PR_URL}`);
+            core.info(`PR: ${process.env.PR_NUMBER}`);
+            core.info(`CF: ${process.env.HAS_CHANGED_FILES}`);
+
+      - name: "Check Required Secrets"
+        if: steps.open-pr.outputs.pr_number != ''
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Update PR Labels"
+        if: steps.open-pr.outputs.pr_number != ''
+        uses: ./.github/actions/sync-labels
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          pr-number: ${{steps.open-pr.outputs.pr_number}}
+
+      - name: "Rebase"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.behind != 0
+          && steps.aheadbehind.outputs.ahead != 0
+          && steps.aheadbehind.outputs.dayssinceupdate > 7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            core.info('Rebase?');
+
+      - name: "Check Required Secrets"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead == '0'
+          && steps.aheadbehind.outputs.dayssinceupdate > 60
+        shell: bash
+        run: |
+          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+            echo "::error::SOURCE_PUSH_TOKEN is required but not set"
+            exit 1
+          fi
+
+      - name: "Delete Branch"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+          && steps.aheadbehind.outputs.ahead == '0'
+          && steps.aheadbehind.outputs.dayssinceupdate > 60
+        uses: ./.github/actions/delete-branch
+        with:
+          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          branch: ${{matrix.branch}}
+
+      - name: "Statistics"
+        if: |-
+          steps.detection.outputs.defaultbranch != matrix.branch
+          && steps.find-pull-request.outputs.number == ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          AHEAD: ${{steps.aheadbehind.outputs.ahead}}
+          BEHIND: ${{steps.aheadbehind.outputs.behind}}
+          DAYS_SINCE_UPDATE: ${{steps.aheadbehind.outputs.dayssinceupdate}}
+        with:
+          script: |
+            core.info(`Ahead: ${process.env.AHEAD}`);
+            core.info(`Behind: ${process.env.BEHIND}`);
+            core.info(`Last Commit: ${process.env.DAYS_SINCE_UPDATE} days ago`);
