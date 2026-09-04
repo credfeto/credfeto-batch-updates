@@ -27,6 +27,7 @@ RUN \
         git \
         gnupg \
         jq \
+        openssh-client \
         sudo && \
     apt-get autoremove -y && \
     apt-get clean
