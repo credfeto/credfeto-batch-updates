@@ -7,14 +7,15 @@
 ## Secrets and Credentials
 
 - Never commit secrets, credentials, API keys, tokens, or passwords.
-- If accidentally committed, treat it as compromised immediately — rotate and purge from history.
+- If accidentally committed, treat it as compromised immediately: rotate and purge from history.
 - Use environment variables, secrets managers, or platform vaults for all runtime secrets.
 - Refer to local AI instructions for the project-specific secrets management approach.
+- Never read or print secret-bearing files (`.env`, `.database`, `.claude/`) and write repo searches to exclude them; see [Exclude Secret-Bearing Files From Repo Searches](tool-preferences.instructions.md#exclude-secret-bearing-files-from-repo-searches-mandatory).
 
 ## Input Validation
 
 - Validate all external input (user input, API requests, file contents, env vars, message queues) at the entry boundary before use.
-- Reject input that does not conform to the expected shape, type, range, or format — never silently fix or guess malformed input.
+- Reject input that does not conform to the expected shape, type, range, or format; never silently fix or guess malformed input.
 
 ## Output Sanitisation
 
