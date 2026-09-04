@@ -1,4 +1,6 @@
 install-dotnet
 optimise-git
+setup-certificates
 setup-git
 setup-gpg
+certs/

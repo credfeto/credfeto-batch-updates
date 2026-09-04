@@ -26,9 +26,8 @@ services:
       - $CONFIG_ROOT/templateupdate/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/certs:/local/certs:ro
+      - ./nuget:/local/.nuget/NuGet:ro
+      - ./nuget:/root/.nuget/NuGet:ro
     networks:
       - updaters
     security_opt:
@@ -36,7 +35,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      - /local
+      - /local:uid=20000,gid=20000,mode=0750
 
   packages:
     image: docker-registry.markridgwell.com/credfeto/dev-packages:latest
@@ -62,9 +61,8 @@ services:
       - $CONFIG_ROOT/packageupdate/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/certs:/local/certs:ro
+      - ./nuget:/local/.nuget/NuGet:ro
+      - ./nuget:/root/.nuget/NuGet:ro
     networks:
       - updaters
     security_opt:
@@ -72,7 +70,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      - /local
+      - /local:uid=20000,gid=20000,mode=0750
 
 networks:
   updaters:

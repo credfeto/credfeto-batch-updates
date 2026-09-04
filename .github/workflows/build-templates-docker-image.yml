@@ -7,6 +7,7 @@ name: "Build: Templates Docker Image"
     paths:
       - "templates/**/*"
       - "scripts/**/*"
+      - "nuget/certs/**/*"
       - .github/workflows/build-templates-docker-image.yml
 
 concurrency:
@@ -41,6 +42,8 @@ jobs:
           cp "$SCRIPTS/setup-certificates" "$APP"
           cp "$SCRIPTS/setup-git" "$APP"
           cp "$SCRIPTS/setup-gpg" "$APP"
+          mkdir -p "$APP/certs"
+          cp "${{github.workspace}}/nuget/certs"/*.crt "$APP/certs/"
 
       - name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v4.0.0

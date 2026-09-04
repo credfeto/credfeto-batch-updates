@@ -13,39 +13,8 @@ info() {
     printf '\n\033[32m→\033[0m %s\n' "$*"
 }
 
-CERTIFICATES="api.nuget.local funfair.nuget.local funfair-prerelease.nuget.local builds.dotnet.local"
-
-info "Ensuring certs folder created"
-[ -d /usr/share/ca-certificates/local ] || sudo mkdir -p /usr/share/ca-certificates/local || die "Could not create /usr/share/ca-certificates/local"
-[ -d /usr/local/share/ca-certificates/local ] || sudo mkdir -p /usr/local/share/ca-certificates/local || die "Could not create /usr/local/share/ca-certificates/local"
-
-info "Installing certificates into folders..."
-
-for CERTIFICATE in $CERTIFICATES; do
-  info "$CERTIFICATE"
-  info "Copying file to /usr/share/ca-certificates/local/"
-  sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
-
-  info "Copying file to /usr/local/share/ca-certificates/local/"
-  sudo cp "$HOME/certs/$CERTIFICATE.crt" "/usr/local/share/ca-certificates/local/$CERTIFICATE.crt" || die "could not install $CERTIFICATE.crt"
-
-  INSTALLED=$(grep "local/$CERTIFICATE.crt" /etc/ca-certificates.conf)
-  if [ -z "$INSTALLED" ]; then
-    info "Installing link"
-    echo "local/$CERTIFICATE.crt" | sudo tee -a /etc/ca-certificates.conf
-  else
-    info "Link already installed"
-  fi
-
-  INSTALLED=$(grep "local/$CERTIFICATE.crt" /etc/ca-certificates.conf)
-  [ -z "$INSTALLED" ] && die "local/$CERTIFICATE.crt isn't installed"
-
-done
-
-info "Importing certificates..."
-sudo update-ca-certificates --verbose --fresh || die "could not import certificates"
-
-
+# Certificates are installed into the system trust store at image build
+# time (see the Dockerfile); this only checks connectivity at runtime.
 info "Checking NuGet endpoint connectivity..."
 [ -f "$HOME/.nuget/NuGet/NuGet.Config" ] || die "NuGet.Config not found at $HOME/.nuget/NuGet/NuGet.Config"
 NUGET_URLS=$(grep 'value=' "$HOME/.nuget/NuGet/NuGet.Config" | sed 's/.*value="\([^"]*\)".*/\1/' | grep '^https://')
@@ -60,4 +29,4 @@ for NUGET_URL in $NUGET_URLS; do
     fi
 done
 
-success "Importing certificates completed"
+success "NuGet endpoint connectivity checked"

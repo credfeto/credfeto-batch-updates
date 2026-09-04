@@ -102,6 +102,7 @@ for ROLE in templateupdate packageupdate codecleanup dependencies; do
         "$TRACKING_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
         "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/nuget" \
         "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/work" \
+        "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/work/tmp" \
         "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/installed" \
         "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME/downloads" \
         "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
@@ -114,6 +115,15 @@ for ROLE in templateupdate packageupdate codecleanup dependencies; do
         "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
         || die "Could not set ownership for $ROLE cache/tracking directories"
 done
+
+info "Ensuring NuGet.Config is readable by the updater user"
+# NuGet.Config can end up owned by whatever uid happened to create it
+# historically (e.g. an older image build's auto-assigned system uid before
+# the updater uid/gid were pinned), which the fixed uid 20000 may not be
+# able to read. Certs stay untouched: they are already world-readable and
+# not sensitive.
+sudo chown 20000:20000 "$BASEDIR/nuget/NuGet.Config" || die "Could not set ownership of NuGet.Config"
+sudo chmod 600 "$BASEDIR/nuget/NuGet.Config" || die "Could not set permissions of NuGet.Config"
 
 info "Updating docker: $COMPOSE_FILE"
 sudo docker compose --file "$COMPOSE_FILE" pull || die "Failed to pull images"
