@@ -32,10 +32,8 @@ services:
       - updaters
     security_opt:
       - no-new-privileges:false
-    read_only: true
     tmpfs:
       - /tmp
-      - /local
 
   dependencies:
     image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
@@ -66,10 +64,8 @@ services:
       - updaters
     security_opt:
       - no-new-privileges:false
-    read_only: true
     tmpfs:
       - /tmp
-      - /local
 
 networks:
   updaters:
