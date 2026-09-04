@@ -94,9 +94,16 @@ info "Ensuring cache/tracking directories are owned by the updater user"
 # the role Dockerfiles) so that these host-provisioned directories can be
 # chowned to a known owner here rather than relying on an in-container
 # runtime chown (which needed broad sudo rights and blindly touched
-# read-only-mounted paths like NuGet.Config too). $CONFIG_ROOT/*/ssh is
-# deliberately left alone: it holds externally-provisioned secrets mounted
-# read-only, not something this script should create or take ownership of.
+# read-only-mounted paths like NuGet.Config too).
+#
+# $CONFIG_ROOT/*/ssh is included even though it is not created here (it
+# holds externally-provisioned secrets, so a missing directory should fail
+# loudly rather than be silently created empty): the ssh key/known_hosts
+# were found owned by a stale pre-pinned-uid owner on dev-upgrader-01,
+# which blocked the updater user from even traversing the directory
+# (mode 700), let alone reading the private key inside it, and broke
+# every git clone with 'Host key verification failed'. Its bind mount
+# stays read-only in compose; chowning it here only fixes who can read it.
 for ROLE in templateupdate packageupdate codecleanup dependencies; do
     sudo mkdir -p \
         "$TRACKING_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
@@ -108,11 +115,14 @@ for ROLE in templateupdate packageupdate codecleanup dependencies; do
         "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
         || die "Could not create $ROLE cache/tracking directories"
 
+    [ -d "$CONFIG_ROOT/$ROLE/ssh" ] || die "$CONFIG_ROOT/$ROLE/ssh is required but does not exist"
+
     sudo chown -R 20000:20000 \
         "$TRACKING_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
         "$CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
         "$DOTNET_CACHE_ROOT/$ROLE/$COMPOSE_PROJECT_NAME" \
         "$CONFIG_ROOT/$ROLE/gnupg.$COMPOSE_PROJECT_NAME" \
+        "$CONFIG_ROOT/$ROLE/ssh" \
         || die "Could not set ownership for $ROLE cache/tracking directories"
 done
 
