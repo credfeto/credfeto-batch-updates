@@ -36,6 +36,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /local
 
   packages:
     image: docker-registry.markridgwell.com/credfeto/dev-packages:latest
@@ -71,6 +72,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /local
 
   cleanup:
     image: docker-registry.markridgwell.com/credfeto/dev-cleanup:latest
@@ -106,6 +108,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /local
 
   dependencies:
     image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
@@ -139,6 +142,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /local
 
 networks:
   updaters:

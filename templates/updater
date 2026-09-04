@@ -46,10 +46,10 @@ TMP=$(mktemp -d)
 export TEMP=$TMP
 export TMPDIR=$TMP
 
-# Setting permissions
-sudo chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
+# Ownership of the bind-mounted cache/tracking directories is set by the
+# host-side update script (fixed uid/gid, see the Dockerfile); .ssh is
+# mounted read-only and left to the host to provision correctly.
 chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
-chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 
 # Setup git
 "$BASEDIR/setup-git" || die "GIT setup failed"

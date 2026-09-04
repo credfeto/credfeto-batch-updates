@@ -39,10 +39,10 @@ info "Release: $RELEASE"
 [ -z "$DOTNET_SOURCE" ] && die "DOTNET_SOURCE not defined"
 [ -z "$DOTNET_PROXY_HOST" ] && die "DOTNET_PROXY_HOST not defined"
 
-# Setting permissions
-sudo chown -R "$USER:$USER" "$HOME" || die "Could not ensure home dir owner"
+# Ownership of the bind-mounted cache/tracking directories is set by the
+# host-side update script (fixed uid/gid, see the Dockerfile); .ssh is
+# mounted read-only and left to the host to provision correctly.
 chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
-chmod 700 "$HOME/.ssh" || die "Could not ensure .ssh permissions"
 
 # Ensure that TMP environment variables are set up as used by dotnet and tests
 export TMP
