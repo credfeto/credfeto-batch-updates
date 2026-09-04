@@ -9,6 +9,7 @@ COPY optimise-git .
 COPY setup-git .
 COPY setup-gpg .
 COPY setup-certificates .
+COPY certs ./certs
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -29,6 +30,21 @@ RUN \
         sudo && \
     apt-get autoremove -y && \
     apt-get clean
+
+# Install custom CA certificates for internal package feeds into the
+# system trust store at build time, avoiding the need for runtime write
+# access to /usr/share/ca-certificates etc. under a read-only rootfs.
+RUN \
+    mkdir -p /usr/share/ca-certificates/local && \
+    mkdir -p /usr/local/share/ca-certificates/local && \
+    for cert in certs/*.crt; do \
+        name=$(basename "$cert"); \
+        cp "$cert" "/usr/share/ca-certificates/local/$name"; \
+        cp "$cert" "/usr/local/share/ca-certificates/local/$name"; \
+        echo "local/$name" >> /etc/ca-certificates.conf; \
+    done && \
+    update-ca-certificates --verbose --fresh && \
+    rm -rf certs
 
 # Add updater user with a stable uid/gid so host-provisioned bind-mount
 # directories can be chowned to a known, fixed owner rather than whatever

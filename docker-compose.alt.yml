@@ -25,15 +25,16 @@ services:
       - $CONFIG_ROOT/codecleanup/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/certs:/local/certs:ro
+      - ./nuget:/local/.nuget/NuGet:ro
+      - ./nuget:/root/.nuget/NuGet:ro
     networks:
       - updaters
     security_opt:
       - no-new-privileges:false
+    read_only: true
     tmpfs:
       - /tmp
+      - /local:uid=20000,gid=20000,mode=0750
 
   dependencies:
     image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
@@ -57,15 +58,16 @@ services:
       - $CONFIG_ROOT/dependencies/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
-      - ./nuget/certs:/local/certs:ro
+      - ./nuget:/local/.nuget/NuGet:ro
+      - ./nuget:/root/.nuget/NuGet:ro
     networks:
       - updaters
     security_opt:
       - no-new-privileges:false
+    read_only: true
     tmpfs:
       - /tmp
+      - /local:uid=20000,gid=20000,mode=0750
 
 networks:
   updaters:
