@@ -21,13 +21,13 @@ services:
       - $TRACKING_ROOT/templateupdate/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
       - $CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/work:/local/work
-      - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/templateupdate/ssh:/local/.ssh:ro
       - $CONFIG_ROOT/templateupdate/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/templateupdate/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/certs:/local/certs:ro
     networks:
       - updaters
     security_opt:
@@ -53,13 +53,13 @@ services:
       - $TRACKING_ROOT/packageupdate/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
       - $CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/work:/local/work
-      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/packageupdate/ssh:/local/.ssh:ro
       - $CONFIG_ROOT/packageupdate/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/packageupdate/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/certs:/local/certs:ro
     networks:
       - updaters
     security_opt:
@@ -85,13 +85,13 @@ services:
       - $TRACKING_ROOT/codecleanup/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
       - $CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/work:/local/work
-      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/codecleanup/ssh:/local/.ssh:ro
       - $CONFIG_ROOT/codecleanup/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/codecleanup/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/certs:/local/certs:ro
     networks:
       - updaters
     security_opt:
@@ -115,13 +115,13 @@ services:
       - $TRACKING_ROOT/dependencies/$COMPOSE_PROJECT_NAME:/local/tracking
       - $CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/nuget:/local/.nuget/packages
       - $CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/work:/local/work
-      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:r
+      - $CONFIG_ROOT/dependencies/ssh:/local/.ssh:ro
       - $CONFIG_ROOT/dependencies/gnupg.$COMPOSE_PROJECT_NAME:/local/.gnupg
       - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/installed:/local/dotnet
       - $DOTNET_CACHE_ROOT/dependencies/$COMPOSE_PROJECT_NAME/downloads:/local/downloads
-      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:r
-      - ./nuget/certs:/local/certs:r
+      - ./nuget/NuGet.Config:/local/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/NuGet.Config:/root/.nuget/NuGet/NuGet.Config:ro
+      - ./nuget/certs:/local/certs:ro
     networks:
       - updaters
     security_opt:

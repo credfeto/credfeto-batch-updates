@@ -8,4 +8,3 @@ CPUSchedulingPolicy=idle
 
 WorkingDirectory=/root/work/personal/credfeto-batch-updates
 ExecStart=/root/work/personal/credfeto-batch-updates/update
-
