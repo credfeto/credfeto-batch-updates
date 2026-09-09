@@ -2,7 +2,7 @@
 services:
 
   cleanup:
-    image: docker-registry.markridgwell.com/credfeto/dev-cleanup:latest
+    image: ghcr.io/credfeto/dev-cleanup:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -37,7 +37,7 @@ services:
       - /local:uid=20000,gid=20000,mode=0750
 
   dependencies:
-    image: docker-registry.markridgwell.com/credfeto/dev-dependencies:latest
+    image: ghcr.io/credfeto/dev-dependencies:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT

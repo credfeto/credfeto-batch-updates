@@ -2,7 +2,7 @@
 services:
 
   templates:
-    image: docker-registry.markridgwell.com/credfeto/dev-templates:latest
+    image: ghcr.io/credfeto/dev-templates:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -38,7 +38,7 @@ services:
       - /local:uid=20000,gid=20000,mode=0750
 
   packages:
-    image: docker-registry.markridgwell.com/credfeto/dev-packages:latest
+    image: ghcr.io/credfeto/dev-packages:latest
     restart: always
     stop_grace_period: 5s
     stop_signal: SIGINT
