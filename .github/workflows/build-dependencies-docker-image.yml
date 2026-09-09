@@ -16,13 +16,13 @@ concurrency:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build-dependencies-docker-image:
     env:
       APP_OWNER: credfeto
       APP_NAME: dev-dependencies
-      CONTAINER_REGISTRY: ${{secrets.CONTAINER_REGISTRY}}
       APP_PATH: dependencies
 
     runs-on: ubuntu-latest
@@ -48,6 +48,13 @@ jobs:
       - name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v4.3.0
 
+      - name: "Docker: Login to GitHub Container Registry"
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{github.token}}
+
       - name: "Docker Trust Enable"
         shell: bash
         run: |
@@ -72,7 +79,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ${{env.CONTAINER_REGISTRY}}/${{env.APP_OWNER}}/${{env.APP_NAME}}:latest
+            ghcr.io/${{env.APP_OWNER}}/${{env.APP_NAME}}:latest
           provenance: false
 
       - name: "Docker Trust Restore"
