@@ -14,6 +14,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Fixed
 - Fixed stale ssh key ownership on host-provisioned directories that blocked git clones after pinning the updater user's uid/gid
 ### Changed
+- Push development container images to ghcr.io/credfeto instead of the private container registry, and point docker-compose at the new locations.
 ### Deprecated
 ### Removed
 ### Deployment Changes
