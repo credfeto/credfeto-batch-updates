@@ -120,7 +120,6 @@ while sleep 120; do
   LAST_LOG_FILE3=${LOG_BASE}.old.2
   LAST_LOG_FILE4=${LOG_BASE}.old.3
   RELEASE_LOG_FILE=${LOG_BASE}.release.log
-  GIT_OPTIMISE=${LOG_BASE}.optimise
 
   info "Rotating log files"
   [ -f "${LOG_FILE}" ] && grep RELEASE "${LOG_FILE}" >> "${RELEASE_LOG_FILE}"
@@ -159,18 +158,5 @@ while sleep 120; do
   } 2>&1 | tee "${LOG_FILE}"
   success "Done"
 
-  info "Git Optimise"
-  WEEKDAY=$(date +%u)
-  if [ "$GIT_OPTIMIZE_DAY" = "$WEEKDAY" ]; then
-    if [ ! -f "$GIT_OPTIMISE" ]; then
-      info "Optimising"
-      touch "$GIT_OPTIMISE"
-      "$BASEDIR/optimise-git" || die "GIT optimise failed"
-    else
-      info "Not optimising - already run today"
-    fi
-  else
-    info "Not optimising today"
-    rm -fr "$GIT_OPTIMISE"
-  fi
+  "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" || die "GIT optimise failed"
 done

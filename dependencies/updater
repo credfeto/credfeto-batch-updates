@@ -145,5 +145,5 @@ while sleep 120; do
 
   success "Done"
 
-  "$BASEDIR/optimise-git" || die "GIT optimise failed"
+  "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" || die "GIT optimise failed"
 done
