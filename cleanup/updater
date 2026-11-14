@@ -140,6 +140,9 @@ while sleep 120; do
     "$DOTNET_ROOT/dotnet" tool list
     date
   }  2>&1 | tee "${LOG_BASE}.install"
+  PIPE_STATUS=("${PIPESTATUS[@]}")
+  [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Tool install failed"
+  [ "${PIPE_STATUS[1]}" -eq 0 ] || die "Tool install failed (tee)"
 
   info "Checking Credfeto.DotNet.Repo.Tools.Cmd is installed..."
   "$DOTNET_ROOT/dotnet" tool list --local | grep -qi "credfeto.dotnet.repo.tools.cmd" || die "Credfeto.DotNet.Repo.Tools.Cmd is not installed"
@@ -156,6 +159,9 @@ while sleep 120; do
               --release "${RELEASE}" \
       || die "Update failed"
   } 2>&1 | tee "${LOG_FILE}"
+  PIPE_STATUS=("${PIPESTATUS[@]}")
+  [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Update failed"
+  [ "${PIPE_STATUS[1]}" -eq 0 ] || die "Update failed (tee)"
   success "Done"
 
   "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" --weekly-only || die "GIT optimise failed"
