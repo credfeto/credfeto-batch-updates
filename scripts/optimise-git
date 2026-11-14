@@ -17,17 +17,15 @@ MARKER_FILE=$1
 [ -z "$MARKER_FILE" ] && die "Marker file not specified"
 
 RUN_WEEKLY=0
-if [ "$GIT_OPTIMIZE_DAY" = "$(date +%u)" ]; then
-  if [ ! -f "$MARKER_FILE" ]; then
-    info "Weekly optimisation will run today"
-    RUN_WEEKLY=1
-    touch "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
-  else
-    info "Weekly optimisation already run today"
-  fi
-else
+if [ "$GIT_OPTIMIZE_DAY" != "$(date +%u)" ]; then
   info "Weekly optimisation not scheduled today"
   rm -f "$MARKER_FILE"
+elif [ -f "$MARKER_FILE" ]; then
+  info "Weekly optimisation already run today"
+else
+  info "Weekly optimisation will run today"
+  RUN_WEEKLY=1
+  touch "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
 fi
 
 for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
