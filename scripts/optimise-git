@@ -16,12 +16,13 @@ info() {
 MARKER_FILE=$1
 [ -z "$MARKER_FILE" ] && die "Marker file not specified"
 
-# The marker is only touched on the optimise day, so one younger than 6 days was
-# touched earlier today; last week's is always more than 6 days old.
+# The marker holds the ISO week whose weekly steps last completed, so they run at
+# most once per ISO week, on the optimise day, regardless of the file's mtime.
+WEEK=$(date +%G-W%V)
 RUN_WEEKLY=0
 if [ "$GIT_OPTIMIZE_DAY" != "$(date +%u)" ]; then
   info "Weekly optimisation not scheduled today"
-elif [ -f "$MARKER_FILE" ] && [ -n "$(find "$MARKER_FILE" -mtime -6)" ]; then
+elif [ -f "$MARKER_FILE" ] && [ "$(cat "$MARKER_FILE")" = "$WEEK" ]; then
   info "Weekly optimisation already run today"
 else
   info "Weekly optimisation will run today"
@@ -55,7 +56,7 @@ do
 done
 
 if [ "$RUN_WEEKLY" = 1 ]; then
-  touch "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
+  printf '%s\n' "$WEEK" > "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
 fi
 
 success "Repo optimisation completed"
