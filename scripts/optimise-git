@@ -43,7 +43,7 @@ if [ "$WEEKLY_ONLY" = 1 ] && [ "$RUN_WEEKLY" = 0 ]; then
   exit 0
 fi
 
-for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
+for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed 's|/\.git$||' | sort -u | grep -v -e '/\.cache/' -e '/\.cache$')
 do
   info "Optimising $CURRENT_DIR..."
 
