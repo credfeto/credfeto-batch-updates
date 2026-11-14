@@ -13,6 +13,22 @@ info() {
     printf '\n\033[32m→\033[0m %s\n' "$*"
 }
 
+MARKER_FILE=$1
+[ -z "$MARKER_FILE" ] && die "Marker file not specified"
+
+# The marker holds the ISO week whose weekly steps last completed, so they run at
+# most once per ISO week, on the optimise day, regardless of the file's mtime.
+WEEK=$(date +%G-W%V)
+RUN_WEEKLY=0
+if [ "$GIT_OPTIMIZE_DAY" != "$(date +%u)" ]; then
+  info "Weekly optimisation not scheduled today"
+elif [ -f "$MARKER_FILE" ] && [ "$(cat "$MARKER_FILE")" = "$WEEK" ]; then
+  info "Weekly optimisation already run this week ($WEEK)"
+else
+  info "Weekly optimisation will run today"
+  RUN_WEEKLY=1
+fi
+
 for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
 do
   info "Optimising $CURRENT_DIR..."
@@ -23,18 +39,24 @@ do
   info "Cleaning working tree..."
   git -C "$CURRENT_DIR" clean -fdx
 
-  info "Pruning remotes..."
-  for REMOTE in $(git -C "$CURRENT_DIR" remote)
-  do
-    info "Pruning $REMOTE..."
-    git -C "$CURRENT_DIR" remote prune "$REMOTE"
-  done
+  if [ "$RUN_WEEKLY" = 1 ]; then
+    info "Pruning remotes..."
+    for REMOTE in $(git -C "$CURRENT_DIR" remote)
+    do
+      info "Pruning $REMOTE..."
+      git -C "$CURRENT_DIR" remote prune "$REMOTE"
+    done
 
-  info "Expiring reflog..."
-  git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
-  info "Garbage collecting..."
-  git -C "$CURRENT_DIR" gc --prune=now --force --quiet
+    info "Expiring reflog..."
+    git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
+    info "Garbage collecting..."
+    git -C "$CURRENT_DIR" gc --prune=now --force --quiet
+  fi
 
 done
+
+if [ "$RUN_WEEKLY" = 1 ]; then
+  printf '%s\n' "$WEEK" > "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
+fi
 
 success "Repo optimisation completed"
