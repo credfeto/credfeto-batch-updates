@@ -23,7 +23,7 @@ RUN_WEEKLY=0
 if [ "$GIT_OPTIMIZE_DAY" != "$(date +%u)" ]; then
   info "Weekly optimisation not scheduled today"
 elif [ -f "$MARKER_FILE" ] && [ "$(cat "$MARKER_FILE")" = "$WEEK" ]; then
-  info "Weekly optimisation already run today"
+  info "Weekly optimisation already run this week ($WEEK)"
 else
   info "Weekly optimisation will run today"
   RUN_WEEKLY=1
