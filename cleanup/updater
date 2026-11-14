@@ -158,5 +158,5 @@ while sleep 120; do
   } 2>&1 | tee "${LOG_FILE}"
   success "Done"
 
-  "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" || die "GIT optimise failed"
+  "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" --weekly-only || die "GIT optimise failed"
 done
