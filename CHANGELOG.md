@@ -15,7 +15,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Fixed stale ssh key ownership on host-provisioned directories that blocked git clones after pinning the updater user's uid/gid
 ### Changed
 - Push development container images to ghcr.io/credfeto instead of the private container registry, and point docker-compose at the new locations.
-- TBD - to be finalized after review
+- optimise-git now runs remote prune, reflog expire and gc only on the weekly GIT_OPTIMIZE_DAY, once per week, instead of on every update cycle, and is shared by all updaters
 ### Deprecated
 ### Removed
 ### Deployment Changes
