@@ -64,15 +64,13 @@ do
 
   if [ "$RUN_WEEKLY" = 1 ]; then
     info "Pruning remotes..."
-    if REMOTES=$(git -C "$CURRENT_DIR" remote); then
-      for REMOTE in $REMOTES
-      do
-        info "Pruning $REMOTE..."
-        git -C "$CURRENT_DIR" remote prune "$REMOTE" || record_failure "$CURRENT_DIR" "pruning remote $REMOTE"
-      done
-    else
-      record_failure "$CURRENT_DIR" "listing remotes"
-    fi
+    # Partial output from a failed listing is discarded so no remote is pruned.
+    REMOTES=$(git -C "$CURRENT_DIR" remote) || { REMOTES=""; record_failure "$CURRENT_DIR" "listing remotes"; }
+    for REMOTE in $REMOTES
+    do
+      info "Pruning $REMOTE..."
+      git -C "$CURRENT_DIR" remote prune "$REMOTE" || record_failure "$CURRENT_DIR" "pruning remote $REMOTE"
+    done
 
     info "Expiring reflog..."
     git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all || record_failure "$CURRENT_DIR" "expiring reflog"
