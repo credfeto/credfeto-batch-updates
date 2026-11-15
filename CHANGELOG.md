@@ -13,14 +13,15 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 ### Added
 ### Fixed
 - Fixed stale ssh key ownership on host-provisioned directories that blocked git clones after pinning the updater user's uid/gid
-- Updaters (dependencies, packages, templates and cleanup) now exit with an error when the tool install or update pipeline fails, instead of carrying on as if they had succeeded
 - optimise-git now reports failed git steps and exits non-zero, instead of reporting the optimisation as completed; the remaining repositories are still processed
 - optimise-git no longer skips repositories whose paths merely contain the text cache; only repositories inside a .cache directory are excluded
-- optimise-git no longer treats submodule and worktree checkouts, whose .git is a file, as repositories to optimise
+- Updaters (dependencies, packages, templates and cleanup) now exit with an error when the tool update or the update pipeline fails, instead of carrying on as if they had succeeded; a failed tool install is ignored because it can fail when the tool is already installed
+- optimise-git no longer treats submodule and worktree checkouts, whose .git is a file, as repositories to optimise; only normal clones (with a .git directory) are optimised, so bare and mirror repositories are not
+- When an update fails, the updater still runs optimise-git before stopping, so stale git locks are cleared instead of making every later cycle fail (cleanup clears locks only on its weekly optimise day)
 ### Changed
 - Push development container images to ghcr.io/credfeto instead of the private container registry, and point docker-compose at the new locations.
-- optimise-git now runs remote prune, reflog expire and gc at most once per ISO week, only on the GIT_OPTIMIZE_DAY, instead of on every update cycle, and is shared by all updaters
-- The weekly git optimisation is only recorded as done once all of its git steps have succeeded, so a failed run is not treated as complete for that week
+- Each updater now runs remote prune, reflog expire and gc at most once per ISO week, on its own GIT_OPTIMIZE_DAY, instead of on every update cycle
+- The weekly git optimisation is recorded as done once every repository has been attempted, even if some failed, so one broken repository does not make it rerun across every repository on each cycle of the optimise day
 ### Deprecated
 ### Removed
 ### Deployment Changes
