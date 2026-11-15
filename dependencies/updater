@@ -149,7 +149,11 @@ while sleep 120; do
               --template "${TEMPLATE}"
   } 2>&1 | tee "${LOG_FILE}"
   PIPE_STATUS=("${PIPESTATUS[@]}")
-  [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Update failed"
+  if [ "${PIPE_STATUS[0]}" -ne 0 ]; then
+    # Still optimise: it clears stale git locks, which may be what made the update fail.
+    "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" || info "GIT optimise also failed"
+    die "Update failed"
+  fi
   [ "${PIPE_STATUS[1]}" -eq 0 ] || die "Update failed (tee)"
 
   success "Done"
