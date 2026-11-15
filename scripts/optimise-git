@@ -27,9 +27,12 @@ esac
 
 # The marker holds the ISO week whose weekly steps last ran, so they run at
 # most once per ISO week, on the optimise day, regardless of the file's mtime.
-WEEK=$(date +%G-W%V)
+# Day and week come from one date call so they cannot straddle midnight.
+NOW=$(date '+%u %G-W%V')
+TODAY=${NOW%% *}
+WEEK=${NOW#* }
 RUN_WEEKLY=0
-if [ "$GIT_OPTIMIZE_DAY" != "$(date +%u)" ]; then
+if [ "$GIT_OPTIMIZE_DAY" != "$TODAY" ]; then
   info "Weekly optimisation not scheduled today"
 elif [ -f "$MARKER_FILE" ] && [ "$(cat "$MARKER_FILE")" = "$WEEK" ]; then
   info "Weekly optimisation already run this week ($WEEK)"
