@@ -51,7 +51,7 @@ record_failure() {
   FAILURES="${FAILURES:+$FAILURES; }$1: $2"
 }
 
-for CURRENT_DIR in $(find /local/work/* -path /local/work/tmp -prune -o -name .cache -prune -o -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u)
+for CURRENT_DIR in $(find /local/work/* -maxdepth 2 -path /local/work/tmp -prune -o -name .cache -prune -o -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u)
 do
   info "Optimising $CURRENT_DIR..."
 
