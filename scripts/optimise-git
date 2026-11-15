@@ -25,7 +25,7 @@ case "$2" in
   *) die "Unknown option: $2" ;;
 esac
 
-# The marker holds the ISO week whose weekly steps last completed, so they run at
+# The marker holds the ISO week whose weekly steps last ran, so they run at
 # most once per ISO week, on the optimise day, regardless of the file's mtime.
 WEEK=$(date +%G-W%V)
 RUN_WEEKLY=0
@@ -80,12 +80,15 @@ do
 
 done
 
-if [ -n "$FAILURES" ]; then
-  die "Repo optimisation failed: $FAILURES"
+# The marker is written even when a step failed, so one broken repo does not make
+# the weekly steps rerun across every repo on each cycle of the optimise day; the
+# failures still make the script exit non-zero below.
+if [ "$RUN_WEEKLY" = 1 ]; then
+  printf '%s\n' "$WEEK" > "$MARKER_FILE" || record_failure "$MARKER_FILE" "writing marker file"
 fi
 
-if [ "$RUN_WEEKLY" = 1 ]; then
-  printf '%s\n' "$WEEK" > "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
+if [ -n "$FAILURES" ]; then
+  die "Repo optimisation failed: $FAILURES"
 fi
 
 success "Repo optimisation completed"
