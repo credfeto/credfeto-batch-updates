@@ -45,16 +45,11 @@ fi
 
 # A failed step is recorded and the remaining repos are still processed, so one
 # broken repo does not stop the others being optimised.
-FAILURE_COUNT=0
-FAILED_REPOS=""
+FAILURES=""
 
 record_failure() {
   info "FAILED: $2 in $1"
-  FAILURE_COUNT=$((FAILURE_COUNT + 1))
-  case " $FAILED_REPOS " in
-    *" $1 "*) ;;
-    *) FAILED_REPOS="${FAILED_REPOS:+$FAILED_REPOS }$1" ;;
-  esac
+  FAILURES="${FAILURES:+$FAILURES; }$1: $2"
 }
 
 for CURRENT_DIR in $(find /local/work/* -name .cache -prune -o -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u)
@@ -87,8 +82,8 @@ do
 
 done
 
-if [ "$FAILURE_COUNT" -ne 0 ]; then
-  die "Repo optimisation failed: $FAILURE_COUNT step(s) failed in: $FAILED_REPOS"
+if [ -n "$FAILURES" ]; then
+  die "Repo optimisation failed: $FAILURES"
 fi
 
 if [ "$RUN_WEEKLY" = 1 ]; then
