@@ -57,7 +57,7 @@ record_failure() {
   esac
 }
 
-for CURRENT_DIR in $(find /local/work/* -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u | grep -v -e '/\.cache/' -e '/\.cache$')
+for CURRENT_DIR in $(find /local/work/* -name .cache -prune -o -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u)
 do
   info "Optimising $CURRENT_DIR..."
 
