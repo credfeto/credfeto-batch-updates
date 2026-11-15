@@ -16,8 +16,9 @@ info() {
 MARKER_FILE=$1
 [ -z "$MARKER_FILE" ] && die "Marker file not specified"
 
-# --weekly-only skips the per-cycle lock clearing and working tree clean too, so
-# nothing runs unless the weekly steps are due.
+# --weekly-only skips the per-cycle working tree clean unless the weekly steps
+# are due; stale locks are still cleared on every call, so a leftover lock
+# cannot wedge the caller between weekly runs.
 WEEKLY_ONLY=0
 case "$2" in
   "") ;;
@@ -41,11 +42,6 @@ else
   RUN_WEEKLY=1
 fi
 
-if [ "$WEEKLY_ONLY" = 1 ] && [ "$RUN_WEEKLY" = 0 ]; then
-  success "Weekly-only optimisation not due, nothing to do"
-  exit 0
-fi
-
 # A failed step is recorded and the remaining repos are still processed, so one
 # broken repo does not stop the others being optimised.
 FAILURES=""
@@ -62,8 +58,10 @@ do
   info "Clearing locks..."
   find "$CURRENT_DIR/.git" -name "*.lock" -delete || record_failure "$CURRENT_DIR" "clearing locks"
 
-  info "Cleaning working tree..."
-  git -C "$CURRENT_DIR" clean -fdx || record_failure "$CURRENT_DIR" "cleaning working tree"
+  if [ "$WEEKLY_ONLY" = 0 ] || [ "$RUN_WEEKLY" = 1 ]; then
+    info "Cleaning working tree..."
+    git -C "$CURRENT_DIR" clean -fdx || record_failure "$CURRENT_DIR" "cleaning working tree"
+  fi
 
   if [ "$RUN_WEEKLY" = 1 ]; then
     info "Pruning remotes..."
