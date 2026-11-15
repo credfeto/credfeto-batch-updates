@@ -47,6 +47,11 @@ chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 # Ensure that TMP environment variables are set up as used by dotnet and tests
 export TMP
 TMP=$(mktemp -d)
+# Remove our own temp dir however the script ends; explicit TERM/INT traps are
+# needed because as PID 1 the script ignores signals it has no handler for.
+trap '[ -n "${TMP:-}" ] && rm -rf -- "$TMP"' EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
 export TEMP=$TMP
 export TMPDIR=$TMP
 
