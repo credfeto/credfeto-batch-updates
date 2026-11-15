@@ -123,10 +123,14 @@ while sleep 120; do
     date
     [ ! -f "$HOME/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
     info "Installing Credfeto.DotNet.Repo.Tools.Cmd"
+    # tool install fails when the tool is already installed (the normal case), so
+    # only the update's status decides whether the group, and so PIPE_STATUS[0], fails.
     "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+    TOOL_UPDATE_STATUS=$?
     "$DOTNET_ROOT/dotnet" tool list
     date
+    [ "$TOOL_UPDATE_STATUS" -eq 0 ]
   }  2>&1 | tee "${LOG_BASE}.install"
   PIPE_STATUS=("${PIPESTATUS[@]}")
   [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Tool install failed"
