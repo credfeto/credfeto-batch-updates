@@ -43,31 +43,53 @@ if [ "$WEEKLY_ONLY" = 1 ] && [ "$RUN_WEEKLY" = 0 ]; then
   exit 0
 fi
 
+# A failed step is recorded and the remaining repos are still processed, so one
+# broken repo does not stop the others being optimised.
+FAILURE_COUNT=0
+FAILED_REPOS=""
+
+record_failure() {
+  info "FAILED: $2 in $1"
+  FAILURE_COUNT=$((FAILURE_COUNT + 1))
+  case " $FAILED_REPOS " in
+    *" $1 "*) ;;
+    *) FAILED_REPOS="${FAILED_REPOS:+$FAILED_REPOS }$1" ;;
+  esac
+}
+
 for CURRENT_DIR in $(find /local/work/* -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u | grep -v -e '/\.cache/' -e '/\.cache$')
 do
   info "Optimising $CURRENT_DIR..."
 
   info "Clearing locks..."
-  find "$CURRENT_DIR/.git" -name "*.lock" -delete
+  find "$CURRENT_DIR/.git" -name "*.lock" -delete || record_failure "$CURRENT_DIR" "clearing locks"
 
   info "Cleaning working tree..."
-  git -C "$CURRENT_DIR" clean -fdx
+  git -C "$CURRENT_DIR" clean -fdx || record_failure "$CURRENT_DIR" "cleaning working tree"
 
   if [ "$RUN_WEEKLY" = 1 ]; then
     info "Pruning remotes..."
-    for REMOTE in $(git -C "$CURRENT_DIR" remote)
-    do
-      info "Pruning $REMOTE..."
-      git -C "$CURRENT_DIR" remote prune "$REMOTE"
-    done
+    if REMOTES=$(git -C "$CURRENT_DIR" remote); then
+      for REMOTE in $REMOTES
+      do
+        info "Pruning $REMOTE..."
+        git -C "$CURRENT_DIR" remote prune "$REMOTE" || record_failure "$CURRENT_DIR" "pruning remote $REMOTE"
+      done
+    else
+      record_failure "$CURRENT_DIR" "listing remotes"
+    fi
 
     info "Expiring reflog..."
-    git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
+    git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all || record_failure "$CURRENT_DIR" "expiring reflog"
     info "Garbage collecting..."
-    git -C "$CURRENT_DIR" gc --prune=now --force --quiet
+    git -C "$CURRENT_DIR" gc --prune=now --force --quiet || record_failure "$CURRENT_DIR" "garbage collecting"
   fi
 
 done
+
+if [ "$FAILURE_COUNT" -ne 0 ]; then
+  die "Repo optimisation failed: $FAILURE_COUNT step(s) failed in: $FAILED_REPOS"
+fi
 
 if [ "$RUN_WEEKLY" = 1 ]; then
   printf '%s\n' "$WEEK" > "$MARKER_FILE" || die "Could not create marker file $MARKER_FILE"
