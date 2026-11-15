@@ -13,28 +13,83 @@ info() {
     printf '\n\033[32m→\033[0m %s\n' "$*"
 }
 
-for CURRENT_DIR in $(find /local/work/* -name '*.git' -print | sed "s|/.git$||" | sort -u | grep -v .cache)
+MARKER_FILE=$1
+[ -z "$MARKER_FILE" ] && die "Marker file not specified"
+
+# --weekly-only skips the per-cycle working tree clean unless the weekly steps
+# are due; stale locks are still cleared on every call, so a leftover lock
+# cannot wedge the caller between weekly runs.
+WEEKLY_ONLY=0
+case "$2" in
+  "") ;;
+  --weekly-only) WEEKLY_ONLY=1 ;;
+  *) die "Unknown option: $2" ;;
+esac
+
+# The marker holds the ISO week whose weekly steps last ran, so they run at
+# most once per ISO week, on the optimise day, regardless of the file's mtime.
+# Day and week come from one date call so they cannot straddle midnight.
+NOW=$(date '+%u %G-W%V')
+TODAY=${NOW%% *}
+WEEK=${NOW#* }
+RUN_WEEKLY=0
+if [ "$GIT_OPTIMIZE_DAY" != "$TODAY" ]; then
+  info "Weekly optimisation not scheduled today"
+elif [ -f "$MARKER_FILE" ] && [ "$(cat "$MARKER_FILE")" = "$WEEK" ]; then
+  info "Weekly optimisation already run this week ($WEEK)"
+else
+  info "Weekly optimisation will run today"
+  RUN_WEEKLY=1
+fi
+
+# A failed step is recorded and the remaining repos are still processed, so one
+# broken repo does not stop the others being optimised.
+FAILURES=""
+
+record_failure() {
+  info "FAILED: $2 in $1"
+  FAILURES="${FAILURES:+$FAILURES; }$1: $2"
+}
+
+for CURRENT_DIR in $(find /local/work/* -maxdepth 2 -path /local/work/tmp -prune -o -name .cache -prune -o -type d -name .git -prune -print | sed 's|/\.git$||' | sort -u)
 do
   info "Optimising $CURRENT_DIR..."
 
   info "Clearing locks..."
-  find "$CURRENT_DIR/.git" -name "*.lock" -delete
+  find "$CURRENT_DIR/.git" -name "*.lock" -delete || record_failure "$CURRENT_DIR" "clearing locks"
 
-  info "Cleaning working tree..."
-  git -C "$CURRENT_DIR" clean -fdx
+  if [ "$WEEKLY_ONLY" = 0 ] || [ "$RUN_WEEKLY" = 1 ]; then
+    info "Cleaning working tree..."
+    git -C "$CURRENT_DIR" clean -fdx || record_failure "$CURRENT_DIR" "cleaning working tree"
+  fi
 
-  info "Pruning remotes..."
-  for REMOTE in $(git -C "$CURRENT_DIR" remote)
-  do
-    info "Pruning $REMOTE..."
-    git -C "$CURRENT_DIR" remote prune "$REMOTE"
-  done
+  if [ "$RUN_WEEKLY" = 1 ]; then
+    info "Pruning remotes..."
+    # Partial output from a failed listing is discarded so no remote is pruned.
+    REMOTES=$(git -C "$CURRENT_DIR" remote) || { REMOTES=""; record_failure "$CURRENT_DIR" "listing remotes"; }
+    for REMOTE in $REMOTES
+    do
+      info "Pruning $REMOTE..."
+      git -C "$CURRENT_DIR" remote prune "$REMOTE" || record_failure "$CURRENT_DIR" "pruning remote $REMOTE"
+    done
 
-  info "Expiring reflog..."
-  git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all
-  info "Garbage collecting..."
-  git -C "$CURRENT_DIR" gc --prune=now --force --quiet
+    info "Expiring reflog..."
+    git -C "$CURRENT_DIR" reflog expire --expire=1.month.ago --all || record_failure "$CURRENT_DIR" "expiring reflog"
+    info "Garbage collecting..."
+    git -C "$CURRENT_DIR" gc --prune=now --force --quiet || record_failure "$CURRENT_DIR" "garbage collecting"
+  fi
 
 done
+
+# The marker is written even when a step failed, so one broken repo does not make
+# the weekly steps rerun across every repo on each cycle of the optimise day; the
+# failures still make the script exit non-zero below.
+if [ "$RUN_WEEKLY" = 1 ]; then
+  printf '%s\n' "$WEEK" > "$MARKER_FILE" || record_failure "$MARKER_FILE" "writing marker file"
+fi
+
+if [ -n "$FAILURES" ]; then
+  die "Repo optimisation failed: $FAILURES"
+fi
 
 success "Repo optimisation completed"

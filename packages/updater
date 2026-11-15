@@ -47,6 +47,11 @@ chmod 700 "$HOME/.gnupg" || die "Could not ensure .gnupg permissions"
 # Ensure that TMP environment variables are set up as used by dotnet and tests
 export TMP
 TMP=$(mktemp -d)
+# Remove our own temp dir however the script ends; explicit TERM/INT traps are
+# needed because as PID 1 the script ignores signals it has no handler for.
+trap '[ -n "${TMP:-}" ] && rm -rf -- "$TMP"' EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
 export TEMP=$TMP
 export TMPDIR=$TMP
 
@@ -128,14 +133,24 @@ while sleep 120; do
     info "Installing Credfeto.DotNet.Repo.Tools.Cmd"
     date
     [ ! -f "$HOME/dotnet-tools.json" ] && "$DOTNET_ROOT/dotnet" new tool-manifest
+    # Only the update's status decides whether the group, and so PIPE_STATUS[0], fails:
+    # install's result is ignored because it may fail when the tool is already installed.
     "$DOTNET_ROOT/dotnet" tool install --local Credfeto.DotNet.Repo.Tools.Cmd
     "$DOTNET_ROOT/dotnet" tool update --local Credfeto.DotNet.Repo.Tools.Cmd
+    TOOL_UPDATE_STATUS=$?
     "$DOTNET_ROOT/dotnet" tool list
     date
+    [ "$TOOL_UPDATE_STATUS" -eq 0 ]
   }  2>&1 | tee "${LOG_BASE}.install"
+  PIPE_STATUS=("${PIPESTATUS[@]}")
+  [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Tool install failed"
+  [ "${PIPE_STATUS[1]}" -eq 0 ] || die "Tool install failed (tee)"
 
   info "Checking Credfeto.DotNet.Repo.Tools.Cmd is installed..."
   "$DOTNET_ROOT/dotnet" tool list --local | grep -qi "credfeto.dotnet.repo.tools.cmd" || die "Credfeto.DotNet.Repo.Tools.Cmd is not installed"
+
+  # Run before the update so stale git locks left by an earlier cycle are cleared before it uses the repos.
+  "$BASEDIR/optimise-git" "${LOG_BASE}.optimise" || die "GIT optimise failed"
 
   {
     info "Running tool"
@@ -147,10 +162,10 @@ while sleep 120; do
               --packages "${PACKAGES}" \
               --cache "${PACKAGE_CACHE}" \
               --template "${TEMPLATE}" \
-              --release "${RELEASE}" \
-        || die "Update failed"
+              --release "${RELEASE}"
   } 2>&1 | tee "${LOG_FILE}"
+  PIPE_STATUS=("${PIPESTATUS[@]}")
+  [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Update failed"
+  [ "${PIPE_STATUS[1]}" -eq 0 ] || die "Update failed (tee)"
   success "Done"
-
-  "$BASEDIR/optimise-git" || die "GIT optimise failed"
 done
