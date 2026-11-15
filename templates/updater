@@ -149,8 +149,7 @@ while sleep 120; do
               --packages "${PACKAGES}" \
               --template "${TEMPLATE}" \
               --template-config "${TEMPLATE_CONFIG}" \
-              --release "${RELEASE}" \
-        || die "Update failed (tool)"
+              --release "${RELEASE}"
   } 2>&1 | tee "${LOG_FILE}"
   PIPE_STATUS=("${PIPESTATUS[@]}")
   [ "${PIPE_STATUS[0]}" -eq 0 ] || die "Update failed"
