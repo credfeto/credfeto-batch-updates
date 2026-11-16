@@ -10,55 +10,70 @@ Verify all required languages and runtimes are installed. If any are missing, st
 
 If the environment is too broken to work in without first fixing infrastructure or tooling, **stop** and demand it be fixed. Do not work around broken tooling.
 
+## When to Run pre-commit-check (MANDATORY)
+
+Run `pre-commit-check` only in these cases:
+
+- **P1.** <a id="pre-commit-check-new-branch"></a>When starting work on a new branch: the [Pre-Work Baseline Check](#pre-work-baseline-check-mandatory-before-starting-any-work).
+- **P2.** When rebasing: the [After Every Rebase](git-rebasing.instructions.md#after-every-rebase-mandatory) check.
+- **P3.** When explicitly asked to, whether in an interactive session or in an issue.
+
+There are no other times to run it. `git commit` runs the same hooks automatically, so running it separately before a commit only repeats work the commit does anyway and wastes time. The re-runs inside the rebase check in P2 are part of that check, not an extra trigger. When a commit fails on a hook, fix the cause and retry the commit: the retry runs the hooks again.
+
+The Code Tester, Code Fixer and Code Writer roles are never a trigger: they never run `pre-commit-check` and never ask another role to run it. A hook failure on `git commit` goes back through the Committer. A role never runs two unbounded commands (build, test suite, `pre-commit-check`, commit) at the same time; it runs them one after another.
+
 ## Pre-Work Baseline Check (MANDATORY before starting any work)
 
-If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step — that satisfies this baseline gate too; do not run it again here.
+This is trigger [P1](#pre-commit-check-new-branch) of [When to Run pre-commit-check](#when-to-run-pre-commit-check-mandatory).
 
-Otherwise (no rebase was needed, or you're starting a fresh branch from `main`), run this now, before starting any work on an issue or PR, to verify the repo is clean:
+If already on the correct, existing work branch for this task (i.e. resuming work rather than branching fresh from `main`), bring it up to date **before** running the check below; see [When to Rebase](git-rebasing.instructions.md#when-to-rebase) for the fetch/check/rebase procedure. If that procedure performed a rebase, it already ran `pre-commit-check` as its final step, and that satisfies this baseline gate too; do not run it again here.
+
+If you're starting a fresh branch from `main`, run this now, before starting any work on an issue or PR, to verify the repo is clean. Resuming an existing branch that needed no rebase does not run it, because the commit hook covers it:
 
 ```bash
 pre-commit-check
 ```
 
-Always run this check in the background — it is more likely than not to take a while to run, not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then poll for its own completion and WAIT for it to actually finish, in this same turn/session, before doing anything else, including ending your turn. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the poll-loop shape and the 30-minute deadline. Do **not** end your turn on the assumption that you will be automatically resumed once the check finishes — confirmed live incident: an automation whose invocations are fresh, single-phase, and never resumed backgrounded this exact check, ended its turn believing "a Monitor notification will wake me up," and repeated that identical mistake across six separate invocations over five and a half hours, because each new invocation started from zero with no memory of the wait and the backgrounded check itself was killed the instant the previous turn ended. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe — the default assumption, absent that confirmation, must be that it is not.
+Always run this check in the background, because it is more likely than not to take a while to run; it is not an exception case to spot and handle specially. Backgrounding it does not mean walking away from it: you MUST then wait for it to finish and judge it by its exit code, in this same session, before doing anything else that depends on it. This is not optional and does not depend on how the check is invoked: see the mandatory [Background Tasks and Monitor Tool](task-workflow.instructions.md#background-tasks-and-monitor-tool-mandatory) rules for the waiting rules and the 30-minute deadline. A sub-agent may end its turn while the check runs, but must never report or hand back before its completion notification arrives. The main session of an unattended run must **not** end its turn while the check runs, because a fresh, single-phase invocation that is never resumed starts with no memory of the wait, and the backgrounded check is killed when the run ends, so the result is never seen. If your own session genuinely is interactive and resumable, confirm that explicitly before treating "come back to this later" as safe; absent that confirmation, assume it is not.
 
-1. If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes on a **new, dedicated branch and issue** (a clean base-point, kept separate from the branch/issue for the requested work), and mark the original work item `Blocked` until the base-fix branch is merged. Do not start the requested work on top of an unmerged, auto-mutated baseline.
-2. If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
-3. If the check **still fails** after all fixing attempts:
-   - For an issue: comment on the issue, label it `Blocked`, and do not start work.
-   - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
+- **P1.** <a id="baseline-autofix-own-commit"></a>If the check **auto-fixes** files (e.g. trailing whitespace, end-of-file) and everything else passes: commit those fixes in **their own commit** on the work branch before any new work separate from the requested work, then proceed. If no work branch exists yet (for example a new issue still waiting for plan approval), discard the auto-fixes instead, only in files that had no uncommitted changes before the check ran (`git -C <dir> checkout -- <files>`, after the `git status` check [Destructive Commands](#destructive-commands-mandatory) requires; the check regenerates them) and re-run the check once the work branch is created, because committing on `main` is forbidden. Do not open a separate branch or issue for them or add `Blocked`, because only one branch/PR is open per user per repository at a time, so a separate base-fix branch could never be opened alongside the work; the dedicated commit keeps the baseline fix distinguishable from the work in CI and review.
+- **P2.** <a id="baseline-manual-fix-then-proceed"></a>If the check **fails** with errors that require manual fixes: fix and commit them first, then proceed with the original work.
+- **P3.** <a id="baseline-still-fails-escalate"></a>If the check **still fails** after all fixing attempts and it meets the [stop condition](code-quality.instructions.md#pre-commit-stop-condition) in Fixing Pre-Commit Failures (otherwise keep fixing, as P2 requires), cite that condition and:
+  - For an issue: comment on the issue, label it `Blocked`, and do not start work.
+  - For a PR: comment on the PR, label it `Blocked`, and do not continue work.
 
 This ensures CI results are unambiguous: pre-existing failures are resolved before any new changes are introduced.
 
-When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes cleanly, check whether `COVERAGE.md` exists at the repo root. **A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped.** If you are making changes, or have already made changes, to a repo without one, you **MUST** create it and then keep it maintained — this is not optional and does not depend on whether the requested work touches code coverage at all.
+When picking up a **new issue** (branching fresh from `main`, not resuming an existing branch): once the baseline hook passes (or only auto-fixes, handled as in [P1](#baseline-autofix-own-commit)), check whether `COVERAGE.md` exists at the repo root. **A missing `COVERAGE.md` means the coverage ratchet has never been applied to this repo, not that it can be skipped.** If you are making changes, or have already made changes, to a repo without one, you **MUST** create it and then keep it maintained; this is not optional and does not depend on whether the requested work touches code coverage at all.
 
 - If it exists, nothing further is needed here: the AI Coverage phase reads it live from `origin/main` every time it runs (see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md)), so there is no per-branch capture step and nothing to refresh after a rebase.
-- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` as its **first commit**, before starting the requested work. No separate branch or issue is needed for this, unlike the auto-fix case above: only one branch/PR is allowed open per repo at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime — expected, not a conflict. Do not treat this as a nice-to-have or defer it to a later PR: bootstrapping `COVERAGE.md` is a precondition of the work being tracked by the ratchet at all, and skipping it leaves the repo permanently ungated.
+- If it does **not** exist, collect it now while still on `main` (run the [per-language extraction](coverage-ratchet.instructions.md#per-language-overall-coverage-extraction) procedure for each orchestrated language present), then create the work branch as normal and commit the resulting `COVERAGE.md` in **its own commit**, before starting the requested work. No separate branch or issue is needed for this, as for the auto-fix case above: only one branch/PR is allowed open per user per repository at a time, so there is no concurrent-bootstrap race to isolate against. The AI Coverage phase overwrites the file again with the branch's live numbers when it runs later in this same PR (see its [bootstrap rule](coverage-ratchet.instructions.md#committed-coverage-file-mandatory)), so `COVERAGE.md` ends up with two commits over the branch's lifetime, which is expected and not a conflict. Do not treat this as a nice-to-have or defer it to a later PR: bootstrapping `COVERAGE.md` is a precondition of the work being tracked by the ratchet at all, and skipping it leaves the repo permanently ungated.
 
 ## Pre-Commit Hook Verification (MANDATORY before blocking)
 
-Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal — the pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
+Never block work based on inspecting config files and deducing that a tool might be missing. Always verify empirically: stage your changes and run `git commit` as normal. The pre-commit hook runs automatically and aborts the commit cleanly if it fails, leaving your staged changes intact. Only block if that actually fails with a real error.
 
 Inspecting `.pre-commit-config.yaml` and concluding a `language: system` tool is absent is not sufficient; the tool may be installed in a location not visible to `command -v` in the current shell context.
 
 ## Build and Test Verification (MANDATORY before any commit or push)
 
-Build must pass and all tests must pass before committing or pushing. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory) — new/unexpected failures there are your responsibility to fix, not a reason to stop.
+Build must pass and all tests must pass before committing or pushing. In a .NET repository, run them through the [build-dotnet MCP tools](dotnet.instructions.md#build-dotnet-mcp-tools-mandatory); the raw `dotnet build` and `dotnet test` commands are denied in the agent container. If they fail and cannot be resolved, stop and ask. For pre-commit-specific failures (including ones requiring a fix to pre-commit itself or a component tool), see [Fixing Pre-Commit Failures](code-quality.instructions.md#fixing-pre-commit-failures-mandatory); new/unexpected failures there are your responsibility to fix, not a reason to stop.
 
 ## Pre-Commit Branch Check
 
-- Run `git branch --show-current` and confirm it is the expected working branch before staging or committing.
+- Run `git -C <dir> branch --show-current` and confirm it is the expected working branch before staging or committing.
 - Never commit if the current branch is `main`.
 - If the branch has switched to `main` and the upstream no longer exists (merged and deleted), create a new branch before continuing.
 
-## GitHub CLI Comment Bodies (MANDATORY)
+## GitHub Comment Bodies (MANDATORY)
 
-For the HEREDOC rule for any `gh` `--body` argument that contains or may contain newlines, see [github-cli.instructions.md](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n).
+For the HEREDOC rule for any body that contains or may contain newlines, see [github-cli.instructions.md](github-cli.instructions.md#comment-and-body-text-mandatory-heredoc-never-n).
 
 ## GitHub Issues
 
-- If `gh` is available, use it to manage issues for every piece of work.
+- If `cfwf` is available and authenticated (`cfwf auth status`), use it to manage issues for every piece of work.
 - Before starting, either find a **100% matching** existing issue (confirm with user before linking) or create a new one with the original prompt and a clear description.
+- The search itself is a normal, automatic part of this workflow: do not ask permission before running it. Any question is about what a match means once found (confirming a candidate before linking, as required above), never about whether to run the search itself.
 - For complex or multi-component tasks, see [task-workflow.instructions.md](task-workflow.instructions.md).
 - Reference issue numbers in commit messages and branch names.
 - If work on an issue is abandoned, comment with findings before closing; do not abandon silently.
@@ -67,17 +82,17 @@ For the HEREDOC rule for any `gh` `--body` argument that contains or may contain
 
 When raising a GitHub issue autonomously (not directly requested by a human):
 
-1. Search for existing issues (both **open** and **closed**) covering the same topic before creating; do not create duplicates.
-2. Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
+- **P1.** Search for existing issues (both **open** and **closed**) covering the same topic before creating; do not create duplicates.
+- **P2.** Add the `Blocked` label immediately after creating the issue so it is held for human review before being acted upon.
 
-**Exceptions: do not add `Blocked`:**
+**Exceptions where `Blocked` is not added:**
 
 - A human explicitly asked you to raise the issue: ask for the priority label instead, then apply it.
 - The issue is raised by the dependency security detection rule (e.g. flagged during `npm install` or from a Dependabot advisory): use only the labels specified by that rule.
 
-## GitHub CLI (`gh`) Proxy Behavior
+## GitHub API Proxy
 
-For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [github-cli.instructions.md](github-cli.instructions.md#gh_host-proxy-behavior-mandatory-when-set). In short: commit and push operations are always rejected by the proxy; use `git` CLI directly for those.
+For full proxy behaviour, see [github-cli.instructions.md](github-cli.instructions.md#github-api-proxy-mandatory). In short: commit and push never go through the proxy or the GitHub API; use `git` CLI directly for those.
 
 ## Running Git Commands in a Specific Directory
 
@@ -86,9 +101,35 @@ For full `GH_HOST` proxy behaviour and the required `gh pr create` flags, see [g
 - In Claude Code the `cd` form also triggers an unnecessary permission prompt for the directory change itself.
 - This applies to all git subcommands: `git -C /path status`, `git -C /path add`, `git -C /path commit`, etc.
 
+## File Names and Git File Lists (MANDATORY)
+
+- Name every file you create with ASCII characters only, because git, shells and CI tools quote, escape or mangle non-ASCII names and break the scripts that read them.
+- Read git file lists NUL-separated, never split on newlines: files from elsewhere may have any name, and without `-z` git quotes and escapes non-ASCII or quote-containing paths, so the printed names no longer match the files:
+  - Produce the list with `-z`: `git ls-files -z`, `git diff --name-only -z`.
+  - Split captured output with `split('\0').filter(Boolean)`, because `-z` also ends the last entry with NUL and a plain split leaves a trailing empty name; for shell scripts see [Git File Lists](shell-scripts.instructions.md#git-file-lists).
+
 ## Destructive Commands (MANDATORY)
 
-Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, has silently discarded real work in practice; the check costs one command and is never skippable "because it should be clean".
+Before any command that can discard uncommitted work (`git reset --hard`, `git checkout`/`restore` over tracked files, `git clean`), run `git status` first. If it shows uncommitted changes you did not just create and intend to discard, stash them (`git -C <dir> stash -u`, `-u` to include untracked files) or commit them before proceeding. Running the destructive command directly on the assumption the tree is clean, without checking, silently discards any uncommitted work that is there; the check costs one command and is never skippable "because it should be clean".
+
+## Reviewing a PR Locally
+
+Check a PR out with git, because commit, push and fetch always go through the `git` CLI against the real `github.com` remote (see [GitHub API Proxy](github-cli.instructions.md#github-api-proxy-mandatory)). Run each step as its own command:
+
+- For a review that makes no commits: `git -C <dir> fetch origin pull/<number>/head`, then `git -C <dir> switch --detach FETCH_HEAD`, run back to back so that no other fetch rewrites `FETCH_HEAD` in between. This checks out the PR head with no local branch, so nothing is left to delete, and it works for a fork PR too. When the review is done, switch back to the branch being worked on (`git -C <dir> switch <branch>`), so that later commits are not made on a detached HEAD.
+- To add commits to a same-repository PR: `git -C <dir> fetch origin <headRefName>`, then `git -C <dir> switch <headRefName>`, using the head branch name shown on the PR, then `git -C <dir> merge --ff-only origin/<headRefName>`. The merge is needed because a local branch that already exists can be behind the PR's current head; if it cannot fast-forward, stop and report it. Never create a separate review branch, because the head branch already exists and a copy only leaves a branch that later needs cleaning up.
+
+A fork PR's commits live on the fork, so it can be reviewed detached but commits cannot be pushed to it through `origin`.
+
+## Deleting Local Branches
+
+An agent may delete a local branch without asking only when all of these hold:
+
+- After `git -C <dir> fetch --all --prune` has succeeded, `git -C <dir> rev-list <branch> --not --remotes`, run as a separate command, prints nothing, so every commit on the branch is on some remote-tracking branch and nothing is lost by deleting it. Use `--all` because `--not --remotes` trusts the remote-tracking refs of every remote, while a fetch without it refreshes only the default remote. Use `--prune` because a fetch without it keeps the remote-tracking ref of a remote branch that has since been deleted, and that stale ref would make commits that are no longer on any remote look safe. Pass it explicitly even on a machine that sets `fetch.prune`, because the rule cannot rely on local git configuration.
+- The branch is not checked out in any worktree, including one a human created (`git -C <dir> worktree list`).
+- It is not `main`, `master`, `develop` or `release/*`.
+
+Then delete it with `git -C <dir> branch -d <branch>`; never use `-D`. `-d` checks the branch against its upstream, or against HEAD when it has none, so it can refuse a branch that passed the `rev-list` check. If it refuses, keep the branch and report it rather than setting an upstream or forcing the deletion. Deleting a remote branch, or a local branch that fails any of these checks, still needs human approval.
 
 ## Avoid `git worktree`
 
@@ -104,15 +145,15 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 - **Before creating a new branch for an issue, check whether one already exists for it**: a previous session may have pushed work and then been interrupted before ever opening a PR. This is the branch-only counterpart to the PR check in [task-workflow.instructions.md's "Bot-Created PRs" section](task-workflow.instructions.md#bot-created-prs-mandatory-treat-as-your-own) ("Checking for existing work before branching"). The glob matches the `<type>/<issue-number>-<name>` convention below (see [Branch Naming](#branch-naming)):
 
   ```bash
-  git ls-remote --heads origin "*/<issue-number>-*"
+  git -C <dir> ls-remote --heads origin "*/<issue-number>-*"
   ```
 
   - No match: branch fresh from `main` as normal.
   - Match found: fetch it and compare against `main`:
 
     ```bash
-    git fetch origin <branch>
-    git rev-list --count origin/main..origin/<branch>
+    git -C <dir> fetch origin <branch>
+    git -C <dir> rev-list --count origin/main..origin/<branch>
     ```
 
     - `0` (not ahead of `main`): branch fresh from `main` as normal.
@@ -128,16 +169,14 @@ Before any command that can discard uncommitted work (`git reset --hard`, `git c
 
 When any git command fails (push, rebase, fetch, etc.), you **must** quote the exact stdout and stderr output verbatim in any issue or PR comment before posting any explanation or diagnosis. Never substitute a narrative about why a command might have failed for the actual error output.
 
-Capture the output into a variable and embed it in the comment body:
+Run the failing command as its own call, then paste its output, unchanged, into the comment body as a separate call. Quote the heredoc delimiter (`'COMMENT'`) so the shell does not expand `$` or backticks that appear in the pasted output:
 
 ```bash
-push_output=$(git -C /path push --force-with-lease 2>&1) || true
-gh pr comment NUMBER --repo OWNER/REPO --body "$(cat <<COMMENT
+cfwf comment add --repo OWNER/REPO --pr NUMBER --body-file - <<'COMMENT'
 git push failed with:
 
-${push_output}
+<exact stdout and stderr of the failed command>
 COMMENT
-)"
 ```
 
 This rule exists because AI-generated diagnoses of command failures are frequently wrong. The verbatim output is always correct; the explanation is not.
@@ -163,7 +202,7 @@ See [git-commits.instructions.md](git-commits.instructions.md); load when about 
 
 After any push, if the remote reports vulnerabilities:
 
-- Check for open Dependabot PRs covering them (`gh pr list --label dependencies`).
+- Check for open Dependabot PRs covering them (`cfwf pr list --repo <owner/repo> --label dependencies`, which lists only the open PRs carrying the `dependencies` label), and for the advisories themselves (`cfwf repo advisories --repo <owner/repo>`).
 - If none exist, visit the repo's Dependabot page and for any manually fixable advisory create a GitHub issue labelled `Security` and `AI-Work`, naming the package, severity, and fix steps.
 
 ## Pre-Commit Hook Known Incompatibilities
@@ -174,8 +213,8 @@ After any push, if the remote reports vulnerabilities:
 
 When working outside `credfeto/cs-template` and a gap in the global template rules is found:
 
-1. Do not apply the change locally.
-2. Create an issue in `credfeto/cs-template`; see [git.examples.md](git.examples.md) for the command template.
-3. The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
-4. Note the issue URL in any relevant commit or PR description.
-5. Continue work without waiting for the template issue to be resolved.
+- **P1.** Do not apply the change locally.
+- **P2.** Create an issue in `credfeto/cs-template`, titled per [Issue Titles](github-cli.instructions.md#issue-titles-mandatory) (a local title rule takes precedence where one exists); see [git.examples.md](git.examples.md) for the command template.
+- **P3.** The issue must include: source repository, current behaviour/gap, proposed rule text, reason for template propagation.
+- **P4.** Note the issue URL in any relevant commit or PR description.
+- **P5.** Continue work without waiting for the template issue to be resolved.
