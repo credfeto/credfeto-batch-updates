@@ -7,30 +7,68 @@
 ## NuGet Configuration (MANDATORY)
 
 - Never modify `nuget.config`; it is managed by the repo owner, not by AI.
+- Before searching for or adding a package, check which sources are actually configured: `dotnet nuget list source`. Use those sources for lookups rather than assuming nuget.org, since they may include a private feed, proxy, or mirror.
+- Look up a package's available versions with the `package_versions` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory), which queries the configured sources. This applies to MSBuild SDK packages in `global.json` too. Ask for pre-release versions (the tool's pre-release option) only when the task explicitly needs a pre-release, because release versions are the default choice.
+- Never fetch nuget.org URLs (`curl`, `WebFetch` or any HTTP call to `api.nuget.org`) and never pass `--source` pointing at nuget.org, because that skips the configured feeds: packages that exist only on the private feed look missing, and the versions shown may not be the ones restore can use.
+
+## NuGet Restore Dependency Errors (MANDATORY)
+
+Restore errors `NU1603` and `NU1605` are dependency problems in the repository, not package-feed or infrastructure failures: fix them in your own PR and never add `Blocked` for them. Search the knowledge base for the error code first, as [Tooling Problems](learnings.instructions.md#tooling-problems-read-before-blocking-write-after-solving-mandatory) requires, because fixes for them are recorded there.
+
+- `NU1603` (`<Pkg> X depends on <Dep> (>= A) but <Dep> A was not found ... B was resolved instead`): update `<Pkg>` to its latest version, whose dependency on `<Dep>` the feed normally has. If no newer `<Pkg>` clears it, add a direct `PackageReference` to `<Dep>` at the resolved version B.
+- `NU1605` (`Detected package downgrade: <Dep> from <newer> to <older>`): a direct reference to `<Dep>` is lower than the version a dependency now needs. Raise the direct reference to `<newer>`. A direct reference to a package that is also a transitive dependency (such as `System.Security.Cryptography.Pkcs`) is usually a security pin over a vulnerable transitive version: raise it, never remove it, because removing it brings the vulnerable version back.
+- After the fix, run the `restore` and `build` [build-dotnet MCP tools](#build-dotnet-mcp-tools-mandatory) again and confirm the error is gone and no new `NU1901` to `NU1904` warning appears.
 
 ## Running .NET Tools (MANDATORY)
 
-- Always invoke dotnet tools via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildcheck`).
+- Invoke the dotnet tools no build-dotnet MCP tool covers via `dotnet <toolname>` (e.g. `dotnet changelog`, `dotnet buildversion`).
+- Run `FunFair.BuildCheck`, `cscleanup` and `reportgenerator` only through the [build-dotnet MCP tools](#build-dotnet-mcp-tools-mandatory), never as `dotnet <toolname>`, `dotnet tool run <toolname>` or a bare `buildcheck`, because the agent container denies those commands.
 - Never search for the tool binary, add it to `PATH`, or invoke it directly as `~/.dotnet/tools/toolname` or similar.
+
+## build-dotnet MCP Tools (MANDATORY)
+
+The `build-dotnet` MCP server runs the repository's .NET builds, tests, coverage and checks as jobs, with the arguments the repository's pre-commit and CI use, and keeps each job's full log. Its tool list follows the repository: it lists a tool only when the repository has something for it to run (for example `test` and `coverage` only when there is a unit test project), and it updates the list when projects are added or removed.
+
+- **P1.** **Use the MCP tools for every build, test, coverage, format and check run.** The raw commands they replace are denied in the agent container, so a raw run is refused, never a fallback:
+
+  | Task | MCP tool | Denied raw command |
+  | ---- | -------- | ------------------ |
+  | Restore packages | `restore` | `dotnet restore` |
+  | Build the solution | `build` | `dotnet build`, `dotnet clean` |
+  | Run the unit tests | `test` | `dotnet test` |
+  | Collect coverage | `coverage` | `dotnet test ... -- --coverage`, `dotnet reportgenerator` |
+  | Run `FunFair.BuildCheck` | `buildcheck` | `dotnet buildcheck` |
+  | Format changed files | `cleanup` | `dotnet cscleanup`, `dotnet format` |
+  | Look up package versions | `package_versions` | `dotnet package search` |
+  | Lint `CHANGELOG.md` | `changelog_lint` | none: `dotnet changelog --lint` stays available |
+  | Full pre-commit build and test | `buildtest` | none, but run the repository's `buildtest` script through this tool |
+
+  `dotnet tool run` of `buildcheck`, `cscleanup`, `reportgenerator`, `dotnet-format` or `csharpier` is denied too. The dotnet commands no MCP tool covers stay available: `dotnet changelog`, `dotnet buildversion`, `dotnet pack`, `dotnet publish`, `dotnet run`, `dotnet nuget list source` and the other `dotnet nuget` commands. They follow every rule in this file and in [Never Truncate Test/Commit Commands](task-workflow.instructions.md#never-truncate-testcommit-commands-mandatory).
+- **P2.** **A role without the build-dotnet tools delegates the task.** A session that has no build-dotnet tools because its role is not granted them (the Orchestrator) hands the build, test, coverage or check to the role that has them (Code Tester for tests and coverage), because the raw commands are denied there too.
+- **P3.** **When the server is not connected, stop and report it.** If no build-dotnet tools are available in a role that is granted them, the server failed to start or connect: stop the task, comment on the issue or PR that the build-dotnet MCP server is not connected, and add `Blocked`. Never work around it with a raw command or a script that runs one, because the raw commands are denied and a workaround hides the broken setup.
+- **P4.** **A tool the server does not list has nothing to run.** When the server is connected but does not list the tool for a task, the repository has nothing for that tool (for example no unit test project means no `test` or `coverage` tool); say so in your report instead of composing a command.
+- **P5.** **A job's `job_result` is the result.** Do not repeat a build, test, coverage or check job to confirm it. An MCP job is a long-running command for [One Long-Running Command at a Time](task-workflow.instructions.md#one-long-running-command), and the server itself runs only one job at a time.
+- **P6.** **Wait for a job by polling `job_status` at a steady pace.** Every tool except `detect`, `package_versions`, `job_status` and `job_result` starts a job and returns its id at once. Call `job_status` once, then wait about 30 to 60 seconds between calls, judging the gap from the step the job reports and how long it has run (a restore or a short step needs a shorter gap; a long test step or `buildtest` a longer one). Never call `job_status` in a tight loop, and never wrap it in a shell wait loop. When the state is no longer running, read `job_result` and judge the job by its per-step exit codes, test counts and failing tests. A job is not a background shell command: do not wait for it with `cfwf task wait` or a completion notification.
+- **P7.** Before handing back, wait for every job you started to finish, as [Finishing background work before handing back](task-workflow.instructions.md#background-command-wait) requires for background commands.
 
 ## Pre-Work Repository Health Check (MANDATORY)
 
-Before starting any work on an issue or PR in a .NET repository:
+The [Pre-Work Baseline Check](git.instructions.md#pre-work-baseline-check-mandatory-before-starting-any-work) applies to every language and says when it runs (a fresh branch from `main`, or as the final step after a rebase; never when resuming an existing branch that needed no rebase). In a .NET repository, run it as follows:
 
-1. Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
-2. Run: `dotnet buildcheck -solution <solutionfilename>`
-3. If it fails:
-   - Fix all reported issues.
-   - Verify with `dotnet build` and `dotnet test`.
-   - Commit the fixes with a conventional commit message and push.
-   - Only proceed with the original work once buildcheck passes cleanly.
-4. If buildcheck still fails after all fixing attempts:
-   - For an issue: add a comment and label it `Blocked`; do not start work.
-   - For a PR: comment on the PR and label it `Blocked`; do not continue work.
+- **P1.** Find the solution file (prefer `*.slnx` over `*.sln`; look in the repo root and `src/`).
+- **P2.** Run the `buildcheck` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory).
+- **P3.** If it fails:
+  - Fix all reported issues. If a fix is a package change (adding, changing, or removing a package reference), follow [Conflict Resolution: Pre-Commit/Component-Tool-Mandated Package Changes](packages.instructions.md#conflict-resolution-pre-commitcomponent-tool-mandated-package-changes-mandatory) instead of automatically treating it as a new package request requiring approval-and-wait; that section still falls back to approval-and-wait if its own security review finds a genuine blocker.
+  - Verify with the `build` and `test` MCP tools.
+  - Commit the fixes with a conventional commit message and push.
+  - Only proceed with the original work once buildcheck passes cleanly.
+- **P4.** If buildcheck still fails after all fixing attempts:
+  - For an issue: add a comment and label it `Blocked`; do not start work.
+  - For a PR: comment on the PR and label it `Blocked`; do not continue work.
 
 ## Build and Test Before Commit (MANDATORY)
 
-Run `dotnet build` and `dotnet test` before every commit; see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
+Build and test before every commit with the `build` and `test` [build-dotnet MCP tools](#build-dotnet-mcp-tools-mandatory); see [git.instructions.md](git.instructions.md#build-and-test-verification-mandatory-before-any-commit-or-push).
 
 ## Identifying Test Projects (MANDATORY)
 
@@ -45,8 +83,8 @@ A project is a test project **only** if its assembly name ends with one of these
 **Rules that must never be broken:**
 
 - **Never** use "contains 'Test'" in a project name as a heuristic; a project named `*.TestHarness`, `*.Tests.Mocks`, or `*.Tests.Common` is NOT a test project.
-- **Never** run `dotnet test` or `dotnet run` on `*.Benchmark.Tests` projects; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
-- **Never** target a project with `dotnet test` if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
+- **Never** run the tests of a `*.Benchmark.Tests` project (never name one as the `test` tool's project) and never `dotnet run` one; BenchmarkDotNet performs real measurements that take hours and spawn dozens of build processes. CI handles benchmarks; never run them manually.
+- **Never** name a project as a test target if its csproj contains `<IsTestProject>false</IsTestProject>` or `<IsTestingPlatformApplication>false</IsTestingPlatformApplication>`.
 - **Do not** rely on `OutputType` or the project SDK as a discriminator; with Microsoft.Testing.Platform, legitimate test projects also use `OutputType=Exe`, and some test projects use `Microsoft.NET.Sdk.Web`.
 - **Always** verify `IsTestingPlatformApplication` in the csproj: this is the property `dotnet test` in .NET 10 uses for discovery, not `IsTestProject`. The naming convention and `IsTestingPlatformApplication` are the only reliable signals.
 
@@ -63,7 +101,7 @@ When a project is a test support library (provides mocks, helpers, or base types
 <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
 ```
 
-It must also import `UnitTests.props` (required by `FunFair.BuildCheck` until [funfair-tech/funfair-build-check#417](https://github.com/funfair-tech/funfair-build-check/issues/417) is resolved):
+It must also import `UnitTests.props` (a temporary workaround required by `FunFair.BuildCheck`; drop it once `FunFair.BuildCheck` no longer requires the import):
 
 ```xml
 <Import Project="$(SolutionDir)UnitTests.props" Condition="Exists('$(SolutionDir)UnitTests.props')" />
@@ -78,30 +116,9 @@ These projects keep `OutputType=Library`.
 
 ## Code Coverage (MANDATORY)
 
-Testing uses **Microsoft.Testing.Platform** (not VSTest). To collect coverage, run **one unit test project at a time**: this gives a clear picture of how well each assembly is covered by its own tests.
+Collect coverage with the `coverage` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory) and read the figures from its `job_result`. It measures one unit test project at a time with Microsoft.Testing.Platform's code coverage extension, writes each project's Cobertura file to `coverage/<AssemblyName>.coverage.cobertura.xml`, and reports per-assembly and Overall line coverage, so each assembly's figure comes from its own tests only.
 
-**Two working invocation patterns** (the `cd` step is required for both):
-
-Project form: target one test project directly:
-
-```bash
-cd {solution-src-dir}
-dotnet test {AssemblyName}.Tests/{AssemblyName}.Tests.csproj \
-  -c Release \
-  -p:SolutionDir={solution-src-dir}/ \
-  -- --coverage --coverage-output-format cobertura \
-     --coverage-output {repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml
-```
-
-Critical rules:
-
-- **`cd` to the solution `src/` directory first** and use a **relative** project path; absolute paths trigger the legacy VSTest bridge, which MTP 2.0+ rejects on .NET 10 SDK.
-- **`--` separator is required**: coverage flags must be passed to the test host, not the `dotnet test` CLI. Passing `--coverage` before `--` conflicts with xunit's argument parsing.
-- **`-c Release`**: always run coverage in Release mode.
-- **`-p:SolutionDir=`**: must be an absolute path ending with `/` so `UnitTests.props` is found via `$(SolutionDir)`.
-- **`--coverage-output`**: use an absolute path pointing into the repo's `/coverage/` directory (gitignored). Name the file `{AssemblyName}.coverage.cobertura.xml`.
-
-**Only run unit test projects (`<AssemblyName>.Tests`) for coverage**; see [Identifying Test Projects](#identifying-test-projects-mandatory) for the authoritative definition. Exclude:
+**Only unit test projects (`<AssemblyName>.Tests`) are measured for coverage**; see [Identifying Test Projects](#identifying-test-projects-mandatory) for the authoritative definition. These are never measured:
 
 - `<AssemblyName>.Integration.Tests`: integration tests inflate coverage numbers and test external dependencies, not isolated units.
 - `<AssemblyName>.Benchmark.Tests`: benchmarks are not functionality tests and must never be included in coverage runs.
@@ -114,38 +131,6 @@ Critical rules:
 
 Do not install `coverlet.collector`, `coverlet.msbuild`, or any VSTest data collector; they do not work with Microsoft.Testing.Platform. Do not switch to `dotnet-coverage` or any wrapper tool. If coverage is still not collected, verify that `UnitTests.props` is imported by the test project and that `Microsoft.Testing.Extensions.CodeCoverage` is present.
 
-## Coverage Reporting with reportgenerator
-
-After collecting `.cobertura.xml` files, generate reports using `dotnet reportgenerator`.
-
-**Always generate one report per assembly**: pass only that assembly's `.cobertura.xml` as input:
-
-```bash
-dotnet reportgenerator \
-  -reports:{repo-root}/coverage/{AssemblyName}.coverage.cobertura.xml \
-  -targetdir:{repo-root}/coverage/{AssemblyName} \
-  -reporttypes:Html
-```
-
-**Do not pass multiple assemblies' `.cobertura.xml` files into a single `reportgenerator` run.** If assembly A references types from assembly B, running them together causes B's components to appear in A's coverage report, which falsely lowers A's measured coverage.
-
-When a combined view is needed (e.g. for a summary dashboard, or the coverage ratchet's single whole-repo percentage, see [coverage-ratchet.instructions.md](coverage-ratchet.instructions.md#net)), run each assembly individually first, then produce one additional combined report as a separate step, requesting both report types together:
-
-```bash
-dotnet reportgenerator \
-  -reports:"{repo-root}/coverage/*.coverage.cobertura.xml" \
-  -targetdir:{repo-root}/coverage/combined \
-  -reporttypes:"Html;JsonSummary"
-```
-
-This writes the `Html` dashboard alongside `{repo-root}/coverage/combined/Summary.json`; the overall whole-repo line-coverage percentage is its `summary.linecoverage` field:
-
-```bash
-jq '.summary.linecoverage' {repo-root}/coverage/combined/Summary.json
-```
-
-The per-assembly reports remain the authoritative measure of test quality for each project; the combined run is only ever used for the single whole-repo figure, never as a per-assembly quality signal. The same assembly A/B cross-contamination caveat applies equally here.
-
 ### Specific Coverage Rules (MANDATORY)
 
 - If a source generator is used then it is because we **WANT** the source generated version. Don't turn it off to get 100% code coverage. Source-generated code (classes decorated with `[GeneratedCode]`) should be excluded from coverage measurements; it is considered tested by the generator's author, not by us.
@@ -157,6 +142,11 @@ The per-assembly reports remain the authoritative measure of test quality for ea
 - Logging methods must be in a dedicated `internal static` class:
   - Placed in a `LoggingExtensions` sub-namespace relative to the class it serves.
   - Named `<ClassName>LoggingExtensions` (e.g. `FooLoggingExtensions` for `Foo`).
+- Guard a log call with `if (logger.IsEnabled(<level>))` when any of its arguments is a method call (`.ToString()`, `Stopwatch.GetElapsedTime(...)`, `timer.Successful().TotalMilliseconds`), because C# evaluates the arguments before the generated method's own `IsEnabled` check runs, so the work is done even when the level is disabled (CA1873). Arguments that are plain property or field reads (`algorithm.AlgorithmName`, `network.Name`) need no guard, and CA1873 does not fire on them.
+- Put that guard in the logging extensions class, not in the calling code: a `public` method takes the cheap value (a `SimpleExecutionTimer`, or the typed value such as an `AccountAddress` rather than a pre-built `string`), checks `IsEnabled`, and only then computes the expensive part and calls a `private` `[LoggerMessage]` method of the same name that takes the computed value. Callers then log unconditionally and business logic carries no guards. See [Source-Generated Logging with Guards](dotnet.examples.md#source-generated-logging-with-guards).
+- Keep `this ILogger<T> logger` as the first parameter of that private method, even though it is private, because FFS0020 (which otherwise requires such parameters to be last, as it does for `CancellationToken`) exempts an extension-style logger parameter. Call it with dot syntax (`logger.LogX(...)`), not as `LogX(logger, ...)`, because CA1873 only recognises the `IsEnabled` guard around a dot-syntax call.
+- `[Conditional("DEBUG")]` removes the call itself from every non-DEBUG build, including Release and CI. Pair it with `LogLevel.Debug` only for development-only diagnostics whose arguments are values the method uses anyway, because a local that exists only to feed the call (a timer or `Stopwatch` started earlier) is left unused in Release and fails the build under `TreatWarningsAsErrors`. For diagnostics that must survive into Release, such as those for diagnosing a hang in CI or production, use `LogLevel.Information` without `[Conditional]`. General level choice is in [Log Levels](logging.instructions.md#log-levels).
+- Where the project already references `FunFair.Common`, time elapsed-time logging with `FunFair.Common.Metrics.ExecutionTimer.Start()` and `SimpleExecutionTimer.Successful()` rather than raw `Stopwatch.GetTimestamp()`/`GetElapsedTime()`, because those metrics types are the shared convention in those repos.
 
 ## Asynchronous Code
 
@@ -172,12 +162,17 @@ See [code-quality.instructions.md](code-quality.instructions.md) for general asy
 - Prefer overloads that accept a `CancellationToken`.
 - Do not pass `CancellationToken.None` without explicit documented reason.
 
+## HTTP Clients (MANDATORY)
+
+- Production code obtains `HttpClient` only through `IHttpClientFactory`: register a typed or named client with `AddHttpClient` and attach retry and resilience behaviour as policies on that registration. Never write `new HttpClient(...)` or keep a static or shared `HttpClient` instance, because the factory pools and recycles handlers (avoiding socket exhaustion and stale DNS), configures handlers in one place, and adds request logging and policies to every client it creates.
+- Tests may construct an `HttpClient` around a fake `HttpMessageHandler` and return it from a mocked `IHttpClientFactory`; see [FunFair.Test.Infrastructure](#funfairtestinfrastructure) for `MockCreateClientWithResponse`.
+
 ## Project and Solution Structure
 
 `FunFair.BuildCheck` is an org-owned package; see [dotnet-owned-packages.instructions.md](dotnet-owned-packages.instructions.md) for the GitHub source repository.
 
 - All projects must be added to the solution file (`.slnx` or `.sln`).
-- All projects must pass `FunFair.BuildCheck` before committing: `dotnet buildcheck` (run from solution root; `dotnet buildcheck --help` for options).
+- All projects must pass `FunFair.BuildCheck` before committing: run the `buildcheck` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory).
 - If a build fails because `$(SolutionDir)` is undefined (e.g. imports guarded by `Exists('$(SolutionDir)...')` are silently skipped, leading to errors such as `NU5017`), fix it by ensuring the solution's `src/` directory has a `Directory.Build.props` that sets a fallback:
 
   ```xml
@@ -305,6 +300,10 @@ If `FunFair.Test.Common` or `FunFair.Test.Infrastructure` provides a helper for 
 - Custom `TimeProvider` fakes → `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`
 - Custom `IHttpClientFactory` setups → `MockCreateClientWithResponse`
 
+## Constructor-Bypassing Instantiation (MANDATORY)
+
+Never use `RuntimeHelpers.GetUninitializedObject` or `FormatterServices.GetUninitializedObject` to get an instance of a type you cannot construct or mock. Follow [Obtaining Instances of Types You Cannot Construct or Mock](code-quality.instructions.md#obtaining-instances-of-types-you-cannot-construct-or-mock-mandatory) instead: look for a [real way to build it](code-quality.instructions.md#unconstructable-type-existing-path), [check the org test libraries](code-quality.instructions.md#unconstructable-type-library-helpers), and otherwise [ask the human](code-quality.instructions.md#unconstructable-type-ask) and [wait for the answer](code-quality.instructions.md#unconstructable-type-wait).
+
 ## xunit Assertion Patterns
 
 - `Assert.Single(collection)` returns the single element; capture it directly instead of asserting then indexing:
@@ -368,7 +367,7 @@ Use `AddMockedService<T>()` in tests deriving from `DependencyInjectionTestsBase
 
 - Prefer `StringComparer.<type>.Equals(x, y)` over `string.Equals(x, y, StringComparison.<type>)`, enforced by FFS0050.
 - This applies to all `StringComparison` variants (`Ordinal`, `OrdinalIgnoreCase`, etc.).
-- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`, enforced by FFS0045–FFS0048.
+- Do not use `StringComparison.InvariantCulture`, `StringComparison.InvariantCultureIgnoreCase`, `StringComparison.CurrentCulture`, or `StringComparison.CurrentCultureIgnoreCase`, enforced by FFS0045 to FFS0048.
 
 ## Source File Organisation
 
@@ -418,19 +417,24 @@ public sealed record GlobalJsonInfo(string? SdkVersion, string? RollForward, boo
 
 Use `Credfeto.Exceptions.SourceGenerator` to define exception types; it generates all required constructors automatically.
 
-1. Add the package to the project (analyzer only, not a runtime dependency):
+- **P1.** Add the package to the project (analyzer only, not a runtime dependency):
 
-   ```xml
-   <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
-   ```
+  ```xml
+  <PackageReference Include="Credfeto.Exceptions.SourceGenerator" Version="0.0.1.30" PrivateAssets="All" ExcludeAssets="runtime" />
+  ```
 
-2. Declare the exception as a `sealed partial class` with a `[Description]` attribute for the default message:
+- **P2.** Declare the exception as a `sealed partial class` with a `[Description]` attribute for the default message:
 
-   ```csharp
-   [Description("Default message")]
-   public sealed partial class MyException : Exception;
-   ```
+  ```csharp
+  [Description("Default message")]
+  public sealed partial class MyException : Exception;
+  ```
 
+- When code raises an exception, throw a project-defined exception type generated with `Credfeto.Exceptions.SourceGenerator`, named for the specific failure (for example `DatabaseConfigurationIncompleteException`).
+- Do not force a failure into a framework exception whose meaning does not match it (for example `InvalidOperationException`, `ArgumentException` or `Exception`).
+- Throw a framework exception only where it genuinely matches the contract, for example `ArgumentNullException` or `ArgumentOutOfRangeException` for argument validation at a public API boundary, or `NotSupportedException` for an unsupported operation.
+- Adding `Credfeto.Exceptions.SourceGenerator` to a project to follow this rule needs no separate package approval.
+- Existing code that throws an ill-fitting framework exception need not be changed opportunistically, but code review flags any new code that does.
 - Always use the **latest stable release** of `Credfeto.Exceptions.SourceGenerator`.
 - Never hand-write exception constructors when this generator is available.
 - Apply the same rule to any project that already defines exceptions: add the package and convert existing hand-written exception classes to `partial`.
@@ -461,12 +465,61 @@ Never use hardcoded literal dates (e.g. `new DateTime(2024, 1, 1)`) in tests. Us
 
 ## Conditional Compilation and Dead Code
 
-When all target frameworks listed in a project file are .NET 9 or later, framework version guards whose condition is unconditionally true become dead structure:
+A project's **target set** is every target framework it builds, judged per project rather than per repo, because each project compiles only for the frameworks it builds.
+Read the target set from the evaluated MSBuild properties (for example `dotnet msbuild <project> -getProperty:TargetFrameworks -getProperty:TargetFramework`), not only from the `<TargetFramework>`/`<TargetFrameworks>` element in the `.csproj`, so that frameworks set in `Directory.Build.props` or an imported `.props` file are included.
+Where a condition adds a framework only in some environments (such as only on Windows or only in CI), that framework is part of the target set.
+Because the evaluated properties reflect only the current host environment, also read every conditional `TargetFramework`/`TargetFrameworks` element in the project and in imported `.props`/`.targets` files, and take the union of all of them as the target set.
+Any guard, condition, file or package whose outcome is identical for every framework in the target set is dead structure: it can never take its other path, so it only adds noise and untested branches.
+Collapse it to the single surviving path.
+A guard whose outcome differs for any framework in the target set is live and stays unchanged, such as `NET8_0_OR_GREATER` in a project targeting `net6.0;net8.0`.
+The test applies across framework families too: in a project targeting `netstandard2.0;net8.0` or `net48;net8.0`, `NET8_0_OR_GREATER` is false for the `netstandard2.0` or `net48` build, so the guard and its fallback stay.
+A project's **supported floor** is the lowest framework in its target set, and is defined only when every framework in the target set is .NET 5 or later.
+A project that also targets .NET Standard, .NET Framework or .NET Core 3.1 or earlier has no supported floor, so judge each guard against each framework in its target set individually rather than against a floor.
 
-- `#if NET9_0_OR_GREATER`, `#if NET8_0_OR_GREATER`, `#if NET7_0_OR_GREATER`, `#if NET6_0_OR_GREATER`, and any earlier `OR_GREATER` variants are always true; remove the directive, keep the body, and delete the `#else` branch and fallback implementation.
-- The corresponding negated guards (`#if !NET9_0_OR_GREATER`, etc.) are always false; remove the entire block including the body.
-- Delete any source files that exist solely as pre-.NET 9 fallback implementations (e.g. files named `*.net6.cs` or `*SourceGenerated.net6.cs` containing a `new Regex(...)` fallback for the `[GeneratedRegex]` source generator).
-- After removing the conditional blocks, verify the project still builds and all tests still pass; treat this as a separate commit from any feature or fix work.
+Preprocessor guards (`#if`, `#elif`, `#else`):
+
+- A symbol defined for every framework in the target set, or the negation of a symbol defined for none of them, is always true: remove the directive, keep the body, and delete the `#else` branch and its fallback implementation.
+  For example `NETx_0_OR_GREATER` with `x` at or below the floor, `NET` when every target is .NET 5 or later, `NETCOREAPP` when every target is .NET Core or later, and exact `NETx_0` when `netx.0` is the only framework in the target set (such as `NET8_0` in a project targeting only `net8.0`).
+- A symbol defined for none of the frameworks in the target set, or the negation of a symbol defined for every one of them, is always false: remove the whole block including its body.
+  For example `#if !NETx_0_OR_GREATER` with `x` at or below the floor, `NETx_0_OR_GREATER` with `x` above the highest framework in the target set (such as `NET10_0_OR_GREATER` in a project targeting only `net8.0`), exact `NETx_0` for any version not in the target set, whether below or above the floor (such as `NET7_0` in a project targeting `net6.0;net8.0`), `NETSTANDARD*` when the target set has no .NET Standard target, and `NETFRAMEWORK`/`NET4*` when the target set has no .NET Framework target.
+- Collapse an `#if`/`#elif`/`#else` chain to the one branch that survives, without any directive around it.
+
+Fallback source files:
+
+- Delete source files that exist solely as fallback implementations for frameworks below the floor or not targeted (e.g. files named `*.net6.cs`, `*.netstandard2.0.cs` or `*SourceGenerated.net6.cs`, such as a hand-written `new Regex(...)` fallback for the `[GeneratedRegex]` source generator once the floor is .NET 7 or later).
+- Remove any `<Compile Remove="..."/>`/`<Compile Include="..."/>` items that existed only to switch those files in or out.
+
+MSBuild conditions in `.csproj`, `Directory.Build.props` and `Directory.Build.targets`:
+
+- Apply the same always-true/always-false test to `Condition` attributes on `PropertyGroup`, `ItemGroup`, `PackageReference`, `Compile` and similar elements, including comparisons against `$(TargetFramework)` and `$([MSBuild]::IsTargetFrameworkCompatible(...))` calls.
+  Unwrap an always-true condition (keep the element, drop the `Condition`); delete an element whose condition is always false.
+- In a project whose evaluated `TargetFrameworks` property (`dotnet msbuild <project> -getProperty:TargetFrameworks`) is non-empty, however many frameworks it lists (a single `<TargetFrameworks>net8.0</TargetFrameworks>` counts), or a shared file imported by any such project, MSBuild also evaluates an outer (cross-targeting) build in which `$(TargetFramework)` is empty, and restore and pack run in that build, so judge a condition that reads `$(TargetFramework)` against that empty value as well as against every framework in the target set.
+  Such a condition is always true only when it is also true with `$(TargetFramework)` empty: `$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))` in a project targeting `net8.0;net9.0` is true for every framework in the target set but not in the outer build, so it stays, because unwrapping it would apply its items and properties to restore and pack as well and can change the package's dependency groups.
+  A condition that exists only to exclude the outer build, such as `'$(TargetFramework)' != ''`, is live for the same reason and stays unchanged.
+- A shared `Directory.Build.props`/`.targets` file, or any `.props`/`.targets` file imported explicitly, applies to every project that imports it, including projects outside its directory, so judge its conditions against the union of the target sets of all those projects, not just the one being edited.
+  A condition in that file is dead only when its outcome is identical for every framework in that union, so `'$(TargetFramework)' == 'netstandard2.0'` stays live when one importing project targets `netstandard2.0` even though every other importing project targets `net8.0`.
+
+Runtime framework-version checks:
+
+- Collapse a runtime version check to its surviving path only when the project has a supported floor and the check is a lower bound at or below that floor, because roll-forward lets an app run on any runtime at or above its target framework, so the floor fixes only that the runtime is at least the floor: for example `Environment.Version.Major >= 8`, or a version parsed from `RuntimeInformation.FrameworkDescription` compared the same way, is always true with a floor of .NET 8 or later.
+- Leave equality and upper-bound checks (such as `Environment.Version.Major == 8` or `Environment.Version.Major < 9`), and lower bounds above the floor, in place: a newer runtime the app rolls forward to can change their outcome.
+- Collapse `RuntimeFeature.IsSupported(...)` only for a feature constant that every runtime at or above the floor always reports as supported and that no publish option or runtime configuration can switch off, such as `RuntimeFeature.IsSupported(RuntimeFeature.DefaultImplementationsOfInterfaces)` with any supported floor.
+- Leave dynamic-code, AOT and trimming checks (`RuntimeFeature.IsDynamicCodeSupported`, `RuntimeFeature.IsDynamicCodeCompiled`, and `IsSupported(...)` for any host-configurable feature) in place: they depend on how the app is published (NativeAOT, trimming or runtime configuration), not on the target framework.
+- Leave every runtime version check in place in a project with no supported floor: a .NET Standard build runs on any runtime, including .NET Framework, so its target set gives no lower bound on the runtime.
+- Leave operating-system checks (`OperatingSystem.Is*()`, `OperatingSystem.Is*VersionAtLeast(...)`) in place: they depend on the host operating system, not the target framework, so the floor does not fix their outcome.
+
+Polyfills:
+
+- Remove a pure polyfill package reference (e.g. `System.Memory`, `System.Buffers`, `Microsoft.Bcl.AsyncInterfaces`, `Microsoft.Bcl.HashCode` or `PolySharp`) only when every framework in the target set ships the API it provides in-box.
+- Treat a package that also ships in-box with the framework (e.g. `System.Text.Json`, `System.Collections.Immutable` or `System.Diagnostics.DiagnosticSource`) as removable only when its referenced version is not higher than the in-box version of every framework in the target set, and keep it otherwise, whatever the reason it was added.
+  Compare against the framework version with a zero patch (for example `8.0.0` for `net8.0`), the lowest in-box version any runtime for that framework supplies, because the installed runtime patch decides which in-box version the app loads, so a `System.Text.Json` `8.0.5` reference in a `net8.0` project stays.
+- Keep any package reference that fails the restore comparison under Verification below, because a direct reference can pin a transitive dependency above a vulnerable or too-low version.
+- Delete polyfill source files and attribute definitions (e.g. hand-written `IsExternalInit`, `RequiredMemberAttribute` or nullable-analysis attributes) under the same every-target test.
+
+Verification:
+
+- After removing a package reference, compare the `restore` [build-dotnet MCP tool](#build-dotnet-mcp-tools-mandatory)'s warnings and the `dotnet list package --include-transitive` output before and after, and put the reference back if any new `NU1901` to `NU1904` warning appears or any resolved version changes (including the removed package itself coming back transitively at a lower version).
+- After removing the dead structure, verify the project still builds and all tests still pass, and treat the removal as a separate commit from any feature or fix work; see [Dead Code](code-quality.instructions.md#dead-code).
 
 ## Nullable Reference Types (MANDATORY)
 
@@ -480,11 +533,18 @@ When all target frameworks listed in a project file are .NET 9 or later, framewo
 ## Warning Suppression and Errors
 
 - Every project must build with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
-- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without **explicit written permission from the repo owner**. Exception: per-advisory NuGet audit suppressions (see below).
+- Never use `#pragma warning disable <ID>`, `<NoWarn>`, `<WarningsNotAsErrors>`, or `[SuppressMessage]` without **explicit written permission from the repo owner**. Exceptions: per-advisory NuGet audit suppressions and pre-approved conflicting-diagnostic resolutions (both below).
 - If a warning fires, fix the root cause. If the fix is non-obvious, raise a GitHub issue rather than suppressing the warning.
 - Test projects are **not** exempt from this rule; suppressing warnings in test code is equally prohibited without explicit permission.
 
-**Exception: project-specific local instruction files:** A project's `ai/local/` instruction file may explicitly document approved suppressions for that repository. Approval must be granted via a PR comment from the repo owner; the local instruction file alone is not sufficient to grant permission. When a repo owner approves a suppression via a PR comment, the local instruction file must be updated in that same PR to document: the specific warning ID, the affected class of code, and the reasoning for the exception. Once documented in the local instruction file following an explicit PR comment approval, that entry satisfies the "explicit written permission from the repo owner" requirement for future suppressions of that warning ID in that class of code. Local instructions take precedence over this global rule per the `.ai-instructions` precedence hierarchy.
+**Exception for project-specific local instruction files:**
+A project's `ai/local/` instruction file may explicitly document approved suppressions for that repository.
+Approval must be granted via a PR comment from the repo owner; the local instruction file alone is not sufficient to grant permission.
+When a repo owner approves a suppression via a PR comment, the local instruction file must be updated in that same PR to document: the specific warning ID, the affected class of code, and the reasoning for the exception.
+Once documented in the local instruction file following an explicit PR comment approval, that entry satisfies the "explicit written permission from the repo owner" requirement for future suppressions of that warning ID in that class of code.
+Local instructions take precedence over this global rule per the `.ai-instructions` precedence hierarchy.
+
+**Exception for conflicting diagnostics:** When fixing one diagnostic raises another, follow [Analyzer Conflict Instructions](analyzer-conflicts.instructions.md#conflicting-diagnostics-mandatory). Its resolution table is a global, pre-approved route recorded once for every repo that uses these global instructions, where the local-file exception above is a per-repo route approved by a PR comment. What a table entry permits, and what to do for a pair not in the table, is set out there.
 
 ## NuGet Vulnerability Suppression
 
@@ -501,16 +561,16 @@ Suppress per-project using the advisory URL, never globally in shared `.props` f
 
 When working on a .NET project that produces a publishable executable (`OutputType=Exe` or `OutputType=WinExe`), follow these steps in order:
 
-1. **Enable trimming first**: add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
-   - Fix all `IL2xxx` trim-analysis warnings before committing.
-   - Replace reflection-based patterns with source-generated equivalents, for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
-   - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
-   - Do not suppress trim warnings; treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
+- **P1.** **Enable trimming first**: add `<PublishTrimmed>true</PublishTrimmed>` to the project file and verify the project builds without trim warnings or errors.
+  - Fix all `IL2xxx` trim-analysis warnings before committing.
+  - Replace reflection-based patterns with source-generated equivalents, for example, replace `JsonSerializer` usage with a `JsonSerializerContext` annotated with `[JsonSerializable]`.
+  - Apply `[DynamicallyAccessedMembers]` only where reflection is genuinely unavoidable and cannot be replaced with a source generator.
+  - Do not suppress trim warnings; treat them as blocking, consistent with `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`.
 
-2. **Enable AOT only after trimming is clean**: once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it with `<PublishAot>true</PublishAot>` (AOT implies trimming; both properties do not need to be set simultaneously).
-   - Fix all `IL3xxx` AOT-compatibility warnings.
-   - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
-   - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
-   - Do not suppress AOT warnings; treat them as blocking.
+- **P2.** **Enable AOT only after trimming is clean**: once `<PublishTrimmed>true</PublishTrimmed>` builds without warnings, replace it with `<PublishAot>true</PublishAot>` (AOT implies trimming; both properties do not need to be set simultaneously).
+  - Fix all `IL3xxx` AOT-compatibility warnings.
+  - Remove any runtime code generation: `Emit`, `DynamicMethod`, `Expression.Compile`, `CSharpCodeProvider`, etc.
+  - Verify that every third-party package used by the executable has AOT-compatible code paths. Check for `IsAotCompatible=true` in the package metadata or a corresponding `[RequiresUnreferencedCode]` annotation indicating the incompatibility.
+  - Do not suppress AOT warnings; treat them as blocking.
 
-3. **If either step is blocked by an incompatible third-party dependency**: raise a GitHub issue in the current repository describing the incompatibility (package name, version, and the specific warning or error), then stop. Do not work around the incompatibility by suppressing warnings or downgrading the property.
+- **P3.** **If either step is blocked by an incompatible third-party dependency**: raise a GitHub issue in the current repository describing the incompatibility (package name, version, and the specific warning or error), then stop. Do not work around the incompatibility by suppressing warnings or downgrading the property.
