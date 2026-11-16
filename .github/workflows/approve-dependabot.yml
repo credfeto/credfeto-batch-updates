@@ -24,31 +24,27 @@ permissions:
 
 
 jobs:
-  requirements:
+  approve-dependabot:
     if: vars.DEPENDABOT_AUTOMERGE == 'true' && github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
-  enable-auto-merge:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      github.actor == 'dependabot[bot]' &&
-      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
-    runs-on: ubuntu-latest
-
-    steps:
       - name: "Auto Merge"
+        if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          MERGE_METHOD: "MERGE"
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
             const mergeMethod = process.env.MERGE_METHOD;
             const nodeId = context.payload.pull_request.node_id;
@@ -71,22 +67,12 @@ jobs:
             });
             core.info(`✅ Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
             core.notice(`Enabled auto-merge (${mergeMethod}) on PR #${context.payload.pull_request.number}`);
-        env:
-          MERGE_METHOD: "MERGE"
 
-  auto-approve-dependabot:
-    needs: [requirements]
-    if: |-
-      vars.DEPENDABOT_AUTOMERGE == 'true' &&
-      github.actor == 'dependabot[bot]' &&
-      (startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/'))
-    runs-on: ubuntu-latest
-
-    steps:
       - name: "Approve"
+        if: startsWith(github.head_ref, 'dependabot/github_actions/') || startsWith(github.head_ref, 'dependabot/npm_and_yarn/')
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
