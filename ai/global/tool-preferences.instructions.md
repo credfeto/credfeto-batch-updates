@@ -30,3 +30,18 @@ them, whether via Bash or a built-in tool:
 
 The pre-execution deny hooks are the backstop for this rule, not the first line of defence: a denied
 search means the command was written wrongly, not that the hook is over-strict.
+
+## Prefer `cfwf` or a Local Clone Over Fetching GitHub URLs (MANDATORY)
+
+When looking up content that lives on GitHub - a file, PR, issue, diff, commit, release, or repo
+metadata - do not fetch a `github.com`, `raw.githubusercontent.com`, or other `*.githubusercontent.com`
+URL (e.g. via `WebFetch`). Instead:
+
+- If the repo is already cloned locally, read the file directly (e.g. the `Read`/`Glob`/`Grep` tools)
+  rather than going over the network at all.
+- Otherwise, use the `cfwf` MCP tool or `cfwf` command that covers it (`cfwf pr view`, `cfwf pr diff`,
+  `cfwf issue view`, `cfwf repo view`, `cfwf release view`, etc.); see
+  [github-cli.instructions.md](github-cli.instructions.md) for exact syntax and proxy handling.
+
+This keeps lookups authenticated, respects the configured API proxy, and avoids relying on
+public URL access the account may not actually have.
