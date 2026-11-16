@@ -1,11 +1,11 @@
 --- # Override Code Dotnet Analysis settings
 # Maintain in repo: funfair-server-template
-name: 'Override Code Dotnet Analysis settings'
-description: 'Override Code Dotnet Analysis settings'
+name: "Override Code Dotnet Analysis settings"
+description: "Override Code Dotnet Analysis settings"
 inputs:
   # GENERAL
   release:
-    description: 'Is this a release build'
+    description: "Is this a release build"
     required: true
 
 runs:
@@ -23,7 +23,12 @@ runs:
       with:
         working-directory: "${{github.workspace}}/src"
         tool-name: "code-analysis"
-        tool-arguments: "globalconfig --ruleset \"${{github.workspace}}/.globalconfig\" --changes \"${{github.workspace}}/src/pre-release.rule-settings.json\""
+        tool-arguments: |
+          globalconfig
+          --ruleset
+          ${{github.workspace}}/.globalconfig
+          --changes
+          ${{github.workspace}}/src/pre-release.rule-settings.json
 
     - name: "Dotnet: Override code analysis settings (Release)"
       if: inputs.release == 'true'
@@ -31,4 +36,9 @@ runs:
       with:
         working-directory: "${{github.workspace}}/src"
         tool-name: "code-analysis"
-        tool-arguments: "globalconfig --ruleset \"${{github.workspace}}/.globalconfig\" --changes \"${{github.workspace}}/src/release.rule-settings.json\""
+        tool-arguments: |
+          globalconfig
+          --ruleset
+          ${{github.workspace}}/.globalconfig
+          --changes
+          ${{github.workspace}}/src/release.rule-settings.json
