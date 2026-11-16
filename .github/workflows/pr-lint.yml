@@ -12,18 +12,18 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: true
 
 env:
-  HEAD_REF: ${{github.head_ref}}
-  BASE_REF: ${{github.base_ref}}
+  HEAD_REF: "${{github.head_ref}}"
+  BASE_REF: "${{github.base_ref}}"
 
 jobs:
   repo-info:
     runs-on: ubuntu-latest
     outputs:
-      is_template: ${{steps.visibility.outputs.is_template}}
+      is_template: "${{steps.visibility.outputs.is-template}}"
     steps:
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -103,7 +103,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -121,7 +121,7 @@ jobs:
         uses: ./.github/actions/check-repo-visibility
 
       - name: "Diff Changes"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is-template != 'true')
         shell: bash
         run: |
           diff_output=$(git diff --exit-code --no-patch --merge-base "origin/${BASE_REF}" CHANGELOG.md 2>&1) && diff_exit=0 || diff_exit=$?
@@ -131,21 +131,23 @@ jobs:
               echo "CHANGES=${diff_exit}" >> "$GITHUB_ENV"
               ;;
             *)
-              echo "::error::git diff against origin/${BASE_REF} failed (exit ${diff_exit}): ${diff_output}"
+              echo "::error::git diff against origin/${BASE_REF//[$'\r\n']/ } failed (exit ${diff_exit}): ${diff_output//[$'\r\n']/ }"
               exit "${diff_exit}"
               ;;
           esac
 
       - name: "Report unchanged"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true') && env.CHANGES == '0'
+        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is-template != 'true') && env.CHANGES == '0'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
-            core.setFailed('Changelog has not changed')
+            core.setFailed('❌ Changelog has not changed')
 
+  # @@required: merge
   change-log-entry-is-in-unreleased:
-    if: github.event.pull_request.draft == false
-    # As LibGit2Sharp doesn't work on 20.04
+    if: |-
+      github.event.pull_request.draft == false &&
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: "Initialise Workspace"
@@ -157,7 +159,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -170,42 +172,230 @@ jobs:
 
       - name: "Check repo visibility"
         id: visibility
-        if: github.actor != 'dependabot[bot]'
         uses: ./.github/actions/check-repo-visibility
 
       - name: "Check Required Secrets"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is-template != 'true'
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Install dotnet"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is-template != 'true'
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
           nuget-additional-restore-feed-release: ""
           nuget-additional-restore-feed-prerelease: ""
 
       - name: "Install Changelog tool"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is-template != 'true'
         uses: ./.github/actions/dotnet-tool
         with:
           tool-name: "Credfeto.ChangeLog.Cmd"
           tool-version: "latest"
 
       - name: "Check Changelog"
-        if: (github.actor != 'dependabot[bot]' && steps.visibility.outputs.is_template != 'true')
+        if: steps.visibility.outputs.is-template != 'true'
         uses: ./.github/actions/dotnet-tool-run
         with:
-          working-directory: ${{github.workspace}}
+          working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --check-insert \"origin/${{github.base_ref}}\""
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --check-insert
+            origin/${{github.base_ref}}
+          untrusted-output: "true"
+
+  # @@required: merge
+  changelog-template-unreleased-is-empty:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check repo visibility"
+        id: visibility
+        uses: ./.github/actions/check-repo-visibility
+
+      - name: "Check Required Secrets"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Install dotnet"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/dotnet-install
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
+
+      - name: "Install Changelog tool"
+        if: steps.visibility.outputs.is-template == 'true'
+        uses: ./.github/actions/dotnet-tool
+        with:
+          tool-name: "Credfeto.ChangeLog.Cmd"
+          tool-version: "latest"
+
+      - name: "Check Unreleased is headings only"
+        if: steps.visibility.outputs.is-template == 'true'
+        shell: bash
+        run: |
+          # Untrusted text is printed between stop-commands markers so it cannot issue workflow commands.
+          print_untrusted() {
+            local token
+            token=$(head -c 32 /dev/urandom | base64 -w0 | tr -dc 'A-Za-z0-9')
+            echo "::stop-commands::$token"
+            printf '%s\n' "$1"
+            echo "::$token::"
+          }
+
+          output=$(timeout 10m dotnet tool run --allow-roll-forward changelog --changelog "$CHANGELOG_FILE" --un-released 2>"$CHANGELOG_STDERR_FILE") || {
+            print_untrusted "$output"$'\n'"$(cat "$CHANGELOG_STDERR_FILE")"
+            echo "::error::❌ Changelog tool failed to read the [Unreleased] section"
+            exit 1
+          }
+
+          if ! grep -qxF 'Unreleased Content:' <<< "$output"; then
+            print_untrusted "$output"
+            echo "::error::❌ Changelog tool output has no 'Unreleased Content:' line"
+            exit 1
+          fi
+
+          content=$(sed '0,/^Unreleased Content:$/d' <<< "$output" | grep -v '^[[:space:]]*$' || true)
+          if [ -n "$content" ]; then
+            print_untrusted "$content"
+            echo "::error::❌ Template changelog [Unreleased] section must contain headings only"
+            exit 1
+          fi
+
+          echo "✅ Template changelog [Unreleased] section contains headings only"
+        env:
+          CHANGELOG_FILE: "${{github.workspace}}/CHANGELOG.md"
+          CHANGELOG_STDERR_FILE: "${{runner.temp}}/changelog-unreleased-stderr.txt"
+          TMP: "${{runner.temp}}"
+
+  # @@required: merge
+  changelog-has-no-placeholders:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check Required Secrets"
+        uses: ./.github/actions/check-required-secret
+        with:
+          secret-name: "SOURCE_PUSH_TOKEN"
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
+
+      - name: "Install dotnet"
+        uses: ./.github/actions/dotnet-install
+        with:
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: ""
+          nuget-additional-restore-feed-prerelease-cache: ""
+          nuget-additional-restore-feed-release: ""
+          nuget-additional-restore-feed-prerelease: ""
+
+      - name: "Install Changelog tool"
+        uses: ./.github/actions/dotnet-tool
+        with:
+          tool-name: "Credfeto.ChangeLog.Cmd"
+          tool-version: "latest"
+
+      - name: "Check Unreleased has no placeholders"
+        shell: bash
+        run: |
+          # Untrusted text is printed between stop-commands markers so it cannot issue workflow commands.
+          print_untrusted() {
+            local token
+            token=$(head -c 32 /dev/urandom | base64 -w0 | tr -dc 'A-Za-z0-9')
+            echo "::stop-commands::$token"
+            printf '%s\n' "$1"
+            echo "::$token::"
+          }
+
+          output=$(timeout 10m dotnet tool run --allow-roll-forward changelog --changelog "$CHANGELOG_FILE" --un-released 2>"$CHANGELOG_STDERR_FILE") || {
+            print_untrusted "$output"$'\n'"$(cat "$CHANGELOG_STDERR_FILE")"
+            echo "::error::❌ Changelog tool failed to read the [Unreleased] section"
+            exit 1
+          }
+
+          if ! grep -qxF 'Unreleased Content:' <<< "$output"; then
+            print_untrusted "$output"
+            echo "::error::❌ Changelog tool output has no 'Unreleased Content:' line"
+            exit 1
+          fi
+
+          # A bullet (-, *, +, 1. or 1)) whose first word is TBD, optionally wrapped in emphasis, backticks, brackets or parentheses.
+          bullet_tbd="^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]*[*_\`[(]*TBD[]*_\`)]*([^[:alnum:]_]|\$)"
+          # A bullet that is only TODO or WIP (same wrappers), or that word followed by ':' or ' - ', so real entries such as
+          # 'TODO list support' or 'WIP-limit setting' are not placeholders.
+          bullet_todo_wip="^[[:space:]]*([-*+]|[0-9]+[.)])[[:space:]]*[*_\`[(]*(TODO|WIP)[]*_\`)]*([[:space:]]*\$|:| - )"
+          finalize_tbd='TBD - to be finalized after review'
+          placeholders=$(sed '0,/^Unreleased Content:$/d' <<< "$output" | grep -iE -e "$bullet_tbd" -e "$bullet_todo_wip" -e "$finalize_tbd" || true)
+          if [ -n "$placeholders" ]; then
+            print_untrusted "$placeholders"
+            echo "::error::❌ Contains placeholder content"
+            exit 1
+          fi
+
+          echo "✅ Changelog [Unreleased] section contains no placeholder content"
+        env:
+          CHANGELOG_FILE: "${{github.workspace}}/CHANGELOG.md"
+          CHANGELOG_STDERR_FILE: "${{runner.temp}}/changelog-unreleased-stderr.txt"
+          TMP: "${{runner.temp}}"
 
   # @@required: merge
   does-not-contain-secrets:
@@ -221,7 +411,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -233,17 +423,13 @@ jobs:
           fetch-depth: 0
 
       - name: "Check for leaks"
-        uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb # v3.99.8
         id: trufflehog
+        uses: trufflesecurity/trufflehog@3bd2b5887eb0efb8fa18bfd1d296032924e4ffdc # v3.99.9
         with:
-          path: "${{ github.workspace }}"
-          base: "${{ github.event.repository.default_branch }}"
-          head: HEAD
-          extra_args: --debug --only-verified
-
-      - name: "Scan Results Status"
-        if: steps.trufflehog.outcome == 'failure'
-        run: exit 1
+          path: "${{github.workspace}}"
+          base: "${{github.event.repository.default_branch}}"
+          head: "HEAD"
+          extra_args: "--debug --only-verified"
 
   # @@required: merge
   has-no-merge-conflicts:
@@ -259,7 +445,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -287,7 +473,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -315,7 +501,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -328,6 +514,8 @@ jobs:
 
       - name: "Check for ignored files"
         uses: ./.github/actions/check-no-ignored-files
+        with:
+          extra-excluded-files: "${{endsWith(github.repository, 'global-pre-commit') && '.pre-commit-config.yaml' || ''}}"
 
   # @@required: merge
   no-prohibited-files:
@@ -343,7 +531,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -356,6 +544,35 @@ jobs:
 
       - name: "Check for prohibited files"
         uses: ./.github/actions/check-no-prohibited-files
+
+  # @@required: merge
+  no-expressions-in-scripts:
+    # Check that no workflow expression is used inside a run: or script: body
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Initialise Workspace"
+        if: runner.environment == 'self-hosted'
+        shell: bash
+        run: sudo chown -R "$USER:$USER" "$GITHUB_WORKSPACE"
+
+      - name: "Set Active Environment"
+        shell: bash
+        run: |
+          {
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
+            echo "ACTIVE_HOSTNAME=$HOSTNAME"
+            echo "ACTIVE_USER=$USER"
+          } >> "$GITHUB_ENV"
+
+      - name: "Checkout Source"
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          clean: true
+          fetch-depth: 1
+
+      - name: "Check for expressions in scripts"
+        uses: ./.github/actions/check-no-expressions-in-scripts
 
   # @@required: merge
   dependency-review:
@@ -372,7 +589,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -384,13 +601,14 @@ jobs:
           fetch-depth: 1
 
       - name: "Check repo visibility"
-        uses: ./.github/actions/check-repo-visibility
         id: visibility
+        uses: ./.github/actions/check-repo-visibility
 
       - name: "Dependency Review"
-        if: steps.visibility.outputs.is_public == 'true'
+        if: steps.visibility.outputs.is-public == 'true'
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
+  # @@required: merge
   no-merge-commits:
     # Check that there are no merge commits in the PR
     if: github.event.pull_request.draft == false
@@ -408,7 +626,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -422,6 +640,7 @@ jobs:
       - name: "Check for merge commits"
         uses: ./.github/actions/check-no-merge-commits
 
+  # @@required: merge
   valid-changelog:
     if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
@@ -435,7 +654,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -450,14 +669,14 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Install dotnet"
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
           nuget-additional-restore-feed-release: ""
@@ -472,9 +691,13 @@ jobs:
       - name: "Check Changelog"
         uses: ./.github/actions/dotnet-tool-run
         with:
-          working-directory: ${{github.workspace}}
+          working-directory: "${{github.workspace}}"
           tool-name: "changelog"
-          tool-arguments: "--changelog \"${{github.workspace}}/CHANGELOG.md\" --lint"
+          tool-arguments: |
+            --changelog
+            ${{github.workspace}}/CHANGELOG.md
+            --lint
+          untrusted-output: "true"
 
   # @@required: main
   lint-code:
@@ -492,7 +715,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -507,41 +730,17 @@ jobs:
         uses: ./.github/actions/check-required-secret
         with:
           secret-name: "SOURCE_PUSH_TOKEN"
-          secret-value: ${{secrets.SOURCE_PUSH_TOKEN}}
+          secret-value: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Run Linter"
-        uses: super-linter/super-linter@2da136927bd4a73596db63044b504547c62cb854 # v9.0.0
-        env:
-          CLOUDFORMATION_CONFIG_FILE: .cfnlintrc.yaml
-          DEFAULT_BRANCH: main
-          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
-          GITHUB_ACTIONS_CONFIG_FILE: actionlint.yaml
-          GITHUB_TOKEN: ${{secrets.SOURCE_PUSH_TOKEN}}
-          MULTI_STATUS: true
-          SAVE_SUPER_LINTER_SUMMARY: true
-          SQLFLUFF_CONFIG_FILE: .sqlfluff
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_ANSIBLE: true
-          VALIDATE_BASH: true
-          VALIDATE_CLOUDFORMATION: true
-          VALIDATE_CSS: true
-          VALIDATE_DOCKERFILE: true
-          VALIDATE_DOCKERFILE_HADOLINT: true
-          VALIDATE_ENV: true
-          VALIDATE_GITHUB_ACTIONS: true
-          VALIDATE_JSON: true
-          VALIDATE_MD: true
-          VALIDATE_POWERSHELL: true
-          VALIDATE_PYTHON: true
-          VALIDATE_PYTHON_PYLINT: true
-          VALIDATE_SQLFLUFF: true
-          VALIDATE_TYPESCRIPT_ES: true
-          VALIDATE_XML: true
-          VALIDATE_YAML: true
+        uses: ./.github/actions/super-linter
+        with:
+          mode: "pr"
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
   # @@required: main
   poutine:
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-latest"
     permissions:
       security-events: write
       contents: read
@@ -556,19 +755,20 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: "Check repo visibility"
-        uses: ./.github/actions/check-repo-visibility
         id: visibility
+        uses: ./.github/actions/check-repo-visibility
 
       - name: "Ensure Results folder exists"
-        working-directory: ${{github.workspace}}
+        working-directory: "${{github.workspace}}"
         shell: bash
         run: |
-          [ ! -d "${{github.workspace}}/results" ] && mkdir "${{github.workspace}}/results" || echo "Results created"
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          echo "✅ Results folder ready: $GITHUB_WORKSPACE/results"
 
       - name: "Poutine"
         uses: boostsecurityio/poutine-action@e240ebd3eff8b2db5a8e5f6b28f58739d7db2247 # v1.1.4
         with:
-          format: 'sarif'
+          format: "sarif"
           output: "${{github.workspace}}/results/poutine.sarif"
 
       - name: "Summarise Poutine findings"
@@ -584,4 +784,5 @@ jobs:
         if: always()
         uses: ./.github/actions/sarif
         with:
-          repo-visibility: ${{steps.visibility.outputs.is_public == 'true' && 'public' || 'private'}}
+          repo-visibility: "${{steps.visibility.outputs.is-public == 'true' && 'public' || 'private'}}"
+          repo-fork: "${{steps.visibility.outputs.is-fork}}"
