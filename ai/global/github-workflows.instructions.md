@@ -8,7 +8,7 @@ Classify every `uses:` reference before adding or reviewing:
 
 - **Always allowed**: `actions/*` and `github/*`
 - **Convert to github-script or local action**: all other third-party actions
-- **Acceptable as-is**: actions requiring specialised external tooling not expressible via the GitHub API or bash: see [Cannot Convert](#actions-that-cannot-be-converted)
+- **Acceptable as-is**: actions requiring specialised external tooling not expressible via the GitHub API or bash; see [Cannot Convert](#actions-that-cannot-be-converted)
 
 When encountering existing third-party actions (including `credfeto/*`), replace with local equivalents where practical.
 
@@ -27,6 +27,8 @@ Use `actions/github-script` to replace actions that:
 
 Wrap the `actions/github-script` step in a **local composite action** at `.github/actions/<name>/action.yml`, never inline the script in workflow files.
 
+Always write the script inline in the action's `script:` (or `run:`) block. Never put it in a separate file (`.js`, `.awk`, `.sh` or similar) beside `action.yml` or load it by path, because only `action.yml` is carried to other repos, so a separate script file is missing there and the action fails.
+
 The local action must:
 
 - Mirror inputs and outputs of the replaced action so callers only change the `uses:` line
@@ -40,11 +42,11 @@ See [github-workflows.examples.md](github-workflows.examples.md) for the composi
 
 ## Simple Bash Replacements
 
-Replace these with a bash step; no `github-script` needed:
+Replace these with a bash step; no `github-script` needed. Each runs under the mandatory `shell: bash` (see [Step Field Ordering](#step-field-ordering)), which sets `-eo pipefail`, so a git failure fails the step. A pipeline that lists offending files exits 0 even when it finds some, so a check built on one must capture its output and fail the step when it is non-empty: `[ -z "$out" ] || { printf '%s\n' "$out"; exit 1; }`. For other per-file loops over git file lists, use the forms in [Git File Lists](shell-scripts.instructions.md#git-file-lists):
 
-- **Merge conflict markers**: `git grep -rl '^<<<<<<< ' --`; fails if any file contains conflict markers
-- **Case sensitivity conflicts**: `git ls-files | sort -f | awk 'BEGIN{prev=""} tolower($0)==tolower(prev){print prev; print $0} {prev=$0}'`
-- **Tracked files matching `.gitignore`**: `git ls-files -i --exclude-standard`
+- **Merge conflict markers**: `rc=0; git grep -l -e '^<<<<<<< ' -e '^>>>>>>> ' -- || rc=$?; [ "$rc" -eq 1 ]`; passes only when `git grep` exits 1 (no match), so found markers (exit 0, files listed) or a git error (exit above 1) fail the step. `=======` is left out because it also matches Markdown and reStructuredText heading underlines
+- **Case sensitivity conflicts**: `out=$(git ls-files -z | LC_ALL=C sort -zf | LC_ALL=C uniq -zDi | tr '\0' '\n')`, then the check above; lists all names that differ only by the case of ASCII letters; `LC_ALL=C` folds ASCII letters only, so it misses names that differ only by the case of a non-ASCII letter (`É`/`é`), which also clash on case-insensitive file systems; when tracked names may be non-ASCII, use a `github-script` step instead that reads the list with `git ls-files -z`, splits it with `split('\0').filter(Boolean)` and compares `toLowerCase()` names, because without `-z` git quotes and escapes non-ASCII names so they never compare equal; see [File Names and Git File Lists](git.instructions.md#file-names-and-git-file-lists-mandatory)
+- **Tracked files matching `.gitignore`**: `out=$(git ls-files -z --cached -i --exclude-standard | tr '\0' '\n')`, then the check above; `-i` needs `--cached` (git rejects `-i` alone)
 - **Dotnet SDK version from global.json**: `jq -r '.sdk.version' src/global.json`; set `DOTNET_VERSION`; fall back to a default if absent
 
 Keep step names consistent with the original so PR history is legible.
@@ -56,9 +58,11 @@ Do not replace these; specialised tooling required:
 - **Docker toolchain**: `docker/build-push-action`, `docker/login-action`, `docker/setup-buildx-action`, `docker/setup-qemu-action`
 - **AWS credential management**: `aws-actions/configure-aws-credentials`
 - **Git operations** (rebase, auto-commit): `stefanzweifel/git-auto-commit-action`, `bbeesley/gha-auto-dependabot-rebase`
-- **Security scanning**: `trufflesecurity/trufflehog`, `aquasecurity/trivy-action`
+- **Security scanning**: `trufflesecurity/trufflehog`, `aquasecurity/trivy-action`, `anchore/sbom-action`
 - **Multi-language linting**: `super-linter/super-linter`
 - **Complex config-driven label sync**: `crazy-max/ghaction-github-labeler`
+
+`anchore/sbom-action` is allowlisted as the specialised tooling for Syft-based SBOM generation: verified publisher (Anchore, Inc.), actively maintained, and the canonical purpose-built SBOM tool. A hand-rolled `curl`-based Syft binary install is not an acceptable substitute: it has no retry logic and fails transiently. `anchore/scan-action` (Grype-based vulnerability scanning) is deliberately **not** allowlisted: it duplicates `aquasecurity/trivy-action`'s already-allowlisted vulnerability-scanning role, with no demonstrated need for a second scanner or Grype's separate vulnerability feed; revisit if a concrete need emerges.
 
 ## Version Pinning
 
@@ -75,17 +79,17 @@ Wrong (either form): `@latest`, `@v6`, branch refs
 
 This preference is opportunistic: switch a `uses:` line to SHA pinning when you are already touching that line for another reason; it is not a mandate to mass-migrate every workflow in one pass.
 
-Resolve a tag to its commit SHA with `gh api repos/<owner>/<action>/commits/<tag> --jq '.sha'`.
+Resolve a tag to its commit SHA with `cfwf tag view --repo <owner>/<action> --tag <tag>`.
 
-When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate: see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
+When a merge or rebase produces conflicting pins for the same action (or for runtime versions such as `setup-node`/`setup-dotnet` versions), take the latest secure candidate; see [git-rebasing.instructions.md](git-rebasing.instructions.md#resolving-version-conflicts-when-merging-or-rebasing).
 
 ## Keeping Actions Up to Date
 
 Whenever you add or modify a `uses:` reference, check all actions in that file are on the latest released version:
 
-1. For each `uses:`, run `gh api repos/<owner>/<action>/releases/latest --jq '.tag_name'`.
-2. If behind, update in the same commit: for a SHA-pinned action, resolve the new tag to its commit SHA (see above) and update both the SHA and the trailing version comment; for a tag-pinned action, update the tag directly.
-3. Never leave a file with a mix of updated and stale versions after touching it.
+- **P1.** For each `uses:`, run `cfwf release view --repo <owner>/<action>` and read its tag.
+- **P2.** If behind, update in the same commit: for a SHA-pinned action, resolve the new tag to its commit SHA (see above) and update both the SHA and the trailing version comment; for a tag-pinned action, update the tag directly.
+- **P3.** Never leave a file with a mix of updated and stale versions after touching it.
 
 ## Handling Node.js Deprecation Warnings
 
@@ -95,14 +99,14 @@ When reviewing a PR run and you see a message similar to:
 
 Take the following steps:
 
-1. **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
-2. **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
-3. **Find the minimum compliant version**: enumerate candidate releases with `gh api --paginate repos/<owner>/<action>/releases --jq '.[].tag_name'` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
-4. **Raise an issue in the repo that owns the workflow file**, with:
-   - **Title**: `chore: update <action> to a Node.js 24 compatible version`
-   - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
-   - **Body**: include the current version, the minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
-5. Do **not** silently ignore the warning or defer it; raise the issue even if no compliant version is available yet (note that in the issue body).
+- **P1.** **Identify the action** named in the warning (e.g. `azure/sql-action@v2.3`).
+- **P2.** **Locate the workflow file** that references it; it could live in `funfair-tech/funfair-server-template`, `credfeto/cs-template`, or the current repo. Search `.github/workflows/` in each.
+- **P3.** **Find the minimum compliant version**: enumerate candidate releases with `cfwf release list --repo <owner>/<action>` (or browse the action's releases), then inspect tagged `action.yml`/`action.yaml` `runs.using` values to confirm the earliest release that ships a Node.js 24 runtime.
+- **P4.** **Raise an issue in the repo that owns the workflow file**, with:
+  - **Title**: `chore: update <action> to a Node.js 24 compatible version`, unless the owning repo's local title rule says otherwise, which takes precedence (see [Issue Titles](github-cli.instructions.md#issue-titles-mandatory))
+  - **Labels**: `AI-Work`, `dependencies`, `github-actions`, `High`
+  - **Body**: include the current version, the minimum compliant version (if one exists), a link to the upstream release, and the deprecation deadline.
+- **P5.** Do **not** silently ignore the warning or defer it; raise the issue even if no compliant version is available yet (note that in the issue body).
 
 ## Bash Steps vs github-script
 
@@ -179,7 +183,7 @@ Use this consistent field order; omit fields not needed. `name:` is always first
 
 ## Step Output Formatting
 
-> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗`: see [shell-scripts.instructions.md](shell-scripts.instructions.md#output-helpers).
+> Applies to **GitHub Actions workflow steps only**. Standalone shell scripts use ANSI-coloured `✓`/`✗`; see [shell-scripts.instructions.md](shell-scripts.instructions.md#output-helpers).
 
 | State | Character | Usage |
 | --- | --- | --- |
@@ -207,8 +211,8 @@ Use `core.notice` for values a human would want to see first: build version, dep
 
 Remove a step only if **both** are true:
 
-1. Its output is never referenced by any subsequent step or job output.
-2. It has no meaningful side effect: does not configure the environment, install tools, run a check that can fail the job, or produce an artifact.
+- Its output is never referenced by any subsequent step or job output.
+- It has no meaningful side effect: does not configure the environment, install tools, run a check that can fail the job, or produce an artifact.
 
 Steps with side effects are never dead:
 
@@ -242,7 +246,7 @@ Use the minimum depth and tag fetching the job requires:
 
 ## Collapsing Multi-Step Groups
 
-Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20–30 lines with no reuse value, collapsing is preferable.
+Before extracting into a composite action, consider collapsing into a **single `actions/github-script` step**. If the logic fits in 20 to 30 lines with no reuse value, collapsing is preferable.
 
 Collapse when:
 
