@@ -1,13 +1,13 @@
 --- # Build and deploy packages
 # Maintain in repo: funfair-server-template
-name: 'Publish to Sleet'
-description: 'Publishes Nuget packages with sleet'
+name: "Publish to Sleet"
+description: "Publishes Nuget packages with sleet"
 inputs:
   sleet-config:
-    description: 'Sleet config file'
+    description: "Sleet config file"
     required: false
   sleet-feed:
-    description: 'Sleet feed to push packages to'
+    description: "Sleet feed to push packages to"
     required: false
 
 runs:
@@ -29,14 +29,20 @@ runs:
       id: sleet-config
       uses: ./.github/actions/save-secret-as-file
       with:
-        secret: ${{inputs.sleet-config}}
+        secret: "${{inputs.sleet-config}}"
 
     - name: "Sleet: Publish Packages to Nuget (Using Sleet)"
       uses: ./.github/actions/dotnet-tool-run
       with:
         working-directory: "${{github.workspace}}"
         tool-name: "sleet"
-        tool-arguments: "push \"${{github.workspace}}/dist\" --config \"${{steps.sleet-config.outputs.file}}\" --source \"${{inputs.sleet-feed}}\""
+        tool-arguments: |
+          push
+          ${{github.workspace}}/dist
+          --config
+          ${{steps.sleet-config.outputs.file}}
+          --source
+          ${{inputs.sleet-feed}}
 
     - name: "Sleet: Clean Up Sleet Config"
       if: always()
