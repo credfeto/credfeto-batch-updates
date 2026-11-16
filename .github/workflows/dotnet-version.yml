@@ -13,7 +13,7 @@ on:
     - cron: "0 1 * * *"
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
       contents: read
 
     outputs:
-      is_template: ${{steps.visibility.outputs.is_template}}
+      is_template: "${{steps.visibility.outputs.is-template}}"
 
     steps:
       - name: "Initialise Workspace"
@@ -36,7 +36,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -63,10 +63,12 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "${SOURCE_PUSH_TOKEN}" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -77,7 +79,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+            echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
             echo "ACTIVE_HOSTNAME=$HOSTNAME"
             echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -87,32 +89,32 @@ jobs:
         with:
           clean: true
           fetch-depth: 0
-          token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           persist-credentials: true
 
       - name: "Install dotnet"
         if: runner.environment == 'self-hosted'
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
-          nuget-public-restore-feed-cache: ${{vars.NUGET_BAGET_CACHE}}
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
-          nuget-additional-restore-feed-release-cache: ${{vars.RELEASE_BAGET_CACHE}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
+          nuget-public-restore-feed-cache: "${{vars.NUGET_BAGET_CACHE}}"
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
+          nuget-additional-restore-feed-release-cache: "${{vars.RELEASE_BAGET_CACHE}}"
           nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
+          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
           nuget-additional-restore-feed-prerelease: ""
 
       - name: "Install dotnet"
         if: runner.environment != 'self-hosted'
         uses: ./.github/actions/dotnet-install
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           nuget-public-restore-feed-cache: ""
-          nuget-public-restore-feed: ${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}
+          nuget-public-restore-feed: "${{vars.NUGET_PUBLIC_RESTORE_FEED || 'https://api.nuget.org/v3/index.json'}}"
           nuget-additional-restore-feed-release-cache: ""
           nuget-additional-restore-feed-prerelease-cache: ""
-          nuget-additional-restore-feed-release: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}
-          nuget-additional-restore-feed-prerelease: ${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}
+          nuget-additional-restore-feed-release: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_RELEASE}}"
+          nuget-additional-restore-feed-prerelease: "${{vars.NUGET_ADDITIONAL_RESTORE_FEED_PRERELEASE}}"
 
       - name: "Get latest available dotnet version"
         id: latest-dotnet-version
@@ -133,34 +135,83 @@ jobs:
               | sort_by(."channel-version" | split(".") | map(tonumber))
               | last
               | ."latest-sdk"
-            ')
+            ') || {
+            echo "::error::Failed to download releases-index.json or read the latest active .NET SDK version from it"
+            exit 1
+          }
           if [[ -z "$LATEST" || "$LATEST" == "null" ]]; then
             echo "::error::Failed to determine latest active .NET SDK version from releases-index.json"
             exit 1
           fi
-          echo "Latest available SDK: $LATEST (current: $DOTNET_VERSION)"
-          echo "LATEST_RELEASE_VERSION=$LATEST" >> "$GITHUB_OUTPUT"
+          CURRENT_VER=$(jq -re '.sdk.version' src/global.json) || {
+            echo "::error::Failed to read sdk.version from src/global.json (file missing, invalid JSON, or sdk.version missing or null)"
+            exit 1
+          }
+          case "$CURRENT_VER" in
+            *$'\n'*|*$'\r'*) echo "::error::src/global.json sdk.version must not contain newlines"; exit 1;;
+          esac
+          echo "Latest available SDK: ${LATEST//[$'\r\n']/ } (current: $CURRENT_VER)"
+          if [[ ! "$LATEST" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+([.-][0-9A-Za-z]+)*)?$ ]]; then
+            echo "::error::Latest SDK version from releases-index.json must be MAJOR.MINOR.PATCH[-PRERELEASE]"
+            exit 1
+          fi
+          {
+            echo "LATEST_RELEASE_VERSION=$LATEST"
+            echo "CURRENT_VERSION=$CURRENT_VER"
+          } >> "$GITHUB_OUTPUT"
 
       - name: "Check if Latest is newer than the current defined"
         id: upgrade_check
         shell: bash
         run: |
-          CURRENT_VER="${{env.DOTNET_VERSION}}"
-          LATEST_RELEASE_VER="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          echo "Current: $CURRENT_VER, Latest: $LATEST_RELEASE_VER"
-          HIGHEST=$(printf '%s\n' "$CURRENT_VER" "$LATEST_RELEASE_VER" | sort -V | tail -1)
-          if [[ "$CURRENT_VER" != "$LATEST_RELEASE_VER" && "$HIGHEST" == "$LATEST_RELEASE_VER" ]]; then
+          export LC_ALL=C
+          # semver precedence: sort -V ranks a prerelease (11.0.100-rc.3) above its release (11.0.100)
+          semver_gt() {
+            local a="$1" b="$2" a_core b_core a_pre="" b_pre="" x y i
+            local -a ap bp
+            a_core="${a%%-*}"
+            b_core="${b%%-*}"
+            [[ "$a" == *-* ]] && a_pre="${a#*-}"
+            [[ "$b" == *-* ]] && b_pre="${b#*-}"
+            if [[ "$a_core" != "$b_core" ]]; then
+              [[ "$(printf '%s\n' "$a_core" "$b_core" | sort -V | tail -1)" == "$a_core" ]]
+              return
+            fi
+            [[ "$a_pre" == "$b_pre" ]] && return 1
+            [[ -z "$a_pre" ]] && return 0
+            [[ -z "$b_pre" ]] && return 1
+            IFS='.' read -ra ap <<< "$a_pre"
+            IFS='.' read -ra bp <<< "$b_pre"
+            for ((i = 0; i < ${#ap[@]} && i < ${#bp[@]}; i++)); do
+              x="${ap[i]}"
+              y="${bp[i]}"
+              [[ "$x" == "$y" ]] && continue
+              if [[ "$x" =~ ^[0-9]+$ && "$y" =~ ^[0-9]+$ ]]; then
+                if ((10#$x > 10#$y)); then return 0; else return 1; fi
+              fi
+              [[ "$x" =~ ^[0-9]+$ ]] && return 1
+              [[ "$y" =~ ^[0-9]+$ ]] && return 0
+              if [[ "$x" > "$y" ]]; then return 0; else return 1; fi
+            done
+            if ((${#ap[@]} > ${#bp[@]})); then return 0; else return 1; fi
+          }
+          echo "Current: $CURRENT_VERSION, Latest: $LATEST_RELEASE_VERSION"
+          if semver_gt "$LATEST_RELEASE_VERSION" "$CURRENT_VERSION"; then
             echo "NEW_VERSION=true" >> "$GITHUB_OUTPUT"
           else
             echo "NEW_VERSION=false" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          CURRENT_VERSION: "${{steps.latest-dotnet-version.outputs.CURRENT_VERSION}}"
+          LATEST_RELEASE_VERSION: "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
 
       - name: "Update global.json"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
         shell: bash
         run: |
-          VERSION="${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          jq --arg ver "$VERSION" '.sdk.version = $ver' src/global.json > src/global.json.tmp && mv src/global.json.tmp src/global.json
+          jq --arg ver "$LATEST_RELEASE_VERSION" '.sdk.version = $ver' src/global.json > src/global.json.tmp && mv src/global.json.tmp src/global.json
+        env:
+          LATEST_RELEASE_VERSION: "${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
 
       - name: "Commit changes to new branch"
         if: steps.upgrade_check.outputs.NEW_VERSION == 'true'
@@ -168,7 +219,7 @@ jobs:
         with:
           commit_message: "SDK - Update DotNet SDK to ${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
           branch: "depends/dotnet/${{steps.latest-dotnet-version.outputs.LATEST_RELEASE_VERSION}}"
-          file_pattern: src/global.json
+          file_pattern: "src/global.json"
           commit_user_name: "fun-version[bot]"
           commit_user_email: "credfeto@users.noreply.github.com"
           commit_author: "fun-version[bot] <credfeto@users.noreply.github.com>"
