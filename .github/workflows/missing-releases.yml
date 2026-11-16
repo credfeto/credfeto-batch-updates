@@ -12,7 +12,7 @@ on:
     - cron: "0 1 * * *"
 
 concurrency:
-  group: ${{github.workflow}}-${{github.ref}}
+  group: "${{github.workflow}}-${{github.ref}}"
   cancel-in-progress: false
 
 permissions:
@@ -26,10 +26,12 @@ jobs:
       - name: "Check Required Secrets"
         shell: bash
         run: |
-          if [ -z "${{secrets.SOURCE_PUSH_TOKEN}}" ]; then
+          if [ -z "$SOURCE_PUSH_TOKEN" ]; then
             echo "::error::SOURCE_PUSH_TOKEN is required but not set"
             exit 1
           fi
+        env:
+          SOURCE_PUSH_TOKEN: "${{secrets.SOURCE_PUSH_TOKEN}}"
 
       - name: "Initialise Workspace"
         if: runner.environment == 'self-hosted'
@@ -40,7 +42,7 @@ jobs:
         shell: bash
         run: |
           {
-          echo "ACTIVE_RUNNER_NAME=${{runner.name}}"
+          echo "ACTIVE_RUNNER_NAME=$RUNNER_NAME"
           echo "ACTIVE_HOSTNAME=$HOSTNAME"
           echo "ACTIVE_USER=$USER"
           } >> "$GITHUB_ENV"
@@ -48,7 +50,7 @@ jobs:
       - name: "Check for missing releases"
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{secrets.SOURCE_PUSH_TOKEN}}
+          github-token: "${{secrets.SOURCE_PUSH_TOKEN}}"
           script: |
             const releaseBranches = await github.paginate(github.rest.git.listMatchingRefs, {
               owner: context.repo.owner,
