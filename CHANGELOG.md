@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Host egress lockdown (`firewall/configure`, run by hand once and kept current by `updater-firewall-sync.timer`, separate from `./update`): firewalld policies limit what the host and the updater containers may connect to, with CDN-fronted destinations kept in ipsets refreshed every 10 minutes and GitHub/Cloudflare ranges refreshed daily by the new `Repo: Update egress ranges` workflow. Observation mode (log unmatched traffic, drop nothing) until `UPDATER_FIREWALL_ENFORCE=true`
 ### Added
 ### Fixed
 - Fixed stale ssh key ownership on host-provisioned directories that blocked git clones after pinning the updater user's uid/gid

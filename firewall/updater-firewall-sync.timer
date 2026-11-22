@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically re-apply the dev-upgrader host firewall from the checkout
+
+[Timer]
+OnBootSec=5min
+OnCalendar=*:0/15
+RandomizedDelaySec=2min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

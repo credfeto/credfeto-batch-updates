@@ -1,0 +1,8 @@
+[Unit]
+Description=Re-apply the dev-upgrader host firewall when its config changed
+Wants=network-online.target
+After=network-online.target firewalld.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/updater-firewall-sync
