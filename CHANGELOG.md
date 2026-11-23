@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Firewall: the reverse proxies' DMZ VLAN addresses (`192.168.140.250`, `192.168.140.251`, `2a02:8010:61d5:140::250`, `2a02:8010:61d5:140::251`) are allowed alongside their Servers VLAN addresses, so proxy-01/proxy-02 can move to the DMZ one at a time without losing access
 - Host egress lockdown (`firewall/configure`, run by hand once and kept current by `updater-firewall-sync.timer`, separate from `./update`): firewalld policies limit what the host and the updater containers may connect to, with CDN-fronted destinations kept in ipsets refreshed every 10 minutes and GitHub/Cloudflare ranges refreshed daily by the new `Repo: Update egress ranges` workflow. Observation mode (log unmatched traffic, drop nothing) until `UPDATER_FIREWALL_ENFORCE=true`
 ### Added
 ### Fixed
