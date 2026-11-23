@@ -13,6 +13,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 - Host egress lockdown (`firewall/configure`, run by hand once and kept current by `updater-firewall-sync.timer`, separate from `./update`): firewalld policies limit what the host and the updater containers may connect to, with CDN-fronted destinations kept in ipsets refreshed every 10 minutes and GitHub/Cloudflare ranges refreshed daily by the new `Repo: Update egress ranges` workflow. Observation mode (log unmatched traffic, drop nothing) until `UPDATER_FIREWALL_ENFORCE=true`
 ### Added
 ### Fixed
+- The host egress firewall is now one nftables table (`inet upd_egress`) loaded atomically by `firewall/egress`, instead of firewalld policies and ipsets: the 10-minute refresh reloaded firewalld, and a firewalld killed mid-reload (by the OOM killer) left its block-everything table in place and cut the host off. `firewall/configure` removes the old policies and ipsets with one last reload
 - Fixed stale ssh key ownership on host-provisioned directories that blocked git clones after pinning the updater user's uid/gid
 - optimise-git now reports failed git steps and exits non-zero, instead of reporting the optimisation as completed; the remaining repositories are still processed
 - optimise-git no longer skips repositories whose paths merely contain the text cache; only repositories inside a .cache directory are excluded

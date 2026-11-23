@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Keeps the dev-upgrader host's firewall in step with the checkout, like
-# sync-zones on the DNS servers: refreshes the egress ipsets and re-runs
+# sync-zones on the DNS servers: refreshes the egress table and re-runs
 # ./configure when anything under firewall/ changed since the commit
 # ./configure last applied (for example the daily egress-ranges commit). It
 # does not pull: ../update already keeps the checkout current every five
@@ -24,8 +24,8 @@ REPO_DIR="$(git -C "${SCRIPT_DIR}" rev-parse --show-toplevel)"
 APPLIED_HEAD_FILE="/var/lib/credfeto-batch-updates/firewall-applied-head"
 FIREWALL_PATH="firewall"
 
-if [ -x /usr/local/bin/updater-refresh-egress-ipsets ]; then
-    /usr/local/bin/updater-refresh-egress-ipsets || echo "firewall-sync: warning: egress ipset refresh failed" >&2
+if [ -x /usr/local/bin/updater-egress ]; then
+    /usr/local/bin/updater-egress || echo "firewall-sync: warning: egress refresh failed" >&2
 fi
 
 HEAD="$(git -C "${REPO_DIR}" rev-parse HEAD)"
