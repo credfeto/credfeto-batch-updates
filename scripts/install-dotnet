@@ -206,7 +206,7 @@ get_latest_dotnet_sdk_version() {
        -L \
        -f \
        --user-agent "$USER_AGENT" \
-       https://dotnetcli.blob.core.windows.net/dotnet/release-metadata/releases-index.json |
+       "$DOTNET_PROXY_HOST/dotnet/release-metadata/releases-index.json" |
     jq --arg v "$DOTNET_CHANNEL_VERSION" -r '
             ."releases-index"
             | map(select(."channel-version" | contains($v)))
