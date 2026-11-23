@@ -98,5 +98,12 @@ ENV RELEASE="$$RELEASE"
 # the container's own writable layer on the host root filesystem (issue:
 # inode exhaustion on dev-upgrader-01 from leaked restore-probe temp dirs).
 ENV TMPDIR=/local/work/tmp
+# No phoning home: the .NET CLI sends usage telemetry to Azure Application Insights on every
+# command, and the AWS SDK credential chain probes the cloud instance-metadata endpoint
+# (169.254.169.254), which does not exist here.
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_NOLOGO=1
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+ENV AWS_EC2_METADATA_DISABLED=true
 
 HEALTHCHECK --interval=5s --timeout=2s --retries=3 --start-period=60s CMD [ "/usr/src/app/healthcheck" ]

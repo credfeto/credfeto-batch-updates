@@ -10,6 +10,7 @@ Please ADD ALL Changes to the UNRELEASED SECTION and not a specific release
 
 ## [Unreleased]
 ### Security
+- Updater images (cleanup, dependencies, packages, templates) set DOTNET_CLI_TELEMETRY_OPTOUT, DOTNET_NOLOGO, DOTNET_SKIP_FIRST_TIME_EXPERIENCE and AWS_EC2_METADATA_DISABLED, so the .NET CLI no longer sends usage telemetry to Azure Application Insights and SDK credential chains stop probing the cloud metadata endpoint; the host egress table rejects 169.254.169.254 immediately instead of letting probes time out
 - Firewall: the reverse proxies' DMZ VLAN addresses (`192.168.140.250`, `192.168.140.251`, `2a02:8010:61d5:140::250`, `2a02:8010:61d5:140::251`) are allowed alongside their Servers VLAN addresses, so proxy-01/proxy-02 can move to the DMZ one at a time without losing access
 - Host egress lockdown (`firewall/configure`, run by hand once and kept current by `updater-firewall-sync.timer`, separate from `./update`): firewalld policies limit what the host and the updater containers may connect to, with CDN-fronted destinations kept in ipsets refreshed every 10 minutes and GitHub/Cloudflare ranges refreshed daily by the new `Repo: Update egress ranges` workflow. Observation mode (log unmatched traffic, drop nothing) until `UPDATER_FIREWALL_ENFORCE=true`
 ### Added

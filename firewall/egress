@@ -71,6 +71,14 @@ RANGES = {
     "cfnet": "cloudflare-egress-ranges",
 }
 
+# Cloud instance-metadata endpoint: there is none here, but SDK credential chains
+# (AWS, Azure) probe it. Reject straight away rather than letting the probe wait
+# for a dropped packet to time out; it is never logged as unmatched.
+METADATA_REJECT = [
+    "ip daddr 169.254.169.254 meta l4proto tcp reject with tcp reset",
+    "ip daddr 169.254.169.254 reject",
+]
+
 HOST_HTTPS_SETS = ["github", "ghnet", "cfnet", "chaotic", "pkgstats", "archwkd", "ghcr", "ghcrpkg", "dhreg", "dhauth", "dhcdn"]
 CONTAINER_HTTPS_SETS = ["github", "ghnet", "cfnet", "ghcr", "ghcrpkg", "nuget", "dotnet"]
 CONTAINER_SSH_SETS = ["github", "ghnet"]
@@ -234,7 +242,7 @@ def render(sets, enforce):
     host_allows += addr_rules(PROXIES + FASTLY, "tcp dport 443")
     host_allows += addr_rules(LOGS, "tcp dport 9428")
     host_allows += set_rules(HOST_HTTPS_SETS, sets, "tcp dport 443")
-    out += chain("host_out", "output", ['oifname "lo" accept'], host_allows, f"{PREFIX}-unmatched", enforce)
+    out += chain("host_out", "output", ['oifname "lo" accept'] + METADATA_REJECT, host_allows, f"{PREFIX}-unmatched", enforce)
 
     # Only traffic from the Docker bridges to somewhere else; everything else
     # in the forward hook is left to firewalld.
@@ -242,7 +250,7 @@ def render(sets, enforce):
         'iifname != "docker0" iifname != "br-*" accept',
         'oifname "docker0" accept',
         'oifname "br-*" accept',
-    ]
+    ] + METADATA_REJECT
     container_allows = addr_rules(DNS, dns)
     # Dev package caches (NuGet, npm, dotnet) behind the proxies.
     container_allows += addr_rules(PROXIES + FASTLY, "tcp dport 443")
